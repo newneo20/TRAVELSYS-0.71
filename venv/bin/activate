@@ -38,7 +38,7 @@ deactivate () {
 # unset irrelevant variables
 deactivate nondestructive
 
-VIRTUAL_ENV="/Users/carlos_rios/Desktop/TRAVELSYS-0.22/venv"
+VIRTUAL_ENV="/Users/carlos_rios/Desktop/TRAVELSYS-0.71/venv"
 export VIRTUAL_ENV
 
 _OLD_VIRTUAL_PATH="$PATH"

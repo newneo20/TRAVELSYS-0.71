@@ -1,4 +1,4 @@
-#!/Users/carlos_rios/Desktop/TRAVELSYS-0.22/venv/bin/python3.11
+#!/Users/carlos_rios/Desktop/TRAVELSYS-0.71/venv/bin/python3.11
 
 import sys
 import json

@@ -33,7 +33,7 @@ end
 # Unset irrelevant variables.
 deactivate nondestructive
 
-set -gx VIRTUAL_ENV "/Users/carlos_rios/Desktop/TRAVELSYS-0.22/venv"
+set -gx VIRTUAL_ENV "/Users/carlos_rios/Desktop/TRAVELSYS-0.71/venv"
 
 set -gx _OLD_VIRTUAL_PATH $PATH
 set -gx PATH "$VIRTUAL_ENV/bin" $PATH
