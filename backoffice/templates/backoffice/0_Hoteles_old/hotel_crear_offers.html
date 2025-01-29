@@ -1,0 +1,101 @@
+{% block content %}
+
+
+<div class="card">
+    <form method="post" enctype="multipart/form-data" class="row g-3" action="{% url 'guardar_oferta' hotel.id %}">
+        {% csrf_token %}
+        <div class="card-body">                
+            <div class="row">
+                <div class="col-md-2">
+                    <label for="info_oferta" class="form-label"><strong>Informacion de la Oferta</strong></label>
+                </div>   
+                <div class="col-md-10 form-check">
+                    <input class="form-check-input" type="checkbox" value="" id="Disponible" name="disponible">
+                    <label class="form-check-label" for="Disponible">
+                        Disponible
+                    </label>
+                </div>
+                <div class="col-md-4">
+                    <label for="codigo_oferta" class="form-label"><strong>Codigo</strong></label>
+                    <input type="text" class="form-control" id="codigo_oferta" name="codigo_oferta" required>
+                </div>
+                <div class="col-md-4">
+                    <label for="tipoHabitacion_oferta" class="form-label"><strong>Tipo de Habitación</strong></label>
+                    <select class="form-select" id="tipoHabitacion_oferta" name="tipoHabitacion_oferta" required>
+                        <option value="">Seleccione Tipo</option>
+                        {% for habitacion in habitaciones %}
+                            <option value="{{ habitacion.id }}">{{ habitacion.tipo }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="col-md-4">
+                    <label for="disponibilidad" class="form-label"><strong>Disponibilidad</strong></label>
+                    <input type="text" class="form-control" id="disponibilidad" name="disponibilidad" required>
+                </div>
+
+                <div class="col-md-6">
+                    <div>
+                        <label for="viajar_desde" class="form-label"><strong>Viaja desde</strong></label>
+                        <input type="text" class="form-control" id="viajar_desde" name="viajar_desde">
+                        <script>
+                            $(function() {
+                                $('input[name="viajar_desde"]').daterangepicker({
+                                    startDate: moment(),
+                                    endDate: moment(),
+                                    locale: {
+                                        format: 'YYYY-MM-DD'
+                                    }
+                                });
+                            });
+                        </script>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div>
+                        <label for="reserva_desde" class="form-label"><strong>Reserva desde</strong></label>
+                        <input type="text" class="form-control" id="reserva_desde" name="reserva_desde">                            
+                        <script>
+                            $(function() {
+                                $('input[name="reserva_desde"]').daterangepicker({
+                                    startDate: moment(),
+                                    endDate: moment(),
+                                    locale: {
+                                        format: 'YYYY-MM-DD'
+                                    }
+                                });
+                            });
+                        </script>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <label for="sencilla_oferta" class="form-label"><strong>Sencilla</strong></label>
+                    <input type="text" class="form-control" id="sencilla_oferta" name="sencilla_oferta" required>
+                </div>
+                <div class="col-md-4">
+                    <label for="doble_oferta" class="form-label"><strong>Doble</strong></label>
+                    <input type="text" class="form-control" id="doble_oferta" name="doble_oferta" required>
+                </div>
+                <div class="col-md-4">
+                    <label for="triple_oferta" class="form-label"><strong>Triple</strong></label>
+                    <input type="text" class="form-control" id="triple_oferta" name="triple_oferta" required>
+                </div>                  
+                <div class="col-md-12 mt-3">
+                    <button type="submit" class="btn btn-primary">Guardar Oferta</button>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+<script>
+    $(document).ready(function() {
+        // Inicializa Select2 en el elemento específico
+        $('#tipoHabitacion_oferta').select2({
+            theme: 'bootstrap4' // Asegura que el tema de Bootstrap 4 está aplicado
+        });
+    });
+</script>
+{% endblock %}

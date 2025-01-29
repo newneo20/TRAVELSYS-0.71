@@ -1,0 +1,106 @@
+{% extends 'base.html' %}
+
+{% load custom_filters %}
+
+{% block title %}Listar Traslados{% endblock %}
+
+{% block content %}
+
+<div class="card">
+    <div class="card-body">
+        <div class="row">
+            <h1>Lista de Traslados</h1>
+
+            <div class="col-md-2">
+                <a href="{% url 'backoffice:crear_traslado' %}" class="btn btn-outline-primary mb-3">
+                    Crear Traslado
+                </a>
+            </div>
+
+            <div class="col-md-10">
+                <form method="GET" action="">
+                    <div class="input-group mb-3">
+                        <input type="text" class="form-control" placeholder="Buscar por: Transportista, Origen o Destino" name="q" value="{{ query }}">
+                        <button class="btn btn-outline-secondary" type="submit">Buscar</button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="table-container">
+                <table class="table table-hover table-bordered">
+                    <thead class="table-dark">
+                        <tr>
+                            <th class="text-center align-middle">Transportista</th>
+                            <th class="text-center align-middle">Origen</th>
+                            <th class="text-center align-middle">Destino</th>
+                            <th class="text-center align-middle">Vehículo</th>
+                            <th class="text-center align-middle">Costo</th>
+                            <th class="text-center align-middle">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for traslado in traslados %}
+                        <tr>
+                            <td class="text-center align-middle">{{ traslado.transportista.nombre }}</td>
+                            <td class="text-center align-middle">{{ traslado.origen.nombre }}</td>
+                            <td class="text-center align-middle">{{ traslado.destino.nombre }}</td>
+                            <td class="text-center align-middle">{{ traslado.vehiculo.tipo }}</td>
+                            <td class="text-center align-middle">${{ traslado.costo }}</td>
+                            <td class="text-center align-middle">
+                                <a href="{% url 'backoffice:editar_traslado' traslado.pk %}" class="btn btn-outline-warning" title="Editar traslado">
+                                    <i class="fas fa-pencil-alt"></i>
+                                </a>
+                                <a href="{% url 'backoffice:eliminar_traslado' traslado.pk %}" class="btn btn-outline-danger" title="Eliminar traslado">
+                                    <i class="fas fa-trash-alt"></i>
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Paginador -->
+            <nav aria-label="Page navigation example">
+                <ul class="pagination justify-content-center">
+                    {% if traslados.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page=1{% if query %}&q={{ query }}{% endif %}" aria-label="First">
+                            <span aria-hidden="true">&laquo;&laquo;</span>
+                        </a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ traslados.previous_page_number }}{% if query %}&q={{ query }}{% endif %}" aria-label="Previous">
+                            <span aria-hidden="true">&laquo;</span>
+                        </a>
+                    </li>
+                    {% endif %}
+
+                    {% for num in traslados.paginator.page_range %}
+                        {% if traslados.number == num %}
+                            <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+                        {% elif num > traslados.number|add:'-5' and num < traslados.number|add:'5' %}
+                            <li class="page-item"><a class="page-link" href="?page={{ num }}{% if query %}&q={{ query }}{% endif %}">{{ num }}</a></li>
+                        {% endif %}
+                    {% endfor %}
+
+                    {% if traslados.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ traslados.next_page_number }}{% if query %}&q={{ query }}{% endif %}" aria-label="Next">
+                            <span aria-hidden="true">&raquo;</span>
+                        </a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ traslados.paginator.num_pages }}{% if query %}&q={{ query }}{% endif %}" aria-label="Last">
+                            <span aria-hidden="true">&raquo;&raquo;</span>
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+

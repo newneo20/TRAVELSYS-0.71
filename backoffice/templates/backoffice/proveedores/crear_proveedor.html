@@ -1,0 +1,117 @@
+<!-- proveedores/templates/proveedores/crear_proveedor.html -->
+{% extends 'base.html' %}
+
+{% load static %}
+
+{% block title %}Crear Proveedor{% endblock %}
+
+{% block content %}
+
+<!-- Incluir el archivo de estilos CSS -->
+<link rel="stylesheet" href="{% static 'backoffice/css/formularios_crear.css' %}">
+
+<div class="form-container">
+    <h1 class="form-title">Crear Proveedor</h1>
+    <form class="needs-validation" method="post" novalidate>
+        {% csrf_token %}
+        <div class="row">
+            <div class="col-md-6 form-group">
+                <label for="nombre" class="form-label">Nombre</label>
+                <input type="text" class="form-control" id="nombre" name="nombre" required>
+                <div class="invalid-feedback">
+                    Por favor, proporciona el nombre del proveedor.
+                </div>
+            </div>
+            <div class="col-md-6 form-group">
+                <label for="telefono" class="form-label">Teléfono</label>
+                <input type="text" class="form-control" id="telefono" name="telefono" required>
+                <div class="invalid-feedback">
+                    Por favor, proporciona un número de teléfono.
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-4 form-group">
+                <label for="correo1" class="form-label">Correo 1</label>
+                <input type="email" class="form-control" id="correo1" name="correo1">
+                <div class="invalid-feedback">
+                    Por favor, proporciona un correo electrónico válido.
+                </div>
+            </div>
+            <div class="col-md-4 form-group">
+                <label for="correo2" class="form-label">Correo 2</label>
+                <input type="email" class="form-control" id="correo2" name="correo2">
+                <div class="invalid-feedback">
+                    Por favor, proporciona un correo electrónico válido.
+                </div>
+            </div>
+            <div class="col-md-4 form-group">
+                <label for="correo3" class="form-label">Correo 3</label>
+                <input type="email" class="form-control" id="correo3" name="correo3">
+                <div class="invalid-feedback">
+                    Por favor, proporciona un correo electrónico válido.
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6 form-group">
+                <label for="direccion" class="form-label">Dirección</label>
+                <input type="text" class="form-control" id="direccion" name="direccion">
+                <div class="invalid-feedback">
+                    Por favor, proporciona una dirección.
+                </div>
+            </div>
+            <div class="col-md-6 form-group">
+                <label for="detalles_cuenta_bancaria" class="form-label">Detalles de Cuenta Bancaria</label>
+                <textarea class="form-control" id="detalles_cuenta_bancaria" name="detalles_cuenta_bancaria"></textarea>
+                <div class="invalid-feedback">
+                    Proporciona los detalles de la cuenta bancaria.
+                </div>
+            </div>
+        </div>
+
+        <!-- Selección múltiple para los servicios -->
+        <div class="row">
+            <div class="col-md-12 form-group">
+                <label for="servicios" class="form-label">Servicios Ofrecidos</label>
+                <select id="servicios" name="servicios" class="form-select" multiple required>
+                    {% for servicio in servicios %}
+                        <option value="{{ servicio.id }}">{{ servicio.nombre }}</option>
+                    {% endfor %}
+                </select>
+                <small class="form-text text-muted">Seleccione uno o más servicios que ofrece el proveedor.</small>
+                <div class="invalid-feedback">
+                    Por favor, selecciona al menos un servicio.
+                </div>
+            </div>
+        </div>
+
+        <div class="text-center mt-4">
+            <button type="submit" class="btn btn-primary btn-submit">Guardar</button>
+        </div>
+    </form>
+</div>
+
+<script>
+    (function () {
+        'use strict'
+
+        var forms = document.querySelectorAll('.needs-validation');
+
+        Array.prototype.slice.call(forms)
+            .forEach(function (form) {
+                form.addEventListener('submit', function (event) {
+                    if (!form.checkValidity()) {
+                        event.preventDefault();
+                        event.stopPropagation();
+                    }
+
+                    form.classList.add('was-validated');
+                }, false);
+            });
+    })();
+</script>
+
+{% endblock %}

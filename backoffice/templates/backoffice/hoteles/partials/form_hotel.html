@@ -1,0 +1,163 @@
+{% load static %}
+
+<style>
+    /* Estilos personalizados para mejorar el aspecto de la imagen */
+    .custom-image-style {
+        border-radius: 15px; /* Bordes redondeados */
+        border: 2px solid #dee2e6; /* Borde gris claro */
+        box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.15); /* Sombra suave */
+    }
+</style>
+
+<!-- templates/partials/form_hotel.html -->
+<div class="tab-pane fade show active" id="hotel" role="tabpanel" aria-labelledby="hotel-tab">
+    <form id="hotelForm" class="mt-4 needs-validation" method="POST" enctype="multipart/form-data" action="{% if hotel %}{% url 'backoffice:editar_hotel' hotel.id %}{% else %}{% url 'backoffice:crear_hotel' %}{% endif %}" novalidate>
+        {% csrf_token %}
+        <input type="hidden" name="form_type" value="hotel">
+        <div class="row g-3">
+            <div class="col-md-6">
+                <label for="hotel_nombre" class="form-label">Nombre del Hotel</label>
+                <input type="text" class="form-control" id="hotel_nombre" name="hotel_nombre" value="{{ hotel.hotel_nombre|default_if_none:'' }}" required>
+                <div class="invalid-feedback">Por favor, proporciona el nombre del hotel.</div>
+            </div>
+            <div class="col-md-3">
+                <label for="polo_turistico" class="form-label">Polo Turístico</label>
+                <select class="form-select" id="polo_turistico" name="polo_turistico" required>
+                    <option value="">Seleccione un polo turístico</option>
+                    {% for polo in polos_turisticos %}
+                        <option value="{{ polo.id }}" {% if hotel and hotel.polo_turistico_id == polo.id %}selected{% endif %}>{{ polo.nombre }}</option>
+                    {% endfor %}
+                </select>
+                <div class="invalid-feedback">Por favor, selecciona un polo turístico.</div>
+            </div>
+            
+            <div class="col-md-3">
+                <label for="cadena_hotelera" class="form-label">Cadena Hotelera</label>
+                <select class="form-select" id="cadena_hotelera" name="cadena_hotelera" required>
+                    <option value="">Seleccione una cadena hotelera</option>
+                    {% for cadena in cadenas_hoteleras %}
+                        <option value="{{ cadena.id }}" {% if hotel and hotel.cadena_hotelera_id == cadena.id %}selected{% endif %}>{{ cadena.nombre }}</option>
+                    {% endfor %}
+                </select>
+                <div class="invalid-feedback">Por favor, selecciona una cadena hotelera.</div>
+            </div>
+
+            <div class="col-md-3">
+                <label for="proveedor" class="form-label">Proveedor</label>
+                <select class="form-select" id="proveedor" name="proveedor" required>
+                    <option value="">Seleccione un proveedor</option>
+                    {% for proveedor in proveedores %}
+                        <option value="{{ proveedor.id }}" {% if hotel and hotel.proveedor_id == proveedor.id %}selected{% endif %}>{{ proveedor.nombre }}</option>
+                    {% endfor %}
+                </select>
+                <div class="invalid-feedback">Por favor, selecciona un proveedor.</div>
+            </div>
+            
+            <div class="col-md-2">
+                <label for="fee" class="form-label">Fee</label>
+                <input type="text" class="form-control" id="fee" name="fee" value="{{ hotel.fee|default_if_none:'' }}" required>
+                <div class="invalid-feedback">Por favor, proporciona un valor de fee.</div>
+            </div>
+
+            <div class="col-md-2">
+                <label for="tipo_fee" class="form-label">Tipo de Fee</label>
+                <select class="form-select" id="tipo_fee" name="tipo_fee" required>
+                    <option value="">Seleccione un tipo</option>
+                    <option value="porcentaje" {% if hotel and hotel.tipo_fee == 'porcentaje' %}selected{% endif %}>Porcentaje</option>
+                    <option value="fijo" {% if hotel and hotel.tipo_fee == 'fijo' %}selected{% endif %}>Fijo</option>
+                </select>
+                <div class="invalid-feedback">Por favor, selecciona un tipo de fee.</div>
+            </div>
+
+            <div class="col-md-2">
+                <label for="plan_alimenticio" class="form-label">Plan Alimenticio</label>
+                <input type="text" class="form-control" id="plan_alimenticio" name="plan_alimenticio" value="{{ hotel.plan_alimenticio|default_if_none:'' }}" required>
+                <div class="invalid-feedback">Por favor, proporciona el plan alimenticio.</div>
+            </div>
+
+            <div class="col-12">
+                <label for="descripcion_hotel" class="form-label">Descripción</label>
+                <textarea class="form-control" id="descripcion_hotel" name="descripcion_hotel" rows="3" required>{{ hotel.descripcion_hotel|default_if_none:'' }}</textarea>
+                <div class="invalid-feedback">Por favor, proporciona una descripción.</div>
+            </div>
+
+            <div class="col-12">
+                <label for="direccion" class="form-label">Dirección</label>
+                <input type="text" class="form-control" id="direccion" name="direccion" value="{{ hotel.direccion|default_if_none:'' }}" required>
+                <div class="invalid-feedback">Por favor, proporciona una dirección.</div>
+            </div>
+
+            <div class="col-md-2">
+                <label for="checkin" class="form-label">Check-in (Hora)</label>
+                <input type="time" class="form-control" id="checkin" name="checkin" value="{{ hotel.checkin|default_if_none:'' }}" required>
+                <div class="invalid-feedback">Por favor, proporciona la hora de check-in.</div>
+            </div>
+
+            <div class="col-md-2">
+                <label for="checkout" class="form-label">Check-out (Hora)</label>
+                <input type="time" class="form-control" id="checkout" name="checkout" value="{{ hotel.checkout|default_if_none:'' }}" required>
+                <div class="invalid-feedback">Por favor, proporciona la hora de check-out.</div>
+            </div>
+
+            <div class="col-md-2">
+                <label for="orden" class="form-label">Orden</label>
+                <input type="number" class="form-control" id="orden" name="orden" value="{{ hotel.orden|default_if_none:'' }}" required>
+                <div class="invalid-feedback">Por favor, proporciona un valor para el orden.</div>
+            </div>
+
+            <div class="col-md-2">
+                <label for="categoria" class="form-label">Categoría</label>
+                <input type="number" class="form-control" id="categoria" name="categoria" value="{{ hotel.categoria|default_if_none:'' }}" required>
+                <div class="invalid-feedback">Por favor, proporciona una categoría.</div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="solo_adultos" name="solo_adultos" {% if hotel and hotel.solo_adultos %}checked{% endif %}>
+                    <label class="form-check-label" for="solo_adultos">Solo Adultos</label>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <label for="foto_hotel" class="form-label">Foto del Hotel</label>
+                
+                <!-- Vista previa de la imagen existente -->
+                {% if hotel.foto_hotel %}
+                    <div class="mb-3">
+                        <img src="{% static 'backoffice/fotos_hoteles/' %}{{ hotel.foto_hotel }}" 
+                            alt="Foto del Hotel" 
+                            class="img-fluid custom-image-style" 
+                            style="max-height: 200px;">
+                    </div>
+                {% endif %}
+
+            
+                <input type="file" class="form-control" id="foto_hotel" name="foto_hotel" accept="image/*">
+                <div class="invalid-feedback">Por favor, proporciona una foto del hotel.</div>
+            </div>
+            
+        </div>
+        <button type="submit" class="btn btn-primary mt-4">
+            <i class="fas fa-save me-2"></i>Guardar Hotel
+        </button>
+    </form>
+</div>
+
+<script>
+    // Script para la validación de formulario de Bootstrap
+    (function() {
+      'use strict';
+      // Fetch all the forms we want to apply custom Bootstrap validation styles to
+      var forms = document.querySelectorAll('.needs-validation');
+      // Loop over them and prevent submission
+      Array.prototype.slice.call(forms).forEach(function(form) {
+        form.addEventListener('submit', function(event) {
+          if (!form.checkValidity()) {
+            event.preventDefault();
+            event.stopPropagation();
+          }
+          form.classList.add('was-validated');
+        }, false);
+      });
+    })();
+</script>

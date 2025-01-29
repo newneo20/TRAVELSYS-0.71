@@ -1,0 +1,103 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="card">
+    <div class="card-body">
+        <div class="row">
+            <h1>Lista de Ofertas Especiales</h1>
+            <div class="col-md-2">
+                <a href="{% url 'backoffice:crear_oferta_especial' %}" class="btn btn-outline-primary mb-3">
+                    Crear Oferta Especial
+                </a>
+            </div>
+            <div class="col-md-10">
+                <form method="GET" action="">
+                    <div class="input-group mb-3">
+                        <input type="text" class="form-control" placeholder="Buscar por: (Código, Nombre)" name="q" value="{{ query }}">
+                        <button class="btn btn-outline-secondary" type="submit">Buscar</button>
+                    </div>
+                </form>
+            </div>
+            
+            <div class="table-container">
+                <table class="table table-hover table-bordered">
+                    <thead class="table-dark">
+                        <tr>
+                            <th class="text-center align-middle">ID</th>
+                            <th class="text-center align-middle">Código</th>
+                            <th class="text-center align-middle">Nombre</th>
+                            <th class="text-center align-middle">Descripción</th>
+                            <th class="text-center align-middle">Tipo</th>
+                            <th class="text-center align-middle">Disponible</th>
+                            <th class="text-center align-middle">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for oferta in ofertas_especiales %}
+                        <tr>
+                            <td class="text-center align-middle">{{ oferta.id }}</td>
+                            <td class="text-center align-middle">{{ oferta.codigo }}</td>
+                            <td class="text-center align-middle">{{ oferta.nombre }}</td>
+                            <td class="text-center align-middle">{{ oferta.descripcion }}</td>
+                            <td class="text-center align-middle">{{ oferta.get_tipo_display }}</td> <!-- Muestra el tipo legible -->
+                            <td class="text-center align-middle">{{ oferta.disponible|yesno:"Sí,No" }}</td>
+                            <td class="text-center align-middle">
+                                <a href="{% url 'backoffice:editar_oferta_especial' oferta.pk %}" class="btn btn-outline-warning">
+                                    <i class="fas fa-pencil-alt"></i>
+                                </a>
+                                <a href="{% url 'backoffice:eliminar_oferta_especial' oferta.pk %}" class="btn btn-outline-danger">
+                                    <i class="fas fa-trash-alt"></i>
+                                </a>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="6" class="text-center">No hay ofertas registradas.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Paginador -->
+            <nav aria-label="Page navigation example">
+                <ul class="pagination justify-content-center">
+                    {% if page_obj.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page=1{% if query %}&q={{ query }}{% endif %}" aria-label="First">
+                            <span aria-hidden="true">&laquo;&laquo;</span>
+                        </a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if query %}&q={{ query }}{% endif %}" aria-label="Previous">
+                            <span aria-hidden="true">&laquo;</span>
+                        </a>
+                    </li>
+                    {% endif %}
+
+                    {% for num in page_obj.paginator.page_range %}
+                        {% if page_obj.number == num %}
+                            <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+                        {% elif num > page_obj.number|add:'-5' and num < page_obj.number|add:'5' %}
+                            <li class="page-item"><a class="page-link" href="?page={{ num }}{% if query %}&q={{ query }}{% endif %}">{{ num }}</a></li>
+                        {% endif %}
+                    {% endfor %}
+
+                    {% if page_obj.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if query %}&q={{ query }}{% endif %}" aria-label="Next">
+                            <span aria-hidden="true">&raquo;</span>
+                        </a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% if query %}&q={{ query }}{% endif %}" aria-label="Last">
+                            <span aria-hidden="true">&raquo;&raquo;</span>
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+    </div>
+</div>
+{% endblock %}

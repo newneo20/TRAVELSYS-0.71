@@ -1,0 +1,55 @@
+/* user_dashboard.css */
+
+/* Ajusta el tamaño del contenedor a un 80% del ancho de la pantalla */
+.dashboard-container {
+  width: 90% !important; /* Se usa !important para dar prioridad */
+  margin: 0 auto !important; /* Centra el contenedor */
+}
+
+/* Mantener el color del texto y eliminar el subrayado en los enlaces */
+a.text-decoration-none {
+  color: inherit !important; /* !important para sobreescribir */
+  text-decoration: none !important; /* Elimina el subrayado */
+}
+
+/* Otros estilos personalizados */
+.offer-card {
+  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1) !important;
+}
+
+.ver-mas-btn {
+  background-color: transparent !important;
+  border: none !important;
+  color: #007bff !important;
+  font-size: 1rem !important;
+  cursor: pointer !important;
+}
+
+.ver-mas-btn i {
+  transition: transform 0.3s ease !important;
+}
+
+.expanded .ver-mas-btn i {
+  transform: rotate(180deg) !important;
+}
+
+.offer-details {
+  display: none !important;
+}
+
+/* Estilo para la tabla de historial de reservas */
+.table-hover tbody tr:hover {
+  background-color: #f8f9fa !important;
+}
+
+.dropdown-menu {
+  min-width: auto !important;
+  font-size: 0.9rem !important;
+}
+
+/* Estilo flotante para el resumen de reservas */
+.resumen-reserva {
+  position: sticky !important;
+  top: 70px !important; /* Espacio desde el borde superior de la ventana */
+  z-index: 100 !important;
+}

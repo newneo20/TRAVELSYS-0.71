@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+
+{% block title %}Listar categorias{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-body">
+        <div class="row">
+            <h1>Lista de Categorías</h1>
+            <div class="col-md-2">
+                <a href="{% url 'backoffice:crear_categoria' %}" class="btn btn-outline-primary mb-3">
+                    Crear Categoría
+                </a>
+            </div>
+            <div class="col-md-10">
+                <form method="GET" action="">
+                    <div class="input-group mb-3">
+                        <input type="text" class="form-control" placeholder="Buscar por: (Nombre, Gasolina, Rentadora)" name="q" value="{{ query }}">
+                        <button class="btn btn-outline-secondary" type="submit">Buscar</button>
+                    </div>
+                </form>
+            </div>
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th class="text-center align-middle">ID</th>
+                        <th class="text-center align-middle">Nombre</th>
+                        <th class="text-center align-middle">Gasolina</th>
+                        <th class="text-center align-middle">Rentadora</th>
+                        <th class="text-center align-middle">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for categoria in categorias %}
+                    <tr>
+                        <td class="text-center align-middle">{{ categoria.id }}</td>
+                        <td class="text-center align-middle">{{ categoria.nombre }}</td>
+                        <td class="text-center align-middle">{{ categoria.gasolina }}</td>
+                        <td class="text-center align-middle">{{ categoria.rentadora.nombre }}</td>
+                        <td class="text-center align-middle">
+                            <a href="{% url 'backoffice:editar_categoria' categoria_id=categoria.id %}" class="btn btn-outline-warning">                            
+                                <i class="fas fa-pencil-alt"></i>
+                            </a>
+                            <a href="{% url 'backoffice:eliminar_categoria' categoria.id %}" class="btn btn-outline-danger">
+                                <i class="fas fa-trash-alt"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+            <!-- Paginador (si es necesario) -->
+            <nav aria-label="Page navigation example">
+                <ul class="pagination justify-content-center">
+                    <!-- Implementación del paginador aquí -->
+                </ul>
+            </nav>
+        </div>
+    </div>
+</div>
+{% endblock %}

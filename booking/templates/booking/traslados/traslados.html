@@ -1,0 +1,635 @@
+{% extends 'booking/base_tabs.html' %}
+
+{% load custom_filters %} {# Para usar slugify #}
+
+<!-- Custom CSS -->
+{% load static %}
+<link rel="stylesheet" type="text/css" href="{% static 'css/traslados.css' %}">
+
+{% block content %}
+<div class="container mt-4">
+    <!-- Card General -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-header">
+            <h3 class="card-title m-0">Reservar Traslado</h3>
+        </div>
+        <div class="card-body">
+            
+            <form id="form-traslado" action="{% url 'booking:guardar_traslado' %}" method="POST" class="needs-validation" novalidate>
+                {% csrf_token %}
+
+                <!-- ============================================== -->
+                <!-- Tarjeta 1: Datos del Traslado (Categoría, Fecha, Horario) -->
+                <!-- ============================================== -->
+                <div class="card bg-light mb-3">
+                    <div class="card-header">
+                        <h5 class="card-title m-0">1. Datos del Traslado</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <div class="col-md-2">
+                                <label for="tipo_traslado" class="form-label"><strong>Tipo de traslado</strong></label>
+                                <select class="form-select" id="tipo_traslado" name="tipo_traslado" required>
+                                    <option value="colectivo">Colectivo</option>
+                                    <option value="privado">Privado</option>
+                                </select>
+                                <div class="valid-feedback">¡Parece correcto!</div>
+                                <div class="invalid-feedback">Por favor, seleccione una categoría.</div>
+                            </div>
+
+                            <div class="col-md-2">
+                                <label for="tramos" class="form-label"><strong>Tramos</strong></label>
+                                <select class="form-select" id="tramos" name="tramos" required>
+                                    <option value="one_way">One Way</option>
+                                    <option value="round_trip">Round Trip</option>
+                                </select>
+                                <div class="valid-feedback">¡Parece correcto!</div>
+                                <div class="invalid-feedback">Por favor, seleccione una categoría.</div>
+                            </div>
+
+                            <div class="col-md-2">
+                                <label for="fecha_ida" class="form-label"><strong>Fecha del Ida</strong></label>
+                                <input type="text" class="form-control datepicker" id="fecha_ida" name="fecha_ida" required>                                
+                                <div class="valid-feedback">¡Parece correcto!</div>
+                                <div class="invalid-feedback">Por favor, seleccione una fecha válida.</div>
+                            </div>
+                            <div class="col-md-2">
+                                <label for="fecha_regreso" class="form-label"><strong>Fecha del Regreso</strong></label>
+                                <input type="text" class="form-control datepicker" id="fecha_regreso" name="fecha_regreso" required>
+                                <div class="valid-feedback">¡Parece correcto!</div>
+                                <div class="invalid-feedback">Por favor, seleccione una fecha válida.</div>
+                            </div>
+
+                            <!-- Botón para abrir el modal de selección de PAX -->
+                            <div class="col-md-2 d-flex flex-column">
+                                <!--
+                                  Muestra como texto inicial lo que venga de request.GET (si existe)
+                                  o un default "1 0 0"
+                                -->
+                                <label for="paxButton" class="form-label text-center"><strong>PAX</strong></label>
+                                <button type="button" 
+                                        class="btn btn-outline-primary" 
+                                        data-bs-toggle="modal" 
+                                        data-bs-target="#paxModal"
+                                        id="paxButton">
+                                    <i class="fas fa-user"></i> {{ request.GET.adultos|default:"1" }} 
+                                    <i class="fas fa-child"></i> {{ request.GET.ninos|default:"0" }} 
+                                    <i class="fas fa-baby"></i> {{ request.GET.infantes|default:"0" }}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- ============================================== -->
+                <!-- Tarjeta 2: Información de Origen y Destino -->
+                <!-- ============================================== -->
+                <div class="card bg-light mb-3">
+                    <div class="card-header">
+                        <h5 class="card-title m-0">2. Información del Traslado</h5>
+                    </div>
+                    <div class="card-body">
+                        <!-- Conjunto 1 (One Way) -->
+                        <div id="conjunto_1">
+                            <div class="row g-3">
+                                <div class="col-md-4">
+                                    <label for="desde" class="form-label"><strong>Lugar de origen</strong></label>
+                                    <select class="form-select" id="desde" name="desde" required>
+                                        <option value="" selected disabled>Seleccione</option>
+                                        <option value="la-habana">Hoteles Habana</option>
+                                        <option value="cayo-santa-maria">Hoteles Cayo Santa Maria - Ensenachos</option>
+                                        <option value="varadero">Hoteles Varadero</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-4">
+                                    <label for="hacia" class="form-label"><strong>Lugar de destino</strong></label>
+                                    <select class="form-select" id="hacia" name="hacia" required>
+                                        <option value="" selected disabled>Seleccione</option>
+                                        <option value="la-habana">Hoteles Habana</option>
+                                        <option value="cayo-santa-maria">Hoteles Cayo Santa Maria - Ensenachos</option>
+                                        <option value="varadero">Hoteles Varadero</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-4">
+                                    <label for="horario" class="form-label"><strong>Horario</strong></label>
+                                    <select class="form-select" id="horario" name="horario" required>
+                                        <option value="" selected disabled>Seleccione horario</option>
+                                    </select>
+                                    <div class="valid-feedback">¡Parece correcto!</div>
+                                    <div class="invalid-feedback">Por favor, seleccione un horario válido.</div>
+                                </div> 
+                                <div class="col-md-4">
+                                    <label for="hotelOrigen" class="form-label"><strong>Hotel de origen</strong></label>
+                                    <select class="form-select" id="hotelOrigen" name="hotel_origen" required>
+                                        <option value="" selected disabled>Seleccione un hotel</option>
+                                        {% for hotel in hoteles %}
+                                            <option 
+                                                value="{{ hotel.id }}"
+                                                data-polo="{{ hotel.polo_turistico.nombre|default_if_none:''|slugify }}"
+                                            >
+                                                {{ hotel.hotel_nombre }}
+                                            </option>
+                                        {% endfor %}
+                                    </select>
+                                    <div class="valid-feedback">¡Parece correcto!</div>
+                                    <div class="invalid-feedback">Por favor, seleccione un hotel de origen.</div>
+                                </div>
+
+                                <div class="col-md-4">
+                                    <label for="hotelDestino" class="form-label"><strong>Hotel de destino</strong></label>
+                                    <select class="form-select" id="hotelDestino" name="hotel_destino" required>
+                                        <option value="" selected disabled>Seleccione un hotel</option>
+                                        {% for hotel in hoteles %}
+                                            <option 
+                                                value="{{ hotel.id }}"
+                                                data-polo="{{ hotel.polo_turistico.nombre|default_if_none:''|slugify }}"
+                                            >
+                                                {{ hotel.hotel_nombre }}
+                                            </option>
+                                        {% endfor %}
+                                    </select>
+                                    <div class="valid-feedback">¡Parece correcto!</div>
+                                    <div class="invalid-feedback">Por favor, seleccione un hotel de destino.</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Conjunto 2 (Round Trip) -->
+                        <div id="conjunto_2">
+                            <div class="row g-3">
+                                <div class="col-md-4">
+                                    <label for="desde_rt" class="form-label"><strong>Lugar de origen (Regreso)</strong></label>
+                                    <select class="form-select" id="desde_rt" name="desde_rt" required>
+                                        <option value="" selected disabled>Seleccione</option>
+                                        <option value="la-habana">Hoteles Habana</option>
+                                        <option value="cayo-santa-maria">Hoteles Cayo Santa Maria - Ensenachos</option>
+                                        <option value="varadero">Hoteles Varadero</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-4">
+                                    <label for="hacia_rt" class="form-label"><strong>Lugar de destino (Regreso)</strong></label>
+                                    <select class="form-select" id="hacia_rt" name="hacia_rt" required>
+                                        <option value="" selected disabled>Seleccione</option>
+                                        <option value="la-habana">Hoteles Habana</option>
+                                        <option value="cayo-santa-maria">Hoteles Cayo Santa Maria - Ensenachos</option>
+                                        <option value="varadero">Hoteles Varadero</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-4">
+                                    <label for="horario_rt" class="form-label"><strong>Horario (Regreso)</strong></label>
+                                    <select class="form-select" id="horario_rt" name="horario_rt" required>
+                                        <option value="" selected disabled>Seleccione horario</option>
+                                    </select>
+                                    <div class="valid-feedback">¡Parece correcto!</div>
+                                    <div class="invalid-feedback">Por favor, seleccione un horario válido.</div>
+                                </div> 
+                                <div class="col-md-4">
+                                    <label for="hotelOrigen_rt" class="form-label"><strong>Hotel de origen (Regreso)</strong></label>
+                                    <select class="form-select" id="hotelOrigen_rt" name="hotel_origen_rt" required>
+                                        <option value="" selected disabled>Seleccione un hotel</option>
+                                        {% for hotel in hoteles %}
+                                            <option 
+                                                value="{{ hotel.id }}"
+                                                data-polo="{{ hotel.polo_turistico.nombre|default_if_none:''|slugify }}"
+                                            >
+                                                {{ hotel.hotel_nombre }}
+                                            </option>
+                                        {% endfor %}
+                                    </select>
+                                    <div class="valid-feedback">¡Parece correcto!</div>
+                                    <div class="invalid-feedback">Por favor, seleccione un hotel de origen.</div>
+                                </div>
+
+                                <div class="col-md-4">
+                                    <label for="hotelDestino_rt" class="form-label"><strong>Hotel de destino (Regreso)</strong></label>
+                                    <select class="form-select" id="hotelDestino_rt" name="hotel_destino_rt" required>
+                                        <option value="" selected disabled>Seleccione un hotel</option>
+                                        {% for hotel in hoteles %}
+                                            <option 
+                                                value="{{ hotel.id }}"
+                                                data-polo="{{ hotel.polo_turistico.nombre|default_if_none:''|slugify }}"
+                                            >
+                                                {{ hotel.hotel_nombre }}
+                                            </option>
+                                        {% endfor %}
+                                    </select>
+                                    <div class="valid-feedback">¡Parece correcto!</div>
+                                    <div class="invalid-feedback">Por favor, seleccione un hotel de destino.</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        
+                        <!-- Polos ocultos (si los necesitas) -->
+                        <input type="hidden" id="poloOrigen" name="polo_origen" readonly>
+                        <input type="hidden" id="poloDestino" name="polo_destino" readonly>
+                        
+                    </div> <!-- card-body -->
+                </div> <!-- card bg-light -->
+                
+                <!-- ======================= -->
+                <!-- Tarjeta 3: Datos del Pasajero -->
+                <!-- ======================= -->
+                <div class="card bg-light mb-3">
+                    <div class="card-header">
+                        <h5 class="card-title m-0">3. Datos del pasajero</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <div class="col-md-5 mb-3">
+                                <label for="nombreX_adultoY" class="form-label"><strong>Nombre(s) y Apellido(s):</strong></label>
+                                <input type="text" class="form-control" id="nombreX_adultoY" 
+                                       name="nombreX_adultoY" placeholder="Como aparece en el pasaporte" required>                                            
+                            </div>
+                            <div class="col-md-2 mb-3">
+                                <label for="fecha_nacimientoX_adultoY" class="form-label"><strong>Fecha de nacimiento:</strong></label>
+                                <input type="text" class="form-control datepicker" id="fecha_nacimientoX_adultoY" 
+                                       name="fecha_nacimientoX_adultoY" placeholder="YYYY/MM/DD" required>                                            
+                            </div>
+                            <div class="col-md-5 mb-3">
+                                <label for="emailX_adultoY" class="form-label"><strong>E-mail:</strong></label>
+                                <input type="email" class="form-control" id="emailX_adultoY" name="emailX_adultoY" required>                                            
+                            </div>
+                        </div>
+                        <div class="row g-3">
+                            <div class="col-md-2 mb-3">
+                                <label for="pasaporteX_adultoY" class="form-label"><strong>Número de pasaporte:</strong></label>
+                                <input type="text" class="form-control" id="pasaporteX_adultoY" 
+                                       name="pasaporteX_adultoY" required>                                            
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <label for="caducidadX_adultoY" class="form-label"><strong>Caducidad del pasaporte:</strong></label>
+                                <input type="text" class="form-control datepicker" id="caducidadX_adultoY" 
+                                       name="caducidadX_adultoY" placeholder="YYYY/MM/DD" required>                                            
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <label for="pais_emisionX_adultoY" class="form-label"><strong>País de emisión:</strong></label>
+                                <select class="form-select" id="pais_emisionX_adultoY" name="pais_emisionX_adultoY" required>
+                                    <option value="" selected disabled>Seleccione un país</option>
+                                    <option value="CUBA">CUBA</option>
+                                    <option value="ESPANA">ESPANA</option>
+                                    <option value="ESTADOS UNIDOS">ESTADOS UNIDOS</option>
+                                    <option value="MEXICO">MEXICO</option>
+                                    <option value="OTRO">OTRO</option>
+                                </select>                                            
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <label for="telefonoX_adultoY" class="form-label"><strong>Teléfono:</strong></label>
+                                <input type="tel" class="form-control" id="telefonoX_adultoY" name="telefonoX_adultoY" required>                                            
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ====================== -->
+                <!-- 4. Campos ocultos PAX  -->
+                <!-- ====================== -->
+                <!-- Estos recogen los valores finales de Adultos/Niños/Infantes para el POST -->
+                <input type="hidden" id="adultosHidden"   name="adultos"   value="{{ request.GET.adultos|default:'2' }}">
+                <input type="hidden" id="ninosHidden"     name="ninos"     value="{{ request.GET.ninos|default:'0' }}">
+                <input type="hidden" id="infantesHidden"  name="infantes"  value="{{ request.GET.infantes|default:'0' }}">
+
+                <!-- Botón final -->
+                <div class="card bg-light">
+                    <div class="card-body text-end">
+                        <button type="submit" class="btn btn-success btn-lg">Reservar Traslado</button>
+                    </div>
+                </div>
+
+            </form>
+        </div> <!-- card-body -->
+    </div> <!-- card -->
+</div> <!-- container -->
+
+
+<!-- ============================ -->
+<!-- Modal para seleccionar PAX -->
+<!-- ============================ -->
+<div class="modal fade" id="paxModal" tabindex="-1" aria-labelledby="paxModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <!-- Encabezado del modal -->
+            <div class="modal-header">
+                <h5 class="modal-title" id="paxModalLabel">Seleccionar PAX</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <!-- Contenido del modal -->
+            <div class="modal-body">
+                <div class="row align-items-start">
+                    <!-- Campo para Adultos -->
+                    <div class="form-group col-md-2">
+                        <label for="adultosSelect">Adultos</label>
+                        <select id="adultosSelect" class="form-select">
+                            <option value="1" {% if request.GET.adultos == "1" or not request.GET.adultos %}selected{% endif %}>1</option>
+                            <option value="2" {% if request.GET.adultos == "2" %}selected{% endif %}>2</option>
+                            <option value="3" {% if request.GET.adultos == "3" %}selected{% endif %}>3</option>
+                            <option value="4" {% if request.GET.adultos == "4" %}selected{% endif %}>4</option>
+                            <option value="5" {% if request.GET.adultos == "5" %}selected{% endif %}>5</option>
+                        </select>
+                    </div>
+                    <!-- Campo para Niños -->
+                    <div class="form-group col-md-2">
+                        <label for="ninosSelect">Niños</label>
+                        <select id="ninosSelect" class="form-select">
+                            <option value="0" {% if request.GET.ninos == "0" or not request.GET.ninos %}selected{% endif %}>0</option>
+                            <option value="1" {% if request.GET.ninos == "1" %}selected{% endif %}>1</option>
+                            <option value="2" {% if request.GET.ninos == "2" %}selected{% endif %}>2</option>
+                            <option value="3" {% if request.GET.ninos == "3" %}selected{% endif %}>3</option>
+                        </select>
+                    </div>
+                    <!-- Campo para Infantes -->
+                    <div class="form-group col-md-2">
+                        <label for="infantesSelect">Infantes</label>
+                        <select id="infantesSelect" class="form-select">
+                            <option value="0" {% if request.GET.infantes == "0" or not request.GET.infantes %}selected{% endif %}>0</option>
+                            <option value="1" {% if request.GET.infantes == "1" %}selected{% endif %}>1</option>
+                            <option value="2" {% if request.GET.infantes == "2" %}selected{% endif %}>2</option>
+                            <option value="3" {% if request.GET.infantes == "3" %}selected{% endif %}>3</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <!-- Footer del modal -->
+            <div class="modal-footer">
+                <!-- Botón para cerrar el modal sin guardar -->
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <!-- Botón para guardar la selección de PAX -->
+                <button type="button" class="btn btn-primary" id="guardarPax">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- ======================================= -->
+<!-- SCRIPTS (manteniendo los tuyos intactos) -->
+<!-- ======================================= -->
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+    
+        // ====== TRAMOS (One Way / Round Trip) ======
+        const tramosSelect = document.getElementById('tramos');
+        const conjunto1 = document.getElementById('conjunto_1');
+        const conjunto2 = document.getElementById('conjunto_2');
+    
+        function actualizarTramos() {
+            if (tramosSelect.value === 'round_trip') {
+                conjunto1.style.display = 'block';
+                conjunto2.style.display = 'block';
+            } else {
+                conjunto1.style.display = 'block';
+                conjunto2.style.display = 'none';
+            }
+        }
+        actualizarTramos();
+        tramosSelect.addEventListener('change', actualizarTramos);
+    
+        // ====== Validación de Bootstrap ======
+        const forms = document.querySelectorAll('.needs-validation');
+        Array.prototype.slice.call(forms).forEach(function (form) {
+            form.addEventListener('submit', function (event) {
+                if (!form.checkValidity()) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                }
+                form.classList.add('was-validated');
+            }, false);
+        });
+    
+        // ====== Horarios fijos ======
+        const HORARIOS_FIJOS = {
+            'la-habana__varadero': '09:00 hrs. HAB–VRO / 15:00 hrs. VRO–HAB',
+            'varadero__la-habana': '09:00 hrs. HAB–VRO / 15:00 hrs. VRO–HAB',
+            'la-habana__cayo-santa-maria': '06:30 hrs. HAB–CSM / 15:00 hrs. CSM–HAB',
+            'cayo-santa-maria__la-habana': '06:30 hrs. HAB–CSM / 15:00 hrs. CSM–HAB',
+            'varadero__cayo-santa-maria': '06:00 hrs. VRO–CSM / 15:00 hrs. CSM–VRO',
+            'cayo-santa-maria__varadero': '06:00 hrs. VRO–CSM / 15:00 hrs. CSM–VRO',
+        };
+    
+        // ====== Tramo de IDA (Selects principales) ======
+        const desdeSelect  = document.getElementById('desde');
+        const haciaSelect  = document.getElementById('hacia');
+        const hotelOrigenSelect = document.getElementById('hotelOrigen');
+        const hotelDestinoSelect = document.getElementById('hotelDestino');
+        const horarioSelect = document.getElementById('horario');
+    
+        // ====== Tramo de REGRESO (Round Trip) ======
+        const desdeRtSelect  = document.getElementById('desde_rt');
+        const haciaRtSelect  = document.getElementById('hacia_rt');
+        const hotelOrigenRtSelect = document.getElementById('hotelOrigen_rt');
+        const hotelDestinoRtSelect = document.getElementById('hotelDestino_rt');
+        const horarioRtSelect = document.getElementById('horario_rt');
+    
+        // ====== Tipo de traslado (Colectivo/Privado) ======
+        const tipo_trasladoSelect = document.getElementById('tipo_traslado');
+    
+        // ====== Polos (si los necesitas) ======
+        const poloOrigenField = document.getElementById('poloOrigen');
+        const poloDestinoField = document.getElementById('poloDestino');
+        // Podrías tener poloOrigenRtField, poloDestinoRtField, etc.
+    
+        // ====== Evitar que "desde" = "hacia" ======
+        desdeSelect.addEventListener('change', () => {
+            if (desdeSelect.value === haciaSelect.value) {
+                haciaSelect.setCustomValidity("El origen y destino no pueden ser iguales.");
+            } else {
+                haciaSelect.setCustomValidity("");
+            }
+            poloOrigenField.value = obtenerPolo(desdeSelect.value);
+            filtrarHoteles(desdeSelect.value, hotelOrigenSelect);
+            actualizarHorario();
+        });
+        haciaSelect.addEventListener('change', () => {
+            if (desdeSelect.value === haciaSelect.value) {
+                haciaSelect.setCustomValidity("El origen y destino no pueden ser iguales.");
+            } else {
+                haciaSelect.setCustomValidity("");
+            }
+            poloDestinoField.value = obtenerPolo(haciaSelect.value);
+            filtrarHoteles(haciaSelect.value, hotelDestinoSelect);
+            actualizarHorario();
+        });
+    
+        // ====== Eventos para Tramo de Regreso ======
+        desdeRtSelect.addEventListener('change', () => {
+            filtrarHoteles(desdeRtSelect.value, hotelOrigenRtSelect);
+            actualizarHorarioRegreso();
+        });
+        haciaRtSelect.addEventListener('change', () => {
+            filtrarHoteles(haciaRtSelect.value, hotelDestinoRtSelect);
+            actualizarHorarioRegreso();
+        });
+    
+        // Cuando cambie la categoría Colectivo/Privado, también actualiza ambos horarios
+        tipo_trasladoSelect.addEventListener('change', () => {
+            actualizarHorario();
+            actualizarHorarioRegreso();
+        });
+    
+        // ====== Funciones de ayuda ======
+        function obtenerPolo(value) {
+            if (value === 'la-habana')       return 'LA HABANA';
+            if (value === 'cayo-santa-maria') return 'CAYO SANTA MARIA y CAYO ENSENACHOS';
+            if (value === 'varadero')        return 'VARADERO';
+            return '';
+        }
+    
+        function filtrarHoteles(selectValue, hotelSelect) {
+            const options = hotelSelect.querySelectorAll('option');
+            options.forEach(option => {
+                if (!option.value) {
+                    option.hidden = false;
+                    return;
+                }
+                const hotelPolo = option.getAttribute('data-polo');
+                const hotelNombre = option.textContent.trim().toUpperCase();
+                let mostrar = false;
+    
+                if (selectValue === 'la-habana' && hotelPolo === 'la-habana') {
+                    // Excluye ATLANTICO y MARAZUL
+                    if (hotelNombre !== 'HOTEL ATLANTICO' && hotelNombre !== 'MARAZUL') {
+                        mostrar = true;
+                    }
+                }
+                else if (selectValue === 'varadero' && hotelPolo === 'varadero') {
+                    mostrar = true;
+                }
+                else if (selectValue === 'cayo-santa-maria' &&
+                        (hotelPolo === 'cayo-santa-maria' || hotelPolo === 'cayo-ensenachos')) {
+                    mostrar = true;
+                }
+                option.hidden = !mostrar;
+                if (!mostrar && option.selected) {
+                    option.selected = false;
+                }
+            });
+        }
+    
+        function obtenerTextoHorario(desde, hacia) {
+            const key = (desde || '').toLowerCase() + '__' + (hacia || '').toLowerCase();
+            if (HORARIOS_FIJOS[key]) {
+                return HORARIOS_FIJOS[key];
+            }
+            return null;
+        }
+    
+        function generarOpcionesPrivado(selectElement) {
+            selectElement.innerHTML = '';
+            const placeholder = new Option('Seleccione horario', '', true, true);
+            placeholder.disabled = true;
+            selectElement.appendChild(placeholder);
+    
+            const startHour = 7;  
+            const endHour   = 19;  
+            for (let h = startHour; h <= endHour; h++) {
+                for (let m of [0, 30]) {
+                    if (h === endHour && m > 0) {
+                        break; 
+                    }
+                    let hh = String(h).padStart(2, '0');
+                    let mm = (m === 0) ? '00' : '30';
+                    let label = `${hh}:${mm}`;
+                    let opt = new Option(label, label);
+                    selectElement.appendChild(opt);
+                }
+            }
+        }
+    
+        // ====== Actualizar el horario de IDA ======
+        function actualizarHorario() {
+            if (tipo_trasladoSelect.value === 'colectivo') {
+                const descHorario = obtenerTextoHorario(desdeSelect.value, haciaSelect.value);
+                horarioSelect.disabled = true;
+                horarioSelect.innerHTML = '';
+                if (descHorario) {
+                    let opt = new Option(descHorario, descHorario, true, true);
+                    horarioSelect.appendChild(opt);
+                } else {
+                    let opt = new Option('No hay horario fijo', '', true, true);
+                    horarioSelect.appendChild(opt);
+                }
+            } else {
+                // Privado
+                horarioSelect.disabled = false;
+                generarOpcionesPrivado(horarioSelect);
+            }
+        }
+    
+        // ====== Actualizar el horario de REGRESO ======
+        function actualizarHorarioRegreso() {
+            if (tipo_trasladoSelect.value === 'colectivo') {
+                const descHorario = obtenerTextoHorario(desdeRtSelect.value, haciaRtSelect.value);
+                horarioRtSelect.disabled = true;
+                horarioRtSelect.innerHTML = '';
+                if (descHorario) {
+                    let opt = new Option(descHorario, descHorario, true, true);
+                    horarioRtSelect.appendChild(opt);
+                } else {
+                    let opt = new Option('No hay horario fijo', '', true, true);
+                    horarioRtSelect.appendChild(opt);
+                }
+            } else {
+                // Privado
+                horarioRtSelect.disabled = false;
+                generarOpcionesPrivado(horarioRtSelect);
+            }
+        }
+    
+        // ====== Llamados iniciales para ida y regreso ======
+        filtrarHoteles(desdeSelect.value, hotelOrigenSelect);
+        filtrarHoteles(haciaSelect.value, hotelDestinoSelect);
+        actualizarHorario();
+    
+        filtrarHoteles(desdeRtSelect.value, hotelOrigenRtSelect);
+        filtrarHoteles(haciaRtSelect.value, hotelDestinoRtSelect);
+        actualizarHorarioRegreso();
+    
+        // ====== Datepickers ======
+        $('input.datepicker').daterangepicker({
+            singleDatePicker: true,
+            showDropdowns: true,
+            minYear: 1924,
+            maxYear: 2034,
+            locale: {
+                format: 'YYYY/MM/DD'
+            }
+        });
+    
+        // ====== Lógica del modal PAX ======
+        const paxButton      = document.getElementById('paxButton');
+        const guardarPaxBtn  = document.getElementById('guardarPax');
+        const adultosSelect  = document.getElementById('adultosSelect');
+        const ninosSelect    = document.getElementById('ninosSelect');
+        const infantesSelect = document.getElementById('infantesSelect');
+        const adultosHidden  = document.getElementById('adultosHidden');
+        const ninosHidden    = document.getElementById('ninosHidden');
+        const infantesHidden = document.getElementById('infantesHidden');
+    
+        guardarPaxBtn.addEventListener('click', function() {
+            // Leer valores del modal
+            const a = adultosSelect.value;
+            const n = ninosSelect.value;
+            const i = infantesSelect.value;
+    
+            // Guardarlos en los inputs hidden
+            adultosHidden.value  = a;
+            ninosHidden.value    = n;
+            infantesHidden.value = i;
+    
+            // Actualizar el texto del botón
+            paxButton.innerHTML = `
+                <i class="fas fa-user"></i> ${a}
+                <i class="fas fa-child"></i> ${n}
+                <i class="fas fa-baby"></i> ${i}
+            `;
+            
+            // Cerrar modal
+            const modalEl = document.getElementById('paxModal');
+            const modalInstance = bootstrap.Modal.getInstance(modalEl);
+            modalInstance.hide();
+        });
+    });
+</script>
+    
+
+{% endblock %}

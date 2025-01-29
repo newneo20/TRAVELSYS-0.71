@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+
+{% block title %}Hotel Tabs{% endblock %}
+
+{% block content %}
+
+    <!-- Nav pills -->
+    <ul class="nav nav-pills">
+        <li class="nav-item">
+            {% if hotel %}
+                <a class="nav-link {% if request.path == '/backoffice/hotel_content/' %}active text-white{% endif %}" href="{% url 'hotel_content' %}">Hotel</a>
+            {% else %}
+                <button type="button" class="nav-link" onclick="alert('Debe crear un hotel primero')">Hotel</button>
+            {% endif %}
+        </li>
+        <li class="nav-item">
+            <button type="button" class="nav-link" onclick="location.href='{% if hotel %}{% url 'hotel_tabs_edit' hotel.id %}#hotel_rooms{% else %}#{% endif %}'" {% if not hotel %}disabled{% endif %}>Habitaciones</button>
+        </li>
+        <li class="nav-item">
+            <button type="button" class="nav-link" onclick="location.href='{% if hotel %}{% url 'hotel_tabs_edit' hotel.id %}#hotel_settings{% else %}#{% endif %}'" {% if not hotel %}disabled{% endif %}>Configuraciones</button>
+        </li>
+        <li class="nav-item">
+            <button type="button" class="nav-link" onclick="location.href='{% if hotel %}{% url 'hotel_tabs_edit' hotel.id %}#hotel_offers{% else %}#{% endif %}'" {% if not hotel %}disabled{% endif %}>Ofertas</button>
+        </li>
+        <li class="nav-item">
+            <button type="button" class="nav-link" onclick="location.href='{% if hotel %}{% url 'hotel_tabs_edit' hotel.id %}#hotel_facilities{% else %}#{% endif %}'" {% if not hotel %}disabled{% endif %}>Instalaciones</button>
+        </li>
+        <li class="nav-item">
+            <button type="button" class="nav-link" onclick="location.href='{% if hotel %}{% url 'hotel_tabs_edit' hotel.id %}#hotel_discounts{% else %}#{% endif %}'" {% if not hotel %}disabled{% endif %}>Descuentos</button>
+        </li>
+    </ul>
+
+    <!-- Tab panes -->
+    <div class="tab-content">
+        <div class="tab-pane container active" id="hotel_content">
+            {% include 'backoffice/hotel_content.html' %}
+        </div>
+    </div>
+
+
+{% endblock %}

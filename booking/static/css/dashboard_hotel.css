@@ -1,0 +1,161 @@
+/* VARIABLES Y CONFIGURACIÓN GLOBAL */
+:root {
+    /* Colores */    
+    --color-primary: #3498db;
+    --color-secondary: #9b59b6;
+    --color-success: #2ecc71;
+    --color-warning: #f39c12;
+    --color-danger: #e74c3c;
+    --color-info: #3498db;
+    --color-light: #f8f9fa;
+    --color-dark: #2c3e50;
+    --color-muted: #7f8c8d;
+    --color-white: #ffffff;
+    --color-black: #000000;
+    --color-background: #f4f7f9;
+    --color-overlay: rgba(0, 0, 0, 0.1);
+  
+    /* Tamaños */
+    --max-width-carousel: 1500px;
+    --height-carousel-image: 400px;
+    --border-radius: 15px;
+    --icon-size: 5rem;
+  
+    /* Transiciones */
+    --transition-speed: 0.3s;
+    --transition-function: ease-in-out;
+  
+    /* Sombras */
+    --box-shadow-base: 0 4px 6px rgba(0, 0, 0, 0.1);
+    --box-shadow-hover: 0 8px 15px rgba(0, 0, 0, 0.1);
+    --box-shadow-icon: 0 0 0 10px rgba(0, 123, 255, 0.1);
+  
+    /* Z-Index */
+    --z-index-card-body: 1;
+  }
+  
+  /* RESETEO DE ESTILOS BÁSICOS */
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+  
+  img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+  }
+  
+  /* CONTENEDOR DEL CARRUSEL */
+  .carousel-container {
+    max-width: var(--max-width-carousel);
+    margin: 0 auto;
+    padding: 0 15px;
+  }
+  
+  /* CARRUSEL REDONDEADO */
+  .rounded-carousel {
+    border-radius: var(--border-radius);
+    overflow: hidden;
+  }
+  
+  /* IMÁGENES DEL CARRUSEL */
+  .carousel-inner img {
+    height: var(--height-carousel-image);
+    object-fit: cover;
+  }
+  
+  /* TARJETAS CON EFECTO HOVER */
+  .hover-card {
+    position: relative;
+    overflow: hidden;
+    transition: transform var(--transition-speed) var(--transition-function), box-shadow var(--transition-speed) var(--transition-function);
+  }
+  
+  .hover-card:hover {
+    transform: translateY(-10px);
+    box-shadow: var(--box-shadow-hover);
+  }
+  
+  /* LÍNEA SUPERIOR EN HOVER */
+  .hover-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 0;
+    background-color: var(--color-primary);
+    transition: height var(--transition-speed) var(--transition-function);
+  }
+  
+  .hover-card:hover::before {
+    height: 5px;
+  }
+  
+  /* CUERPO DE LA TARJETA */
+  .hover-card .card-body {
+    position: relative;
+    z-index: var(--z-index-card-body);
+    background-color: var(--color-white);
+  }
+  
+  /* ÍCONOS DESTACADOS */
+  .feature-icon-wrapper {
+    position: relative;
+    display: inline-block;
+  }
+  
+  .feature-icon {
+    width: var(--icon-size);
+    height: var(--icon-size);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--color-white);
+    border-radius: 50%;
+    box-shadow: var(--box-shadow-icon);
+    transition: box-shadow var(--transition-speed) var(--transition-function);
+  }
+  
+  .feature-icon i {
+    font-size: 2rem;
+    color: var(--color-primary);
+  }
+  
+  .feature-icon-wrapper:hover .feature-icon {
+    box-shadow: 0 0 0 15px rgba(0, 123, 255, 0.15);
+  }
+  
+  /* MEDIA QUERIES PARA RESPONSIVIDAD */
+  @media (max-width: 768px) {
+    .carousel-inner img {
+      height: 300px;
+    }
+  
+    .feature-icon {
+      width: 4rem;
+      height: 4rem;
+    }
+  
+    .feature-icon i {
+      font-size: 1.5rem;
+    }
+  }
+  
+  @media (max-width: 576px) {
+    .carousel-inner img {
+      height: 200px;
+    }
+  
+    .feature-icon {
+      width: 3rem;
+      height: 3rem;
+    }
+  
+    .feature-icon i {
+      font-size: 1.2rem;
+    }
+  }
+  

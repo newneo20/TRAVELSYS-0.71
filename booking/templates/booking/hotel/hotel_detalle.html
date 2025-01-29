@@ -1,0 +1,345 @@
+{% extends 'booking/hotel/base_hotel.html' %}
+{% load booking_filters %}
+{% load static %}
+
+{% block title %}Detalles de {{ hotel.hotel_nombre }}{% endblock %}
+
+{% block hotel_content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-12">
+            <h2>{{ hotel.hotel_nombre }}</h2>           
+            
+            <div class="row mb-5">
+                <div class="col-md-6">
+                    <div class="card shadow">
+                        <img src="{% static 'backoffice/fotos_hoteles/' %}{{ hotel.foto_hotel }}" class="card-img-top" alt="Imagen del hotel">                        
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <p><i class="fas fa-map-marker-alt"></i> {{ hotel.polo_turistico.nombre }} - {{ hotel.direccion }}</p>
+                    <h3>Descripción</h3>
+                    <p>{{ hotel.descripcion_hotel }}</p>
+                </div>
+            </div>
+
+            <h3>Alojamiento</h3>
+            <form id="reservaForm" method="POST" action="{% url 'booking:hotel_pago_reserva' hotel.id %}">
+                {% csrf_token %}
+                
+                <!-- Campos ocultos para mantener los valores del buscador -->
+                <input type="hidden" name="destino" value="{{ request.GET.destino }}">
+                <input type="hidden" name="fechas_viaje" value="{{ request.GET.fechas_viaje }}">
+                <input type="hidden" name="habitaciones" value="{{ request.GET.habitaciones }}">
+                <input type="hidden" name="adultos" value="{{ request.GET.adultos }}">
+                <input type="hidden" name="ninos" value="{{ request.GET.ninos }}">
+                <input type="hidden" name="info_habitaciones" value="{{ request.GET.info_habitaciones }}">
+                
+                
+                <div class="row">
+                    {% for datosHabitacion in habitaciones_data %}
+                        <div class="col-12">
+                            <div class="card mb-4 shadow-sm">
+                                <div class="card-header bg-primary text-white">
+                                    <h4 class="my-0">{{ datosHabitacion.habitacion }} ( {{ datosHabitacion.adultos }} + {{ datosHabitacion.ninos }} )</h4>
+                                                                        
+                                    <input type="hidden" name="habitacion_{{ forloop.counter0 }}_nombre" value="{{ datosHabitacion.habitacion }}">
+                                    <input type="hidden" name="habitacion_{{ forloop.counter0 }}_adultos" value="{{ datosHabitacion.adultos }}">
+                                    <input type="hidden" name="habitacion_{{ forloop.counter0 }}_ninos" value="{{ datosHabitacion.ninos }}">
+                                    <input type="hidden" name="habitacion_{{ forloop.counter0 }}_total_pax" value="{{ datosHabitacion.total_pax }}">
+                                    <input type="hidden" name="habitacion_{{ forloop.counter0 }}_cant_adultos" value="{{ datosHabitacion.cant_adultos }}">
+                                    <input type="hidden" name="habitacion_{{ forloop.counter0 }}_cant_ninos" value="{{ datosHabitacion.cant_ninos }}">
+                                    <input type="hidden" name="habitacion_{{ forloop.counter0 }}_fechas_viaje" value="{{ datosHabitacion.fechas_viaje }}">
+                                </div>
+
+                                <div class="card-body">
+                                    <h5 class="card-title">Opciones de Alojamiento</h5>
+                                    {% for opcion in datosHabitacion.opciones %}
+                                        <div class="form-check">
+                                            <div class="row mb-3">
+                                                <div class="col-md-8">
+                                                    <input class="form-check-input opcion-habitacion" type="radio" 
+                                                           name="opciones_habitacion_{{ forloop.parentloop.counter0 }}" 
+                                                           id="opcion_{{ datosHabitacion.habitacion }}_{{ opcion.id }}" 
+                                                           value="{{ opcion.id }}" 
+                                                           data-precio="{{ opcion.precio }}"                                                          
+                                                           data-nombre="{{ opcion.nombre }}"
+                                                           required>
+                                                    <label class="form-check-label" for="opcion_{{ datosHabitacion.habitacion }}_{{ opcion.id }}">
+                                                        {{ opcion.nombre }} - {{plan_alimenticio}}
+                                                    </label>
+                                                </div>
+                                                <div class="col-md-4 text-end">
+                                                    <p class="mb-0 ">${{ opcion.precio }} <i class="fas fa-info-circle" data-bs-toggle="tooltip" data-bs-placement="top" title="En caso de cancelación la reserva no es reembolsable"></i></p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <!-- Log values to the console -->
+                                        <script>
+                                            console.log("Opción de habitación:", {
+                                                id: "{{ opcion.id }}",
+                                                nombre: "{{ opcion.nombre }}",
+                                                precio: "{{ opcion.precio }}",
+                                                planAlimenticio: "{{ plan_alimenticio }}"
+                                            });
+                                        </script>
+                                        
+                                    {% endfor %}
+                                    <input type="hidden" name="precio_opcion_{{ forloop.counter0 }}" id="precio_opcion_{{ forloop.counter0 }}" class="form-control" value="">
+                                </div>
+                                
+
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+                <div class="text-center my-4">
+                    <button type="submit" class="btn btn-primary btn-lg">Reservar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de habitaciones -->
+<div class="modal fade" id="habitacionesModal" tabindex="-1" role="dialog" aria-labelledby="habitacionesModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="habitacionesModalLabel">Seleccionar habitaciones y pasajeros</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="form-row">
+                    <div class="form-group col-md-2">
+                        <label for="habitaciones">Habitaciones</label>
+                        <select id="habitaciones" class="custom-select">
+                            <option value="1" {% if request.GET.habitaciones == "1" %}selected{% endif %}>1</option>
+                            <option value="2" {% if request.GET.habitaciones == "2" %}selected{% endif %}>2</option>
+                            <option value="3" {% if request.GET.habitaciones == "3" %}selected{% endif %}>3</option>
+                            <option value="4" {% if request.GET.habitaciones == "4" %}selected{% endif %}>4</option>
+                            <option value="5" {% if request.GET.habitaciones == "5" %}selected{% endif %}>5</option>
+                        </select>
+                    </div>
+                    <div class="form-group col-md-2">
+                        <label for="adultos1">Adultos</label>
+                        <select id="adultos1" class="custom-select">
+                            <option value="1" {% if request.GET.adultos == "1" %}selected{% endif %}>1</option>
+                            <option value="2" {% if request.GET.adultos == "2" %}selected{% endif %}>2</option>
+                            <option value="3" {% if request.GET.adultos == "3" %}selected{% endif %}>3</option>
+                        </select>
+                    </div>
+                    <div class="form-group col-md-2">
+                        <label for="ninos1">Niños</label>
+                        <select id="ninos1" class="custom-select ninos-select" data-habitacion="1">
+                            <option value="0" {% if request.GET.ninos == "0" %}selected{% endif %}>0</option>
+                            <option value="1" {% if request.GET.ninos == "1" %}selected{% endif %}>1</option>
+                            <option value="2" {% if request.GET.ninos == "2" %}selected{% endif %}>2</option>
+                        </select>
+                    </div>
+                    <div class="form-row" id="edadesNinos1">
+                    </div>
+                </div>
+                <div id="habitacionesContainer">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" id="guardarHabitaciones">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Incluir librerías necesarias -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/2.11.6/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+<!-- Script para manejar opciones de alojamiento y el modal -->
+<script>
+    $(document).ready(function() {
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl)
+        });
+
+        $('.opcion-habitacion').change(function() {
+            var habitacionIndex = $(this).attr('name').split('_')[2];
+            var precio = $(this).data('precio');
+                    
+            $('#precio_opcion_' + habitacionIndex).val(precio);
+        });
+
+        $('#reservaForm').submit(function(e) {
+            e.preventDefault();
+            var opcionesSeleccionadas = [];
+            $('.opcion-habitacion:checked').each(function() {
+                opcionesSeleccionadas.push({
+                    habitacionId: $(this).attr('name').split('_')[2],
+                    opcionId: $(this).val(),
+                    opcionNombre: $(this).data('nombre'),
+                    opcionPrecio: $(this).data('precio')
+                });
+            });
+
+            var currentAction = $(this).attr('action');
+            var newAction = currentAction + '?' + $.param({
+                destino: '{{ request.GET.destino|urlencode }}',
+                fechas_viaje: '{{ request.GET.fechas_viaje|urlencode }}',
+                habitaciones: '{{ request.GET.habitaciones }}',
+                adultos: '{{ request.GET.adultos }}',
+                ninos: '{{ request.GET.ninos }}',
+                info_habitaciones: '{{ request.GET.info_habitaciones|urlencode }}',
+                opciones_seleccionadas: JSON.stringify(opcionesSeleccionadas)
+            });
+
+            $(this).attr('action', newAction);
+            this.submit();
+        });
+
+        // Inicializa las fechas de búsqueda y el datepicker
+        var infoHabitaciones = {{ info_habitaciones|safe }};
+        var fechasViaje = $('#fechas_viaje').val();
+        var fechasBusqueda = $('#fechas_viaje').data('fechas-busqueda');
+        
+        console.log("Valor inicial de fechas_viaje:", fechasViaje);
+        console.log("Fechas de búsqueda:", fechasBusqueda);
+    
+        // Inicializar el datepicker
+        $('#fechas_viaje').daterangepicker({
+            autoUpdateInput: false,
+            locale: {
+                format: 'YYYY-MM-DD',
+                separator: ' - ',
+                applyLabel: 'Aplicar',
+                cancelLabel: 'Cancelar'
+            }
+        });
+    
+        // Establecer las fechas de búsqueda en el datepicker
+        $(document).ready(function() {
+            var fechasBusqueda = "{{ fechas_viaje }}";
+            if (fechasBusqueda) {
+                var fechas = fechasBusqueda.split(' - ');
+                $('#fechas_viaje').data('daterangepicker').setStartDate(fechas[0]);
+                $('#fechas_viaje').data('daterangepicker').setEndDate(fechas[1]);
+                $('#fechas_viaje').val(fechasBusqueda);
+            }
+        });
+    
+        // Actualizar el input cuando se seleccionen fechas
+        $('#fechas_viaje').on('apply.daterangepicker', function(ev, picker) {
+            $(this).val(picker.startDate.format('YYYY-MM-DD') + ' - ' + picker.endDate.format('YYYY-MM-DD'));
+            console.log("Nuevas fechas seleccionadas:", $(this).val());
+        });
+    
+        // Limpiar el input si se cancela la selección
+        $('#fechas_viaje').on('cancel.daterangepicker', function(ev, picker) {
+            $(this).val('');
+        });
+    
+        // Función para obtener parámetros de la URL
+        function getUrlParameter(name) {
+            name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
+            var regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
+            var results = regex.exec(location.search);
+            return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
+        }
+    
+        // Cargar valores de la URL en el buscador
+        var destino = getUrlParameter('destino');
+        var habitaciones = getUrlParameter('habitaciones');
+        var adultos = getUrlParameter('adultos');
+        var ninos = getUrlParameter('ninos');
+    
+        console.log("Valores de la URL:", {destino, habitaciones, adultos, ninos});
+    
+        // Establecer valores en el formulario de búsqueda
+        if (destino) $('#destino').val(destino);
+        if (habitaciones && adultos && ninos) {
+            $('.btn-outline-primary').html(`<i class="fas fa-bed"></i> ${habitaciones} <i class="fas fa-user"></i> ${adultos} <i class="fas fa-child"></i> ${ninos}`);
+        }
+    
+        // Función para cargar los valores en el modal
+        function cargarValoresModal(info) {
+            $('#habitaciones').val(info.numHabitaciones).trigger('change');
+            for (var i = 0; i < info.datosHabitaciones.length; i++) {
+                var habitacion = info.datosHabitaciones[i];
+                $('#adultos' + (i + 1)).val(habitacion.adultos);
+                $('#ninos' + (i + 1)).val(habitacion.ninos).trigger('change');
+                for (var j = 0; j < habitacion.edadesNinos.length; j++) {
+                    $('#edadNino' + (i + 1) + '_' + (j + 1)).val(habitacion.edadesNinos[j]);
+                }
+            }
+            console.log("Valores cargados en el modal:", info);
+        }
+    
+        // Cargar valores en el modal al abrirlo
+        $('#habitacionesModal').on('show.bs.modal', function() {
+            if (infoHabitaciones) {
+                cargarValoresModal(infoHabitaciones);
+            }
+        });
+    
+        $('#guardarHabitaciones').click(function() {
+            var numHabitaciones = $('#habitaciones').val();
+            var datosHabitaciones = [];
+            var totalAdultos = 0;
+            var totalNinos = 0;
+    
+            for (var i = 1; i <= numHabitaciones; i++) {
+                var adultos = $(`#adultos${i}`).val();
+                var ninos = $(`#ninos${i}`).val();
+                var edadesNinos = [];
+    
+                for (var j = 1; j <= ninos; j++) {
+                    edadesNinos.push($(`#edadNino${i}_${j}`).val());
+                }
+    
+                totalAdultos += parseInt(adultos);
+                totalNinos += parseInt(ninos);
+    
+                datosHabitaciones.push({
+                    habitacion: i,
+                    adultos: adultos,
+                    ninos: ninos,
+                    edadesNinos: edadesNinos
+                });
+            }
+    
+            infoHabitaciones = {
+                numHabitaciones: numHabitaciones,
+                totalAdultos: totalAdultos,
+                totalNinos: totalNinos,
+                datosHabitaciones: datosHabitaciones
+            };
+    
+            console.log("Información de habitaciones actualizada:", infoHabitaciones);
+    
+            $('#infoHabitacionesInput').val(JSON.stringify(infoHabitaciones));
+            $('#habitaciones_input').val(numHabitaciones);
+            $('#adultos_input').val(totalAdultos);
+            $('#ninos_input').val(totalNinos);
+    
+            var habitacionesTexto = `<i class="fas fa-bed"></i> ${numHabitaciones}`;
+            var adultosTexto = `<i class="fas fa-user"></i> ${totalAdultos}`;
+            var ninosTexto = `<i class="fas fa-child"></i> ${totalNinos}`;
+            $('.btn-outline-primary').html(`${habitacionesTexto} ${adultosTexto} ${ninosTexto}`);
+    
+            $('#habitacionesModal').modal('hide');
+        });
+    
+        $('#habitaciones').val('1').trigger('change');
+        actualizarCamposEdadNinos(1);
+    
+        console.log("Inicialización completa del script");
+    });
+</script>
+{% endblock %}

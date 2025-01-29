@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+
+{% block title %}Listar Location{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-body">
+        <div class="row">
+            <h1>Lista de Locations</h1>
+            <div class="col-md-2">
+                <a href="{% url 'backoffice:crear_location' %}" class="btn btn-outline-primary mb-3">
+                    Crear Location
+                </a>
+            </div>
+            <div class="col-md-10">
+                <form method="GET" action="">
+                    <div class="input-group mb-3">
+                        <input type="text" class="form-control" placeholder="Buscar por: (Nombre, País, Nomenclatura)" name="q" value="{{ query }}">
+                        <button class="btn btn-outline-secondary" type="submit">Buscar</button>
+                    </div>
+                </form>
+            </div>
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th class="text-center align-middle">ID</th>
+                        <th class="text-center align-middle">Nombre</th>
+                        <th class="text-center align-middle">País</th>
+                        <th class="text-center align-middle">Nomenclatura</th>
+                        <th class="text-center align-middle">Es Aeropuerto</th>
+                        <th class="text-center align-middle">Disponibilidad de Carros</th>
+                        <th class="text-center align-middle">Categoría</th>
+                        <th class="text-center align-middle">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for location in locations %}
+                    <tr>
+                        <td class="text-center align-middle">{{ location.id }}</td>
+                        <td class="text-center align-middle">{{ location.nombre }}</td>
+                        <td class="text-center align-middle">{{ location.pais }}</td>
+                        <td class="text-center align-middle">{{ location.nomenclatura }}</td>
+                        <td class="text-center align-middle">{{ location.es_aeropuerto|yesno:"Sí,No" }}</td>
+                        <td class="text-center align-middle">{{ location.disponibilidad_carros }}</td>
+                        <td class="text-center align-middle">{{ location.categoria.nombre }}</td>
+                        <td class="text-center align-middle">
+                            <a href="{% url 'backoffice:editar_location' location_id=location.id %}" class="btn btn-outline-warning">                            
+                                <i class="fas fa-pencil-alt"></i>
+                            </a>
+                            <a href="{% url 'backoffice:eliminar_location' location.id %}" class="btn btn-outline-danger">
+                                <i class="fas fa-trash-alt"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+            <!-- Paginador (si es necesario) -->
+            <nav aria-label="Page navigation example">
+                <ul class="pagination justify-content-center">
+                    <!-- Implementación del paginador aquí -->
+                </ul>
+            </nav>
+        </div>
+    </div>
+</div>
+{% endblock %}

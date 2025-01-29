@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+
+{% block title %}Eliminar Cadena Hotelera{% endblock %}
+
+{% block header %}Eliminar Cadena Hotelera{% endblock %}
+
+{% block content %}
+    <div class="container mt-4">
+        <h1>Eliminar Cadena Hotelera</h1>
+        <p>¿Estás seguro de que deseas eliminar la cadena hotelera <strong>{{ cadena_hotelera.nombre }}</strong>?</p>
+        <form method="post">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger">Eliminar</button>
+            <a href="{% url 'listar_cadenas_hoteleras' %}" class="btn btn-secondary">Cancelar</a>
+        </form>
+    </div>
+{% endblock %}

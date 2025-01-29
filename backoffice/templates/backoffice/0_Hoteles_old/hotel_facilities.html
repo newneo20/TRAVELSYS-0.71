@@ -1,0 +1,275 @@
+{% block title %}Ofertasacilidades{% endblock %}
+
+{% block content %}
+
+<div class="card">
+    <div class="card-body">
+        <div class="row">
+            <h1>Instalaciones del Hotel</h1>
+            <div class="row">
+                <!-- Baño -->
+                <div class="col-md-12 mt-3 mb-3">
+                    <label for="info_oferta" class="form-label"><strong><i class="fas fa-bath"></i> Baño</strong></label>
+                </div>
+                <div class="col-md-3 form-check">
+                    <input class="form-check-input" type="checkbox" value="" id="articulos_aseo" name="disponible" checked>
+                    <label class="form-check-label" for="articulos_aseo"><i class="fas fa-soap"></i> Artículos de aseo gratuitos</label>
+                </div>
+                <div class="col-md-3 form-check">
+                    <input class="form-check-input" type="checkbox" value="" id="inodoro" name="disponible" checked>
+                    <label class="form-check-label" for="inodoro"><i class="fas fa-toilet"></i> Inodoro</label>
+                </div>
+                <div class="col-md-3 form-check">
+                    <input class="form-check-input" type="checkbox" value="" id="toallas" name="disponible" checked>
+                    <label class="form-check-label" for="toallas"><i class="fas fa-towel"></i> Toallas</label>
+                </div>
+                <div class="col-md-3 form-check">
+                    <input class="form-check-input" type="checkbox" value="" id="bano_privado" name="disponible" checked>
+                    <label class="form-check-label" for="bano_privado"><i class="fas fa-bath"></i> Baño privado</label>
+                </div>
+                <div class="col-md-3 form-check">
+                    <input class="form-check-input" type="checkbox" value="" id="banera_ducha" name="disponible" checked>
+                    <label class="form-check-label" for="banera_ducha"><i class="fas fa-shower"></i> Bañera o ducha</label>
+                </div>
+                <div class="col-md-3 form-check">
+                    <input class="form-check-input" type="checkbox" value="" id="secador_pelo" name="disponible" checked>
+                    <label class="form-check-label" for="secador_pelo"><i class="fas fa-wind"></i> Secador de pelo</label>
+                </div>
+
+                <!-- Seguridad -->
+                <div class="col-md-12 mt-3 mb-3">
+                    <label for="info_oferta" class="form-label"><strong><i class="fas fa-shield-alt"></i> Seguridad</strong></label>
+                </div>
+                <div class="col-md-3 form-check">
+                    <input class="form-check-input" type="checkbox" value="" id="extintores" name="disponible" checked>
+                    <label class="form-check-label" for="extintores"><i class="fas fa-fire-extinguisher"></i> Extintores</label>
+                </div>
+                <div class="col-md-3 form-check">
+                    <input class="form-check-input" type="checkbox" value="" id="detectores_humo" name="disponible" checked>
+                    <label class="form-check-label" for="detectores_humo"><i class="fas fa-smoke"></i> Detectores de humo</label>
+                </div>
+                <div class="col-md-3 form-check">
+                    <input class="form-check-input" type="checkbox" value="" id="cctv" name="disponible" checked>
+                    <label class="form-check-label" for="cctv"><i class="fas fa-video"></i> CCTV en áreas comunes</label>
+                </div>
+
+                <!-- Dormitorio -->
+                <div class="col-md-12 mt-3 mb-3">
+                    <label for="info_oferta" class="form-label"><strong><i class="fas fa-bed"></i> Dormitorio</strong></label>
+                </div>
+                <div class="col-md-3 form-check">
+                    <input class="form-check-input" type="checkbox" value="" id="ropa_cama" name="disponible" checked>
+                    <label class="form-check-label" for="ropa_cama"><i class="fas fa-bed"></i> Ropa de cama</label>
+                </div>
+                <div class="col-md-3 form-check">
+                    <input class="form-check-input" type="checkbox" value="" id="armario_ropero" name="disponible" checked>
+                    <label class="form-check-label" for="armario_ropero"><i class="fas fa-wardrobe"></i> Armario o ropero</label>
+                </div>
+
+                <!-- Comida y bebida -->
+                <div class="col-md-12 mt-3 mb-3">
+                    <label for="info_oferta" class="form-label"><strong><i class="fas fa-utensils"></i> Comida y bebida</strong></label>
+                </div>
+                <div class="col-md-3 form-check">
+                    <input class="form-check-input" type="checkbox" value="" id="bar" name="disponible" checked>
+                    <label class="form-check-label" for="bar"><i class="fas fa-cocktail"></i> Bar</label>
+                </div>
+                <div class="col-md-3 form-check">
+                    <input class="form-check-input" type="checkbox" value="" id="restaurante" name="disponible" checked>
+                    <label class="form-check-label" for="restaurante"><i class="fas fa-utensils"></i> Restaurante</label>
+                </div>
+                <div class="col-md-3 form-check">
+                    <input class="form-check-input" type="checkbox" value="" id="menu_ninos" name="disponible" checked>
+                    <label class="form-check-label" for="menu_ninos"><i class="fas fa-child"></i> Menú para niños</label>
+                </div>
+                <div class="col-md-3 form-check">
+                    <input class="form-check-input" type="checkbox" value="" id="menu_dietetico" name="disponible" checked>
+                    <label class="form-check-label" for="menu_dietetico"><i class="fas fa-apple-alt"></i> Menús dietéticos especiales (a pedido)</label>
+                </div>
+                <div class="col-md-3 form-check">
+                    <input class="form-check-input" type="checkbox" value="" id="desayuno" name="disponible" checked>
+                    <label class="form-check-label" for="desayuno"><i class="fas fa-coffee"></i> Desayuno en la habitación</label>
+                </div>
+                <div class="col-md-3 form-check">
+                    <input class="form-check-input" type="checkbox" value="" id="tetera_cafetera" name="disponible" checked>
+                    <label class="form-check-label" for="tetera_cafetera"><i class="fas fa-mug-hot"></i> Tetera/Cafetera</label>
+                </div>
+
+                <!-- General -->
+                <div class="col-md-12 mt-3 mb-3">
+                    <label for="info_oferta" class="form-label"><strong><i class="fas fa-building"></i> General</strong></label>
+                </div>
+                <div class="col-md-3 form-check">
+                    <input class="form-check-input" type="checkbox" value="" id="ascensor" name="disponible" checked>
+                    <label class="form-check-label" for="ascensor"><i class="fas fa-elevator"></i> Ascensor</label>
+                </div>
+                <div class="col-md-3 form-check">
+                    <input class="form-check-input" type="checkbox" value="" id="discapacitados" name="disponible" checked>
+                    <label class="form-check-label" for="discapacitados"><i class="fas fa-wheelchair"></i> Instalaciones para personas con discapacidad</label>
+                </div>
+                <div class="col-md-3 form-check">
+                    <input class="form-check-input" type="checkbox" value="" id="hipoalergenico" name="disponible" checked>
+                    <label class="form-check-label" for="hipoalergenico"><i class="fas fa-allergies"></i> Hipoalergénico</label>
+                </div>
+                <div class="col-md-3 form-check">
+                    <input class="form-check-input" type="checkbox" value="" id="habitaciones_familiares" name="disponible" checked>
+                    <label class="form-check-label" for="habitaciones_familiares"><i class="fas fa-users"></i> Habitaciones familiares</label>
+                </div>
+                <div class="col-md-3 form-check">
+                    <input class="form-check-input" type="checkbox" value="" id="prohibido_fumar" name="disponible" checked>
+                    <label class="form-check-label" for="prohibido_fumar"><i class="fas fa-smoking-ban"></i> Prohibido fumar en todo el alojamiento</label>
+                </div>
+                <div class="col-md-3 form-check">
+                    <input class="form-check-input" type="checkbox" value="" id="calefaccion" name="disponible" checked>
+                    <label class="form-check-label" for="calefaccion"><i class="fas fa-radiator"></i> Calefacción</label>
+                </div>
+                <div class="col-md-3 form-check">
+                    <input class="form-check-input" type="checkbox" value="" id="alfombrado" name="disponible" checked>
+                    <label class="form-check-label" for="alfombrado"><i class="fas fa-carpet"></i> Alfombrado</label>
+                </div>
+                <div class="col-md-3 form-check">
+                    <input class="form-check-input" type="checkbox" value="" id="instalaciones_planchar" name="disponible" checked>
+                    <label class="form-check-label" for="instalaciones_planchar"><i class="fas fa-iron"></i> Instalaciones para planchar</label>
+                </div>
+                <div class="col-md-3 form-check">
+                    <input class="form-check-input" type="checkbox" value="" id="plancha" name="disponible" checked>
+                    <label class="form-check-label" for="plancha"><i class="fas fa-iron"></i> Plancha</label>
+                </div>
+
+                <!-- Servicios de recepción -->
+                <div class="col-md-12 mt-3 mb-3">
+                    <label for="info_oferta" class="form-label"><strong><i class="fas fa-concierge-bell"></i> Servicios de recepción</strong></label>
+                </div>
+                <div class="col-md-3 form-check">
+                    <input class="form-check-input" type="checkbox" value="" id="guardaequipaje" name="disponible" checked>
+                    <label class="form-check-label" for="guardaequipaje"><i class="fas fa-luggage-cart"></i> Guardaequipaje</label>
+                </div>
+                <div class="col-md-3 form-check">
+                    <input class="form-check-input" type="checkbox" value="" id="factura_proporcionada" name="disponible" checked>
+                    <label class="form-check-label" for="factura_proporcionada"><i class="fas fa-receipt"></i> Factura proporcionada</label>
+                </div>
+                <div class="col-md-3 form-check">
+                    <input class="form-check-input" type="checkbox" value="" id="recepcion_24h" name="disponible" checked>
+                    <label class="form-check-label" for="recepcion_24h"><i class="fas fa-clock"></i> Recepción 24 horas</label>
+                </div>
+                <div class="col-md-3 form-check">
+                    <input class="form-check-input" type="checkbox" value="" id="checkin_checkout_privado" name="disponible" checked>
+                    <label class="form-check-label" for="checkin_checkout_privado"><i class="fas fa-user-check"></i> Registro de entrada/salida privado</label>
+                </div>
+
+                <!-- Medios y tecnología -->
+                <div class="col-md-12 mt-3 mb-3">
+                    <label for="info_oferta" class="form-label"><strong><i class="fas fa-tv"></i> Medios y tecnología</strong></label>
+                </div>
+                <div class="col-md-3 form-check">
+                    <input class="form-check-input" type="checkbox" value="" id="tv_pantalla_plana" name="disponible" checked>
+                    <label class="form-check-label" for="tv_pantalla_plana"><i class="fas fa-tv"></i> TV de pantalla plana</label>
+                </div>
+                <div class="col-md-3 form-check">
+                    <input class="form-check-input" type="checkbox" value="" id="radio" name="disponible" checked>
+                    <label class="form-check-label" for="radio"><i class="fas fa-radio"></i> Radio</label>
+                </div>
+                <div class="col-md-3 form-check">
+                    <input class="form-check-input" type="checkbox" value="" id="canales_via_satellite" name="disponible" checked>
+                    <label class="form-check-label" for="canales_via_satellite"><i class="fas fa-satellite-dish"></i> Canales vía satélite</label>
+                </div>
+                <div class="col-md-3 form-check">
+                    <input class="form-check-input" type="checkbox" value="" id="tv" name="disponible" checked>
+                    <label class="form-check-label" for="tv"><i class="fas fa-tv"></i> TV</label>
+                </div>
+                <div class="col-md-3 form-check">
+                    <input class="form-check-input" type="checkbox" value="" id="telefono" name="disponible" checked>
+                    <label class="form-check-label" for="telefono"><i class="fas fa-phone"></i> Teléfono</label>
+                </div>
+
+                <!-- Servicios de limpieza -->
+                <div class="col-md-12 mt-3 mb-3">
+                    <label for="info_oferta" class="form-label"><strong><i class="fas fa-broom"></i> Servicios de limpieza</strong></label>
+                </div>
+                <div class="col-md-3 form-check">
+                    <input class="form-check-input" type="checkbox" value="" id="lavanderia" name="disponible" checked>
+                    <label class="form-check-label" for="lavanderia"><i class="fas fa-washing-machine"></i> Lavandería</label>
+                </div>
+                <div class="col-md-3 form-check">
+                    <input class="form-check-input" type="checkbox" value="" id="tintoreria" name="disponible" checked>
+                    <label class="form-check-label" for="tintoreria"><i class="fas fa-washer"></i> Tintorería</label>
+                </div>
+                <div class="col-md-3 form-check">
+                    <input class="form-check-input" type="checkbox" value="" id="limpieza_diaria" name="disponible" checked>
+                    <label class="form-check-label" for="limpieza_diaria"><i class="fas fa-broom"></i> Servicio de limpieza diario</label>
+                </div>
+                
+                <!-- Servicios de limpieza -->
+                <div class="col-md-12 mt-3 mb-3">
+                    <label for="info_oferta" class="form-label"><strong><i class="fas fa-broom"></i></strong></label>
+                </div>
+                <div class="col-md-12 mt-3 mb-3">
+                    <button type="button" class="btn btn-outline-success" id="guardarCambiosBtn">
+                        Guardar Cambios
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function() {
+        $('#guardarCambiosBtn').click(function() {
+            var data = {
+                hotel_name: "{{ hotel.nombre }}",  // Usa el campo correcto aquí
+                articulos_aseo: $('#articulos_aseo').is(':checked'),
+                inodoro: $('#inodoro').is(':checked'),
+                toallas: $('#toallas').is(':checked'),
+                bano_privado: $('#bano_privado').is(':checked'),
+                banera_ducha: $('#banera_ducha').is(':checked'),
+                secador_pelo: $('#secador_pelo').is(':checked'),
+                extintores: $('#extintores').is(':checked'),
+                detectores_humo: $('#detectores_humo').is(':checked'),
+                cctv: $('#cctv').is(':checked'),
+                ropa_cama: $('#ropa_cama').is(':checked'),
+                armario_ropero: $('#armario_ropero').is(':checked'),
+                bar: $('#bar').is(':checked'),
+                restaurante: $('#restaurante').is(':checked'),
+                menu_ninos: $('#menu_ninos').is(':checked'),
+                menu_dietetico: $('#menu_dietetico').is(':checked'),
+                desayuno: $('#desayuno').is(':checked'),
+                tetera_cafetera: $('#tetera_cafetera').is(':checked'),
+                ascensor: $('#ascensor').is(':checked'),
+                discapacitados: $('#discapacitados').is(':checked'),
+                hipoalergenico: $('#hipoalergenico').is(':checked'),
+                habitaciones_familiares: $('#habitaciones_familiares').is(':checked'),
+                prohibido_fumar: $('#prohibido_fumar').is(':checked'),
+                calefaccion: $('#calefaccion').is(':checked'),
+                alfombrado: $('#alfombrado').is(':checked'),
+                instalaciones_planchar: $('#instalaciones_planchar').is(':checked'),
+                plancha: $('#plancha').is(':checked'),
+                guardaequipaje: $('#guardaequipaje').is(':checked'),
+                factura_proporcionada: $('#factura_proporcionada').is(':checked'),
+                recepcion_24h: $('#recepcion_24h').is(':checked'),
+                checkin_checkout_privado: $('#checkin_checkout_privado').is(':checked'),
+                tv_pantalla_plana: $('#tv_pantalla_plana').is(':checked'),
+                radio: $('#radio').is(':checked'),
+                canales_via_satellite: $('#canales_via_satellite').is(':checked'),
+                tv: $('#tv').is(':checked'),
+                telefono: $('#telefono').is(':checked'),
+                lavanderia: $('#lavanderia').is(':checked'),
+                tintoreria: $('#tintoreria').is(':checked'),
+                limpieza_diaria: $('#limpieza_diaria').is(':checked'),
+                csrfmiddlewaretoken: '{{ csrf_token }}'
+            };
+            $.ajax({
+                url: "{% url 'backoffice:guardar_instalaciones_hotel' hotel.id %}",
+                method: 'POST',
+                data: data,
+                success: function(response) {
+                    alert('Instalaciones guardadas exitosamente');
+                },
+                error: function(error) {
+                    alert('Error al guardar las instalaciones');
+                }
+            });
+        });
+    });
+</script>
+{% endblock %}

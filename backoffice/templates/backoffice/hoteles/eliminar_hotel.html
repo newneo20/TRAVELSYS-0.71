@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+
+{% block title %}Eliminar Hotel{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="progress-container mb-4">
+        <h1>Eliminar Hotel</h1>
+    </div>
+    <div class="card">
+        <div class="card-body">
+            <p>¿Estás seguro de que deseas eliminar el hotel {{ hotel.hotel_nombre }}?</p>
+            <form method="post" action="{% url 'backoffice:eliminar_hotel' hotel.id %}">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-outline-danger">Eliminar</button>
+                <a href="{% url 'backoffice:listar_hoteles' %}" class="btn btn-outline-secondary">Cancelar</a>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

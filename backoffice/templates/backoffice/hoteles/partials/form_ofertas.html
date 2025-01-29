@@ -1,0 +1,356 @@
+<!-- templates/partials/form_ofertas.html -->
+<div class="tab-pane fade" id="ofertas" role="tabpanel" aria-labelledby="ofertas-tab">
+    <div class="card">
+        <div class="card-body">
+            <div class="row mb-3">
+                <div class="col-12">
+                    <h1>Lista de Ofertas</h1>
+                </div>
+                <div class="col-md-4">
+                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#ofertaModal" id="crearOfertaBtn">
+                        <i class="fas fa-plus me-2"></i>Crear Oferta
+                    </button>
+                </div>
+                <div class="col-md-4 d-none">
+                    <button type="button" class="btn btn-success" id="cargarDatosBtn">
+                        <i class="fas fa-sync-alt me-2"></i>Cargar Datos
+                    </button>
+                </div>
+                <div class="col-md-4 d-none">
+                    <button type="button" class="btn btn-primary" id="guardarOfertasBtn">
+                        <i class="fas fa-save me-2"></i>Guardar Todas las Ofertas
+                    </button>
+                </div>
+                
+            </div>
+            <div class="table-responsive">
+                <table class="table table-bordered table-striped">
+                    <thead class="table-light">
+                        <tr>
+                            <th class="text-center align-middle">Editar</th>
+                            <th class="text-center align-middle">Disponible</th>
+                            <th class="text-center align-middle">Código</th>
+                            <th class="text-center align-middle">Tipo de Habitación</th>
+                            <th class="text-center align-middle">Temporada</th>
+                            <th class="text-center align-middle">Booking Window</th>
+                            <th class="text-center align-middle">Doble</th>
+                            <th class="text-center align-middle">Triple</th>
+                            <th class="text-center align-middle">Sencilla</th>
+                            <th class="text-center align-middle">Primer Niño</th>
+                            <th class="text-center align-middle">Segundo Niño</th>
+                            <th class="text-center align-middle">Un Adulto Con Niños</th>
+                            <th class="text-center align-middle">Primer Niño con 1 Adulto</th>
+                            <th class="text-center align-middle">Segundo Niño con 1 Adulto</th>
+                            <th class="text-center align-middle">Edad Niño</th>
+                            <th class="text-center align-middle">Edad Infante</th>
+                            <th class="text-center align-middle">Noches Mínimas</th>
+                            <th class="text-center align-middle">Cantidad de Habitaciones</th>
+                            <th class="text-center align-middle">Tipo Fee</th>
+                            <th class="text-center align-middle">Fee Doble</th>
+                            <th class="text-center align-middle">Fee Triple</th>
+                            <th class="text-center align-middle">Fee Sencilla</th>
+                            <th class="text-center align-middle">Fee Primer Niño</th>
+                            <th class="text-center align-middle">Fee Segundo Niño</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tablaOfertas">
+                        {% for oferta in ofertas %}
+                            <tr data-oferta-id="{{ oferta.id }}">
+                                <td class="text-center align-middle">
+                                    <button type="button" class="btn btn-warning editarOfertaBtn" 
+                                            data-bs-toggle="modal" data-bs-target="#ofertaModal"
+                                            data-oferta-id="{{ oferta.id }}"                                             
+                                            data-disponible="{{ oferta.disponible|yesno:"true,false" }}"
+                                            data-codigo="{{ oferta.codigo }}"
+                                            data-tipo-habitacion="{{ oferta.tipo_habitacion }}"
+                                            data-temporada="{{ oferta.temporada }}"
+                                            data-booking-window="{{ oferta.booking_window }}"
+                                            data-doble="{{ oferta.doble }}"
+                                            data-triple="{{ oferta.triple }}"
+                                            data-sencilla="{{ oferta.sencilla }}"
+                                            data-primer-nino="{{ oferta.primer_nino }}"
+                                            data-segundo-nino="{{ oferta.segundo_nino }}"
+                                            data-un-adulto-con-ninos="{{ oferta.un_adulto_con_ninos }}"
+                                            data-primer-nino-con-un-adulto="{{ oferta.primer_nino_con_un_adulto }}"
+                                            data-segundo-nino-con-un-adulto="{{ oferta.segundo_nino_con_un_adulto }}"
+                                            data-edad-nino="{{ oferta.edad_nino }}"
+                                            data-edad-infante="{{ oferta.edad_infante }}"
+                                            data-noches-minimas="{{ oferta.noches_minimas }}"
+                                            data-cantidad-habitaciones="{{ oferta.cantidad_habitaciones }}"
+                                            data-tipo-fee="{{ oferta.tipo_fee }}"
+                                            data-fee-doble="{{ oferta.fee_doble }}"
+                                            data-fee-triple="{{ oferta.fee_triple }}"
+                                            data-fee-sencilla="{{ oferta.fee_sencilla }}"
+                                            data-fee-primer-nino="{{ oferta.fee_primer_nino }}"
+                                            data-fee-segundo-nino="{{ oferta.fee_segundo_nino }}">
+                                        <i class="fas fa-pencil-alt"></i>Editar
+                                    </button>
+                                </td>
+                                <td class="text-center align-middle">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" 
+                                               id="disponible_{{ oferta.id }}" name="disponible" 
+                                               {% if oferta.disponible %}checked{% endif %}>
+                                    </div>
+                                </td>
+                                <td class="text-center align-middle">{{ oferta.codigo }}</td>                                
+                                <td class="text-center align-middle">{{ oferta.tipo_habitacion }}</td>
+                                <td class="text-center align-middle">{{ oferta.temporada }}</td>
+                                <td class="text-center align-middle">{{ oferta.booking_window }}</td>
+                                <td class="text-center align-middle">{{ oferta.doble }}</td>
+                                <td class="text-center align-middle">{{ oferta.triple }}</td>
+                                <td class="text-center align-middle">{{ oferta.sencilla }}</td>
+                                <td class="text-center align-middle">{{ oferta.primer_nino }}</td>
+                                <td class="text-center align-middle">{{ oferta.segundo_nino }}</td>
+                                <td class="text-center align-middle">{{ oferta.un_adulto_con_ninos }}</td>
+                                <td class="text-center align-middle">{{ oferta.primer_nino_con_un_adulto }}</td>
+                                <td class="text-center align-middle">{{ oferta.segundo_nino_con_un_adulto }}</td>
+                                <td class="text-center align-middle">{{ oferta.edad_nino }}</td>
+                                <td class="text-center align-middle">{{ oferta.edad_infante }}</td>
+                                <td class="text-center align-middle">{{ oferta.noches_minimas }}</td>
+                                <td class="text-center align-middle">{{ oferta.cantidad_habitaciones }}</td>
+                                <td class="text-center align-middle">{{ oferta.tipo_fee }}</td>
+                                <td class="text-center align-middle">{{ oferta.fee_doble }}</td>
+                                <td class="text-center align-middle">{{ oferta.fee_triple }}</td>
+                                <td class="text-center align-middle">{{ oferta.fee_sencilla }}</td>
+                                <td class="text-center align-middle">{{ oferta.fee_primer_nino }}</td>
+                                <td class="text-center align-middle">{{ oferta.fee_segundo_nino }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para crear o editar oferta con validación Bootstrap -->
+    <div class="modal fade" id="ofertaModal" tabindex="-1" aria-labelledby="ofertaModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="ofertaModalLabel">Crear/Editar Oferta</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="ofertaForm" class="row g-3 needs-validation" novalidate>
+                        {% csrf_token %}
+                        <input type="hidden" name="oferta_id" id="oferta_id">
+
+                        <!-- Campos del formulario con validación -->
+                        <div class="col-md-4">
+                            <label for="codigo" class="form-label">Código</label>
+                            <input type="text" class="form-control" id="codigo" name="codigo" maxlength="50" required>
+                            <div class="invalid-feedback">Por favor ingrese un código válido.</div>
+                        </div>
+                        <div class="col-md-4">
+                            <label for="disponible" class="form-label">Disponible</label>
+                            <input type="checkbox" class="form-check-input" id="disponible" name="disponible">
+                        </div>
+                        <div class="col-md-4">
+                            <label for="tipo_habitacion" class="form-label">Tipo de Habitación</label>
+                            <input type="text" class="form-control" id="tipo_habitacion" name="tipo_habitacion" maxlength="50" required>
+                            <div class="invalid-feedback">Ingrese un tipo de habitación válido.</div>
+                        </div>
+                        <div class="col-md-4">
+                            <label for="temporada" class="form-label">Temporada</label>
+                            <input type="text" class="form-control" id="temporada" name="temporada" maxlength="50" required>
+                            <div class="invalid-feedback">Ingrese una temporada válida.</div>
+                        </div>
+                        <div class="col-md-4">
+                            <label for="booking_window" class="form-label">Booking Window</label>
+                            <input type="text" class="form-control" id="booking_window" name="booking_window" maxlength="50">
+                        </div>
+                        <div class="col-md-4">
+                            <label for="sencilla" class="form-label">Sencilla</label>
+                            <input type="text" class="form-control" id="sencilla" name="sencilla" maxlength="50">
+                        </div>
+                        <div class="col-md-4">
+                            <label for="doble" class="form-label">Doble</label>
+                            <input type="text" class="form-control" id="doble" name="doble" maxlength="50">
+                        </div>
+                        <div class="col-md-4">
+                            <label for="triple" class="form-label">Triple</label>
+                            <input type="text" class="form-control" id="triple" name="triple" maxlength="50">
+                        </div>
+                        <div class="col-md-4">
+                            <label for="primer_nino" class="form-label">Primer Niño</label>
+                            <input type="text" class="form-control" id="primer_nino" name="primer_nino" maxlength="50">
+                        </div>
+                        <div class="col-md-4">
+                            <label for="segundo_nino" class="form-label">Segundo Niño</label>
+                            <input type="text" class="form-control" id="segundo_nino" name="segundo_nino" maxlength="50">
+                        </div>
+                        <div class="col-md-4">
+                            <label for="un_adulto_con_ninos" class="form-label">Un Adulto con Niños</label>
+                            <input type="text" class="form-control" id="un_adulto_con_ninos" name="un_adulto_con_ninos" maxlength="50">
+                        </div>
+                        <div class="col-md-4">
+                            <label for="primer_nino_con_un_adulto" class="form-label">Primer Niño con 1 Adulto</label>
+                            <input type="text" class="form-control" id="primer_nino_con_un_adulto" name="primer_nino_con_un_adulto" maxlength="50">
+                        </div>
+                        <div class="col-md-4">
+                            <label for="segundo_nino_con_un_adulto" class="form-label">Segundo Niño con 1 Adulto</label>
+                            <input type="text" class="form-control" id="segundo_nino_con_un_adulto" name="segundo_nino_con_un_adulto" maxlength="50">
+                        </div>
+                        <div class="col-md-4">
+                            <label for="edad_nino" class="form-label">Edad Niño</label>
+                            <input type="text" class="form-control" id="edad_nino" name="edad_nino" maxlength="50">
+                        </div>
+                        <div class="col-md-4">
+                            <label for="edad_infante" class="form-label">Edad Infante</label>
+                            <input type="text" class="form-control" id="edad_infante" name="edad_infante" maxlength="50">
+                        </div>
+                        <div class="col-md-4">
+                            <label for="noches_minimas" class="form-label">Noches Mínimas</label>
+                            <input type="text" class="form-control" id="noches_minimas" name="noches_minimas" maxlength="50">
+                        </div>
+                        <div class="col-md-4">
+                            <label for="cantidad_habitaciones" class="form-label">Cantidad de Habitaciones</label>
+                            <input type="number" class="form-control" id="cantidad_habitaciones" name="cantidad_habitaciones" min="1">
+                        </div>
+                        <div class="col-md-4">
+                            <label for="tipo_fee" class="form-label">Tipo de Fee</label>
+                            <select class="form-select" id="tipo_fee" name="tipo_fee">
+                                <option value="">Seleccione un tipo</option>
+                                <option value="porcentaje">Porcentaje</option>
+                                <option value="fijo">Fijo</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label for="fee_doble" class="form-label">Fee Doble</label>
+                            <input type="text" class="form-control" id="fee_doble" name="fee_doble" maxlength="10">
+                        </div>
+                        <div class="col-md-4">
+                            <label for="fee_triple" class="form-label">Fee Triple</label>
+                            <input type="text" class="form-control" id="fee_triple" name="fee_triple" maxlength="10">
+                        </div>
+                        <div class="col-md-4">
+                            <label for="fee_sencilla" class="form-label">Fee Sencilla</label>
+                            <input type="text" class="form-control" id="fee_sencilla" name="fee_sencilla" maxlength="10">
+                        </div>
+                        <div class="col-md-4">
+                            <label for="fee_primer_nino" class="form-label">Fee Primer Niño</label>
+                            <input type="text" class="form-control" id="fee_primer_nino" name="fee_primer_nino" maxlength="10">
+                        </div>
+                        <div class="col-md-4">
+                            <label for="fee_segundo_nino" class="form-label">Fee Segundo Niño</label>
+                            <input type="text" class="form-control" id="fee_segundo_nino" name="fee_segundo_nino" maxlength="10">
+                        </div>
+                        <div class="col-12">
+                            <button type="submit" class="btn btn-primary mt-4"><i class="fas fa-save me-2"></i>Guardar Oferta</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Limpiar el formulario al abrir el modal para crear una nueva oferta
+        document.getElementById('crearOfertaBtn').addEventListener('click', function () {
+            document.getElementById('ofertaForm').reset();
+            const ofertaIdElement = document.getElementById('oferta_id');
+            if (ofertaIdElement) {
+                ofertaIdElement.value = '';
+            }
+            document.getElementById('ofertaModalLabel').innerText = 'Crear Oferta';
+        });
+    
+        // Cargar los datos en el modal cuando se hace clic en "Editar"
+        document.querySelectorAll('.editarOfertaBtn').forEach(button => {
+            button.addEventListener('click', function () {
+                const ofertaId = this.getAttribute('data-oferta-id');
+                const setValueIfExists = (id, value) => {
+                    const element = document.getElementById(id);
+                    if (element) {
+                        element.value = value;
+                    }
+                };
+    
+                setValueIfExists('oferta_id', ofertaId);
+                setValueIfExists('codigo', this.getAttribute('data-codigo'));
+                setValueIfExists('disponible', this.getAttribute('data-disponible'));
+                setValueIfExists('tipo_habitacion', this.getAttribute('data-tipo-habitacion'));
+                setValueIfExists('temporada', this.getAttribute('data-temporada'));
+                setValueIfExists('booking_window', this.getAttribute('data-booking-window'));
+                setValueIfExists('doble', this.getAttribute('data-doble'));
+                setValueIfExists('triple', this.getAttribute('data-triple'));
+                setValueIfExists('sencilla', this.getAttribute('data-sencilla'));
+                setValueIfExists('primer_nino', this.getAttribute('data-primer-nino'));
+                setValueIfExists('segundo_nino', this.getAttribute('data-segundo-nino'));
+                setValueIfExists('un_adulto_con_ninos', this.getAttribute('data-un-adulto-con-ninos'));
+                setValueIfExists('primer_nino_con_un_adulto', this.getAttribute('data-primer-nino-con-un-adulto'));
+                setValueIfExists('segundo_nino_con_un_adulto', this.getAttribute('data-segundo-nino-con-un-adulto'));
+                setValueIfExists('edad_nino', this.getAttribute('data-edad-nino'));
+                setValueIfExists('edad_infante', this.getAttribute('data-edad-infante'));
+                setValueIfExists('noches_minimas', this.getAttribute('data-noches-minimas'));
+                setValueIfExists('cantidad_habitaciones', this.getAttribute('data-cantidad-habitaciones'));
+                setValueIfExists('tipo_fee', this.getAttribute('data-tipo-fee'));
+                setValueIfExists('fee_doble', this.getAttribute('data-fee-doble'));
+                setValueIfExists('fee_triple', this.getAttribute('data-fee-triple'));
+                setValueIfExists('fee_sencilla', this.getAttribute('data-fee-sencilla'));
+                setValueIfExists('fee_primer_nino', this.getAttribute('data-fee-primer-nino'));
+                setValueIfExists('fee_segundo_nino', this.getAttribute('data-fee-segundo-nino'));
+    
+                document.getElementById('ofertaModalLabel').innerText = 'Editar Oferta';
+            });
+        });
+    
+        // Enviar datos al servidor para crear o editar la oferta al guardar
+        document.getElementById('ofertaForm').addEventListener('submit', function (event) {
+            event.preventDefault(); // Evita el envío por defecto del formulario
+    
+            const data = {
+                oferta_id: document.getElementById('oferta_id') ? document.getElementById('oferta_id').value : '',
+                disponible: document.getElementById('disponible') ? document.getElementById('disponible').checked : true,
+                codigo: document.getElementById('codigo') ? document.getElementById('codigo').value : '',
+                tipo_habitacion: document.getElementById('tipo_habitacion') ? document.getElementById('tipo_habitacion').value : '',
+                temporada: document.getElementById('temporada') ? document.getElementById('temporada').value : '',
+                booking_window: document.getElementById('booking_window') ? document.getElementById('booking_window').value : '',
+                sencilla: document.getElementById('sencilla') ? document.getElementById('sencilla').value : '',
+                doble: document.getElementById('doble') ? document.getElementById('doble').value : '',
+                triple: document.getElementById('triple') ? document.getElementById('triple').value : '',
+                primer_nino: document.getElementById('primer_nino') ? document.getElementById('primer_nino').value : '',
+                segundo_nino: document.getElementById('segundo_nino') ? document.getElementById('segundo_nino').value : '',
+                un_adulto_con_ninos: document.getElementById('un_adulto_con_ninos') ? document.getElementById('un_adulto_con_ninos').value : '',
+                primer_nino_con_un_adulto: document.getElementById('primer_nino_con_un_adulto') ? document.getElementById('primer_nino_con_un_adulto').value : '',
+                segundo_nino_con_un_adulto: document.getElementById('segundo_nino_con_un_adulto') ? document.getElementById('segundo_nino_con_un_adulto').value : '',
+                edad_nino: document.getElementById('edad_nino') ? document.getElementById('edad_nino').value : '',
+                edad_infante: document.getElementById('edad_infante') ? document.getElementById('edad_infante').value : '',
+                noches_minimas: document.getElementById('noches_minimas') ? document.getElementById('noches_minimas').value : '',
+                cantidad_habitaciones: document.getElementById('cantidad_habitaciones') ? document.getElementById('cantidad_habitaciones').value : 1,
+                tipo_fee: document.getElementById('tipo_fee') ? document.getElementById('tipo_fee').value : '',
+                fee_doble: document.getElementById('fee_doble') ? document.getElementById('fee_doble').value : '',
+                fee_triple: document.getElementById('fee_triple') ? document.getElementById('fee_triple').value : '',
+                fee_sencilla: document.getElementById('fee_sencilla') ? document.getElementById('fee_sencilla').value : '',
+                fee_primer_nino: document.getElementById('fee_primer_nino') ? document.getElementById('fee_primer_nino').value : '',
+                fee_segundo_nino: document.getElementById('fee_segundo_nino') ? document.getElementById('fee_segundo_nino').value : ''
+            };
+    
+            fetch("{% url 'backoffice:crear_editar_oferta' %}", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRFToken": "{{ csrf_token }}"
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(result => {
+                if (result.status === 'success') {
+                    alert(result.message);
+                    location.reload();
+                } else {
+                    alert('Error: ' + result.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error en el envío al servidor:', error);
+                alert('Hubo un error al guardar la oferta.');
+            });
+        });
+    });
+    
+</script>

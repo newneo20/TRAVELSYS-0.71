@@ -1,0 +1,121 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Transacciones{% endblock %}
+
+{% block content %}
+<div class="container">    
+    <div class="card mb-4">
+        <div class="card-body">
+            <h2 class="font-bold text-xl mb-4">Resumen de la Reserva</h2>
+            <!-- Información de la reserva -->
+            <div class="row">
+                <div class="col-md-4">
+                    <p><strong>Código de reserva:</strong> {{ reserva.id|default_if_none:"N/A" }}</p>
+                    <p><strong>Nombre del pasajero/Cliente:</strong>
+                        {% with habitacion=reserva.habitaciones_reserva.first %}
+                            {% if habitacion and habitacion.pasajeros.exists %}
+                                {{ habitacion.pasajeros.first.nombre }}
+                            {% else %}
+                                <span class="text-muted">Sin Pasajeros</span>
+                            {% endif %}
+                        {% endwith %}
+                    </p>
+                    <p><strong>Proveedor del servicio:</strong> {{ reserva.hotel.proveedor|default_if_none:"N/A" }}</p>            
+                    <p><strong>Tipo de reserva:</strong> {{ reserva.get_tipo_display|default_if_none:"N/A" }}</p>
+                    <p><strong>Agencia que solicita:</strong> {{ reserva.nombre_usuario|default_if_none:"N/A" }}</p>
+                </div>
+ 
+                <div class="col-md-4">
+                    <p><strong>Valor de la reserva:</strong> <strong class="fs-4">${{ reserva.costo_total|floatformat:2 }}</strong></p>
+                    <p><strong>Costo de la reserva:</strong> <strong class="fs-4">${{ reserva.costo_sin_fee|floatformat:2 }}</strong></p>
+                    <p><strong>Ganancia:</strong> <strong class="fs-4 text-success">${{ ganancia|floatformat:2 }}</strong></p>
+                </div>
+                <div class="col-md-4">
+                    <p><strong>Saldo por cobrar:</strong> 
+                        <strong class="fs-4 {% if saldo_por_cobrar > 0 %}text-success{% else %}text-danger{% endif %}">
+                            ${{ saldo_por_cobrar|floatformat:2 }}
+                        </strong>
+                    </p>
+                    <p><strong>Saldo por pagar:</strong> 
+                        <strong class="fs-4 {% if saldo_por_pagar > 0 %}text-danger{% else %}text-success{% endif %}">
+                            ${{ saldo_por_pagar|floatformat:2 }}
+                        </strong>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            <h2 class="font-bold text-xl mb-4">Transacciones</h2>
+            <!-- Formulario para agregar transacción -->
+            <form method="post" class="row mb-3">
+                {% csrf_token %}
+                <div class="col-md-3">
+                    <div class="form-group">
+                        {{ form.monto.label_tag }}
+                        {{ form.monto }}
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="form-group">
+                        {{ form.tipo.label_tag }}
+                        {{ form.tipo }}
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <button type="submit" name="action" value="add" class="btn btn-success w-100">Agregar Transacción</button>
+                </div>
+                <div class="col-md-3">
+                    <button type="submit" name="action" value="refund" class="btn btn-danger w-100">Reembolso Total</button>
+                </div>
+            </form>
+            <!-- Tabla de transacciones -->
+            <table class="table table-striped text-center">
+                <thead>
+                    <tr>
+                        <th>Fecha</th>
+                        <th>Tipo</th>
+                        <th>Monto</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if transacciones %}
+                        {% for transaccion in transacciones %}
+                        <tr>
+                            <td>{{ transaccion.fecha|date:"d/m/Y H:i" }}</td>
+                            <td>
+                                <span class="badge 
+                                    {% if transaccion.tipo == 'cobro' %}bg-success
+                                    {% elif transaccion.tipo == 'pago' %}bg-danger
+                                    {% elif transaccion.tipo == 'reembolso' %}bg-secondary
+                                    {% endif %}">
+                                    {{ transaccion.get_tipo_display }}
+                                </span>
+                            </td>
+                            <td>${{ transaccion.monto|floatformat:2 }}</td>
+                            <td>
+                                <form action="{% url 'transaccion_eliminar' reserva.id transaccion.id %}" method="post" style="display:inline;">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-outline-danger" title="Eliminar" onclick="return confirm('¿Estás seguro de que deseas eliminar esta transacción?');">
+                                        <i class="fas fa-trash-alt"></i>
+                                    </button>
+                                </form>
+                            </td>
+                            
+                        </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr>
+                            <td colspan="4" class="text-center text-muted">No hay transacciones registradas.</td>
+                        </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

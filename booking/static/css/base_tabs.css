@@ -1,0 +1,118 @@
+/* VARIABLES Y CONFIGURACIÓN GLOBAL */
+:root {
+    /* Colores */
+    --color-primary: #007bff;
+    --color-secondary: #6c757d;
+    --color-background: #f8f9fa;
+    --color-background-alt: #e9ecef;
+    --color-text: #333333;
+    --color-white: #ffffff;
+    --color-hover: #f8f9fa;
+  
+    /* Tipografía */
+    --font-size-base: 16px;
+    --font-size-lg: 1.5rem;
+    --font-size-md: 1.2rem;
+    --font-weight-bold: 600;
+    --letter-spacing-wide: 1px;
+  
+    /* Espaciados */
+    --spacing-xs: 0.25rem;
+    --spacing-sm: 0.5rem;
+    --spacing-md: 1rem;
+    --spacing-lg: 1.5rem;
+    --spacing-navbar-top: 70px; /* Ajusta este valor según la altura de tu navbar */
+  
+    /* Bordes y sombras */
+    --border-radius-base: 0.5rem;
+    --transition-base: all 0.3s ease;
+    --transition-fast: all 0.2s ease;
+  
+    /* Media Queries */
+    --breakpoint-md: 768px;
+  }
+  
+  /* ESTILOS GENERALES */
+  body {
+    padding-top: var(--spacing-navbar-top);
+    font-size: var(--font-size-base);
+    line-height: 1.6;
+    color: var(--color-text);
+  }
+  
+  /* NAVBAR */
+  .navbar {
+    transition: var(--transition-base);
+  }
+  
+  /* ENVOLTORIO DE LA MARCA */
+  .navbar-brand-wrapper {
+    background: linear-gradient(135deg, var(--color-background) 0%, var(--color-background-alt) 100%);
+    padding: var(--spacing-sm) var(--spacing-md);
+    border-radius: var(--border-radius-base);
+    transition: var(--transition-base);
+  }
+  
+  /* LOGOTIPO Y TEXTO DE LA MARCA */
+  .navbar-brand {
+    font-size: var(--font-size-lg);
+    font-weight: var(--font-weight-bold);
+    color: var(--color-text);
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    transition: var(--transition-base);
+  }
+  
+  .navbar-brand:hover {
+    transform: translateY(-2px);
+  }
+  
+  /* TEXTO DE LA MARCA */
+  .brand-text {
+    margin-left: var(--spacing-sm);
+    letter-spacing: var(--letter-spacing-wide);
+  }
+  
+  /* ENLACES DE NAVEGACIÓN */
+  .nav-link {
+    transition: var(--transition-base);
+    color: var(--color-text);
+    padding: var(--spacing-sm) var(--spacing-md);
+  }
+  
+  .nav-link:hover {
+    transform: translateY(-2px);
+    background-color: var(--color-hover);
+    border-radius: var(--border-radius-base);
+  }
+  
+  /* MENÚ DESPLEGABLE */
+  .dropdown-menu {
+    border: none;
+    border-radius: var(--border-radius-base);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+  
+  .dropdown-item {
+    transition: var(--transition-fast);
+    padding: var(--spacing-sm) var(--spacing-md);
+  }
+  
+  .dropdown-item:hover {
+    background-color: var(--color-hover);
+    transform: translateX(5px);
+  }
+  
+  /* RESPONSIVE DESIGN */
+  @media (max-width: var(--breakpoint-md)) {
+    .navbar-brand img {
+      width: 30px;
+      height: 30px;
+    }
+  
+    .brand-text {
+      font-size: var(--font-size-md);
+    }
+  }
+  

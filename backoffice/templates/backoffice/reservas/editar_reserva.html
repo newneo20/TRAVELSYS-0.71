@@ -1,0 +1,546 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+  <h1>Editar Reserva</h1>
+  <form method="post" action="{% url 'backoffice:guardar_reserva_editada' reserva.pk %}">
+    {% csrf_token %}
+    <div class="card mt-3 mb-3">
+      <div class="card-body">
+        <div class="row">
+          <!-- Datos de Usuario y Reserva -->
+          <div class="col-md-4">
+            <div class="form-group">
+              <label for="nombre_usuario"><strong>Nombre de Usuario</strong></label>
+              <input type="text" class="form-control" id="nombre_usuario" name="nombre_usuario" value="{{ reserva.nombre_usuario }}">
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="form-group">
+              <label for="email_empleado"><strong>Email del Empleado</strong></label>
+              <input type="email" class="form-control" id="email_empleado" name="email_empleado" value="{{ reserva.email_empleado }}">
+            </div>
+          </div>
+          <div class="col-md-1">
+            <div class="form-group">
+              <label for="costo_total"><strong>Costo Total</strong></label>
+              <input type="number" step="0.01" class="form-control" id="costo_total" name="costo_total" value="{{ reserva.costo_total }}">
+            </div>
+          </div>
+          <div class="col-md-1">
+            <div class="form-group">
+              <label for="precio_total"><strong>Precio Total</strong></label>
+              <input type="number" step="0.01" class="form-control" id="precio_total" name="precio_total" value="{{ reserva.precio_total }}">
+            </div>
+          </div>
+          <div class="col-md-1">
+            <div class="form-group">
+              <label for="tipo"><strong>Tipo</strong></label>
+              <select class="form-control" id="tipo" name="tipo">
+                {% include 'backoffice/reservas/partials/tipo_options.html' %}
+              </select>
+            </div>
+          </div>
+          <div class="col-md-1">
+            <div class="form-group">
+              <label for="estatus"><strong>Estatus</strong></label>
+              <select class="form-control" id="estatus" name="estatus">
+                {% include 'backoffice/reservas/partials/estatus_options.html' %}
+              </select>
+            </div>
+          </div>
+          <div class="col-md-2">
+            <div class="form-group">
+              <label for="numero_confirmacion"><strong>Número de Confirmación</strong></label>
+              <input type="text" class="form-control" id="numero_confirmacion" name="numero_confirmacion" value="{{ reserva.numero_confirmacion }}">
+            </div>
+          </div>
+          <div class="col-md-8">
+            <div class="form-group">
+              <label for="notas"><strong>Notas</strong></label>
+              <textarea class="form-control" id="notas" name="notas">{{ reserva.notas }}</textarea>
+            </div>
+          </div>
+          <div class="col-md-1">
+            <div class="form-group">
+              <label for="cobrada"><strong>Cobrada</strong></label>
+              <input type="checkbox" class="form-check-input" id="cobrada" name="cobrada" {% if reserva.cobrada %}checked{% endif %}>
+            </div>
+          </div>
+          <div class="col-md-1">
+            <div class="form-group">
+              <label for="pagada"><strong>Pagada</strong></label>
+              <input type="checkbox" class="form-check-input" id="pagada" name="pagada" {% if reserva.pagada %}checked{% endif %}>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Habitaciones y Pasajeros -->
+    <div class="card mt-3 mb-3">
+      <div class="card-body">
+        <h3>Hotel: {{ reserva.hotel.hotel_nombre }}</h3>
+        <div id="habitaciones-container">
+          {% for habitacion in habitaciones %}
+            {% include 'backoffice/reservas/partials/habitacion_form.html' with habitacion=habitacion forloop=forloop %}
+          {% endfor %}
+        </div>
+        <button type="button" class="btn btn-success" id="agregar-habitacion">Agregar Habitación</button>
+      </div>
+    </div>
+
+    <div class="card mt-3 mb-3">
+      <div class="card-body text-end">
+        <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+      </div>
+    </div>
+  </form>
+
+  <!-- Modal para agregar pasajeros -->
+  <div class="modal fade" id="pasajeroModal" tabindex="-1" role="dialog" aria-labelledby="pasajeroModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="pasajeroModalLabel">Tipo de Pasajero</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <p>Selecciona si el pasajero es adulto o niño:</p>
+          <button type="button" class="btn btn-primary btn-agregar-pasajero" data-tipo="adulto">Adulto</button>
+          <button type="button" class="btn btn-secondary btn-agregar-pasajero" data-tipo="nino">Niño</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+    
+        // Contenedor principal de las habitaciones
+        const habitacionesContainer = document.getElementById('habitaciones-container');
+    
+        
+        // Valida la capacidad de una habitación según el número de adultos y niños.
+        function validarCapacidadHabitacion(habitacionId) {
+            const habitacionSelect = document.getElementById(`habitacion_nombre_${habitacionId}`);
+            const adultosInput = document.getElementById(`adultos_${habitacionId}`);
+            const ninosInput = document.getElementById(`ninos_${habitacionId}`);
+            
+            const soloAdultos = habitacionSelect?.selectedOptions[0].getAttribute('data-solo-adultos') === 'True';
+            const maxAdultos = parseInt(habitacionSelect?.selectedOptions[0].getAttribute('data-max-adultos'));
+            const maxNinos = parseInt(habitacionSelect?.selectedOptions[0].getAttribute('data-max-ninos'));
+            const maxCapacidad = parseInt(habitacionSelect?.selectedOptions[0].getAttribute('data-max-capacidad'));
+            const minCapacidad = parseInt(habitacionSelect?.selectedOptions[0].getAttribute('data-min-capacidad'));
+            
+            const adultos = parseInt(adultosInput.value);
+            const ninos = parseInt(ninosInput.value);
+            
+            if (soloAdultos) {
+                ninosInput.disabled = true;
+                ninosInput.value = 0;
+            } else {
+                ninosInput.disabled = false;
+            }
+            
+            if (adultos > maxAdultos) {
+                alert(`El número de adultos no puede ser mayor que ${maxAdultos}.`);
+                adultosInput.value = maxAdultos;
+            }
+            
+            if (ninos > maxNinos) {
+                alert(`El número de niños no puede ser mayor que ${maxNinos}.`);
+                ninosInput.value = maxNinos;
+            }
+            
+            if (adultos + ninos > maxCapacidad) {
+                alert(`La capacidad total no puede ser mayor que ${maxCapacidad}.`);
+                ninosInput.value = maxCapacidad - adultos;
+            }
+            
+            if (adultos < minCapacidad) {
+                alert(`El número de adultos no puede ser menor que ${minCapacidad}.`);
+                adultosInput.value = minCapacidad;
+            }
+        }
+        
+        // Calcula la edad de una persona en base a su fecha de nacimiento.
+        function calcularEdad(fechaNacimiento) {
+            const hoy = new Date();
+            const nacimiento = new Date(fechaNacimiento);
+            let edad = hoy.getFullYear() - nacimiento.getFullYear();
+            const mes = hoy.getMonth() - nacimiento.getMonth();
+            if (mes < 0 || (mes === 0 && hoy.getDate() < nacimiento.getDate())) {
+                edad--;
+            }
+            return edad;
+        }
+        // Inicializa un picker de rango de fechas
+        function initializeDateRangePicker(element) {
+            $(element).daterangepicker({
+                opens: 'left',
+                locale: {
+                    format: 'YYYY/MM/DD'
+                }
+            }, function(start, end, label) {
+                console.log("A new date selection was made: " + start.format('YYYY-MM-DD') + ' to ' + end.format('YYYY-MM-DD'));
+            });
+        }
+    
+        // Inicializa un picker de una sola fecha y calcula la edad si se proporciona un campo de edad
+        function initializeSingleDatePicker(element, campoEdadId) {
+            $(element).daterangepicker({
+                singleDatePicker: true,
+                showDropdowns: true,
+                minYear: 1901,                
+                locale: {
+                    format: 'YYYY/MM/DD'
+                }
+            }, function(start, end, label) {
+                if (campoEdadId) {
+                    const edad = calcularEdad(start.format('YYYY-MM-DD'));
+                    document.getElementById(campoEdadId).value = edad;
+                }
+            });
+        }
+    
+        // Agrega un nuevo pasajero (adulto o niño) a una habitación específica.
+        function agregarPasajero(pasajerosContainer, habitacionId, tipoPasajero) {
+            const nuevaPasajeroIndex = pasajerosContainer.children.length + 1;
+    
+            const edadInputHtml = tipoPasajero === 'nino' || tipoPasajero === 'adulto' ? `
+                <div class="col-md-1">
+                    <div class="form-group">
+                    <label for="edad_pasajero_${habitacionId}_${nuevaPasajeroIndex}"><strong>Edad</strong></label>
+                    <input type="text" class="form-control edad" id="edad_pasajero_${habitacionId}_${nuevaPasajeroIndex}" name="habitaciones[${habitacionId}][pasajeros][nuevo_${nuevaPasajeroIndex}][edad]" readonly>
+                    </div>
+                </div>` : '';
+    
+            const nuevoPasajero = document.createElement('div');
+            nuevoPasajero.className = 'row pasajero';
+            nuevoPasajero.setAttribute('data-tipo', tipoPasajero);
+            nuevoPasajero.innerHTML = `
+                <div class="col-md-3">
+                    <div class="form-group">
+                    <label for="nombre_pasajero_${habitacionId}_${nuevaPasajeroIndex}"><strong>Nombre</strong></label>
+                    <input type="text" class="form-control" id="nombre_pasajero_${habitacionId}_${nuevaPasajeroIndex}" name="habitaciones[${habitacionId}][pasajeros][nuevo_${nuevaPasajeroIndex}][nombre]" value="">
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <div class="form-group">
+                    <label for="fecha_nacimiento_pasajero_${habitacionId}_${nuevaPasajeroIndex}"><strong>Fecha de Nacimiento</strong></label>
+                    <input type="text" class="form-control fecha-nacimiento" id="fecha_nacimiento_pasajero_${habitacionId}_${nuevaPasajeroIndex}" name="habitaciones[${habitacionId}][pasajeros][nuevo_${nuevaPasajeroIndex}][fecha_nacimiento]" value="">
+                    </div>
+                </div>
+                ${edadInputHtml}
+                <div class="col-md-2">
+                    <div class="form-group">
+                    <label for="pasaporte_pasajero_${habitacionId}_${nuevaPasajeroIndex}"><strong>Pasaporte</strong></label>
+                    <input type="text" class="form-control" id="pasaporte_pasajero_${habitacionId}_${nuevaPasajeroIndex}" name="habitaciones[${habitacionId}][pasajeros][nuevo_${nuevaPasajeroIndex}][pasaporte]" value="">
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <div class="form-group">
+                    <label for="caducidad_pasaporte_${habitacionId}_${nuevaPasajeroIndex}"><strong>Caducidad Pasaporte</strong></label>
+                    <input type="text" class="form-control caducidad-pasaporte" id="caducidad_pasaporte_${habitacionId}_${nuevaPasajeroIndex}" name="habitaciones[${habitacionId}][pasajeros][nuevo_${nuevaPasajeroIndex}][caducidad_pasaporte]" value="">
+                    </div>
+                </div>
+                <div class="col-md-1 d-flex align-items-end">
+                    <a href="#" class="btn btn-outline-danger eliminar-pasajero"><i class="fas fa-trash-alt"></i></a>
+                </div>
+            `;
+            pasajerosContainer.appendChild(nuevoPasajero);
+    
+            initializeSingleDatePicker(`#fecha_nacimiento_pasajero_${habitacionId}_${nuevaPasajeroIndex}`, `edad_pasajero_${habitacionId}_${nuevaPasajeroIndex}`);
+            initializeSingleDatePicker(`#caducidad_pasaporte_${habitacionId}_${nuevaPasajeroIndex}`);
+        }
+    
+        // Maneja el cambio en los inputs de número de adultos y niños, agregando o eliminando pasajeros en consecuencia.
+        function manejarCambioPasajeros(habitacionId, adultosInput, ninosInput) {
+            const pasajerosContainer = document.querySelector(`.habitacion[data-id="${habitacionId}"] .pasajeros-container`);
+    
+            // Actualizar pasajeros adultos
+            let pasajerosAdultos = pasajerosContainer.querySelectorAll('.pasajero[data-tipo="adulto"]');
+            const nuevosAdultos = parseInt(adultosInput.value) - pasajerosAdultos.length;
+    
+            if (nuevosAdultos > 0) {
+                for (let i = 0; i < nuevosAdultos; i++) {
+                    agregarPasajero(pasajerosContainer, habitacionId, 'adulto');
+                }
+            } else if (nuevosAdultos < 0) {
+                for (let i = 0; i < Math.abs(nuevosAdultos); i++) {
+                    pasajerosAdultos[i].remove();
+                }
+            }
+    
+            // Actualizar pasajeros niños
+            let pasajerosNinos = pasajerosContainer.querySelectorAll('.pasajero[data-tipo="nino"]');
+            const nuevosNinos = parseInt(ninosInput.value) - pasajerosNinos.length;
+    
+            if (nuevosNinos > 0) {
+                for (let i = 0; i < nuevosNinos; i++) {
+                    agregarPasajero(pasajerosContainer, habitacionId, 'nino');
+                }
+            } else if (nuevosNinos < 0) {
+                for (let i = 0; i < Math.abs(nuevosNinos); i++) {
+                    pasajerosNinos[i].remove();
+                }
+            }
+        }
+    
+        document.querySelectorAll('.habitacion-select').forEach(selectElement => {
+            const habitacionId = selectElement.getAttribute('data-forloop-counter');
+            const adultosInput = document.getElementById(`adultos_${habitacionId}`);
+            const ninosInput = document.getElementById(`ninos_${habitacionId}`);
+    
+            selectElement.addEventListener('change', function() {
+                validarCapacidadHabitacion(habitacionId);
+            });
+    
+            adultosInput.addEventListener('change', function() {
+                validarCapacidadHabitacion(habitacionId);
+                manejarCambioPasajeros(habitacionId, adultosInput, ninosInput);
+            });
+    
+            ninosInput.addEventListener('change', function() {
+                validarCapacidadHabitacion(habitacionId);
+                manejarCambioPasajeros(habitacionId, adultosInput, ninosInput);
+            });
+    
+            validarCapacidadHabitacion(habitacionId);
+        });
+    
+        document.getElementById('agregar-habitacion').addEventListener('click', function() {
+            const nuevaHabitacionIndex = habitacionesContainer.children.length + 1;
+            const nuevaHabitacion = document.createElement('div');
+            nuevaHabitacion.className = 'card mt-3 mb-3';
+            nuevaHabitacion.innerHTML = `
+                <div class="card-body habitacion" data-id="nueva_${nuevaHabitacionIndex}">
+                    <h4>Habitación Nueva</h4>
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label for="habitacion_nombre_nueva_${nuevaHabitacionIndex}"><strong>Nombre de Habitación</strong></label>
+                                <select class="form-control habitacion-select" id="habitacion_nombre_nueva_${nuevaHabitacionIndex}" name="habitaciones[nueva_${nuevaHabitacionIndex}][nombre]" data-forloop-counter="nueva_${nuevaHabitacionIndex}">
+                                    {% for tipo in tipos_habitacion %}
+                                    <option value="{{ tipo.tipo }}" data-solo-adultos="{{ tipo.solo_adultos }}" data-max-adultos="{{ tipo.adultos }}" data-max-ninos="{{ tipo.ninos }}" data-max-capacidad="{{ tipo.max_capacidad }}" data-min-capacidad="{{ tipo.min_capacidad }}">{{ tipo.tipo }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-1">
+                            <div class="form-group">
+                                <label for="adultos_nueva_${nuevaHabitacionIndex}"><strong>Adultos</strong></label>
+                                <input type="number" class="form-control adultos-input" id="adultos_nueva_${nuevaHabitacionIndex}" name="habitaciones[nueva_${nuevaHabitacionIndex}][adultos]" value="0" data-forloop-counter="nueva_${nuevaHabitacionIndex}">
+                            </div>
+                        </div>
+                        <div class="col-md-1">
+                            <div class="form-group">
+                                <label for="ninos_nueva_${nuevaHabitacionIndex}"><strong>Niños</strong></label>
+                                <input type="number" class="form-control ninos-input" id="ninos_nueva_${nuevaHabitacionIndex}" name="habitaciones[nueva_${nuevaHabitacionIndex}][ninos]" value="0" data-forloop-counter="nueva_${nuevaHabitacionIndex}">
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label for="fechas_viaje_nueva_${nuevaHabitacionIndex}"><strong>Fechas de Viaje</strong></label>
+                                <input type="text" class="form-control daterange" id="fechas_viaje_nueva_${nuevaHabitacionIndex}" name="habitaciones[nueva_${nuevaHabitacionIndex}][fechas_viaje]" value="01/01/2018 - 01/15/2018">
+                            </div>
+                        </div>
+                        <div class="col-md-1 d-flex align-items-end">
+                            <a href="#" class="btn btn-outline-danger eliminar-habitacion"><i class="fas fa-trash-alt"></i></a>
+                        </div>
+                    </div>
+                    <div class="card mt-3 mb-3">
+                        <div class="card-body">
+                            <h5>Pasajeros</h5>
+                            <div class="pasajeros-container"></div>
+                            <button type="button" class="btn btn-success agregar-pasajero" data-habitacion-id="nueva_${nuevaHabitacionIndex}">Agregar Pasajero</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            habitacionesContainer.appendChild(nuevaHabitacion);
+    
+            $(`#fechas_viaje_nueva_${nuevaHabitacionIndex}`).daterangepicker({
+                opens: 'left',
+                locale: {
+                  format: 'YYYY-MM-DD'
+                }
+            }, function(start, end, label) {
+                console.log("A new date selection was made: " + start.format('YYYY-MM-DD') + ' to ' + end.format('YYYY-MM-DD'));
+            });
+    
+            const newHabitacionSelect = document.getElementById(`habitacion_nombre_nueva_${nuevaHabitacionIndex}`);
+            const newAdultosInput = document.getElementById(`adultos_nueva_${nuevaHabitacionIndex}`);
+            const newNinosInput = document.getElementById(`ninos_nueva_${nuevaHabitacionIndex}`);
+    
+            newHabitacionSelect.addEventListener('change', function() {
+                validarCapacidadHabitacion(`nueva_${nuevaHabitacionIndex}`);
+            });
+    
+            newAdultosInput.addEventListener('change', function() {
+                validarCapacidadHabitacion(`nueva_${nuevaHabitacionIndex}`);
+                manejarCambioPasajeros(`nueva_${nuevaHabitacionIndex}`, newAdultosInput, newNinosInput);
+            });
+    
+            newNinosInput.addEventListener('change', function() {
+                validarCapacidadHabitacion(`nueva_${nuevaHabitacionIndex}`);
+                manejarCambioPasajeros(`nueva_${nuevaHabitacionIndex}`, newAdultosInput, newNinosInput);
+            });
+        });
+    
+        document.addEventListener('click', function(event) {
+            if (event.target.classList.contains('agregar-pasajero')) {
+                const habitacionId = event.target.getAttribute('data-habitacion-id');
+                $('#pasajeroModal').data('habitacion-id', habitacionId).modal('show');
+            }
+    
+            if (event.target.classList.contains('eliminar-habitacion') || event.target.closest('.eliminar-habitacion')) {
+                const habitacion = event.target.closest('.habitacion');
+                habitacion.remove();
+            }
+    
+            if (event.target.classList.contains('eliminar-pasajero') || event.target.closest('.eliminar-pasajero')) {
+                const pasajero = event.target.closest('.pasajero');
+                pasajero.remove();
+            }
+        });
+    
+        document.querySelectorAll('.daterange').forEach(element => {
+            initializeDateRangePicker(element);
+        });
+
+        // Selecciona todos los contenedores de las habitaciones existentes
+        document.querySelectorAll('.habitacion').forEach(function (habitacionElement) {
+            const habitacionId = habitacionElement.getAttribute('data-id');
+            const adultosInput = habitacionElement.querySelector('.adultos-input');
+            const ninosInput = habitacionElement.querySelector('.ninos-input');
+            const pasajerosContainer = habitacionElement.querySelector('.pasajeros-container');
+    
+            // Inicializar la cantidad actual de adultos y niños desde el HTML
+            const cantidadInicialAdultos = parseInt(adultosInput.value);
+            const cantidadInicialNinos = parseInt(ninosInput.value);
+    
+            // Manejo de cambios en Adultos
+            adultosInput.addEventListener('change', function () {
+                const cantidadActualAdultos = parseInt(adultosInput.value);
+                if (cantidadActualAdultos > cantidadInicialAdultos) {
+                    manejarCambioPasajerosH(habitacionId, pasajerosContainer, 'adulto', cantidadActualAdultos, cantidadInicialAdultos);
+                } else if (cantidadActualAdultos < cantidadInicialAdultos) {
+                    manejarCambioPasajerosH(habitacionId, pasajerosContainer, 'adulto', cantidadActualAdultos, cantidadInicialAdultos);
+                }
+            });
+    
+            // Manejo de cambios en Niños
+            ninosInput.addEventListener('change', function () {
+                const cantidadActualNinos = parseInt(ninosInput.value);
+                if (cantidadActualNinos > cantidadInicialNinos) {
+                    manejarCambioPasajerosH(habitacionId, pasajerosContainer, 'nino', cantidadActualNinos, cantidadInicialNinos);
+                } else if (cantidadActualNinos < cantidadInicialNinos) {
+                    manejarCambioPasajerosH(habitacionId, pasajerosContainer, 'nino', cantidadActualNinos, cantidadInicialNinos);
+                }
+            });
+        });
+    
+        function manejarCambioPasajerosH(habitacionId, pasajerosContainer, tipo, cantidadActual, cantidadInicial) {
+            const diferencia = cantidadActual - cantidadInicial;
+    
+            // Añadir nuevos campos si se incrementa la cantidad
+            if (diferencia > 0) {
+                
+                agregarCampoPasajero(pasajerosContainer, habitacionId, tipo, cantidadInicial + 1 + 1);
+                
+            }
+    
+            // Eliminar campos si se reduce la cantidad
+            if (diferencia < 0) {
+                const pasajerosExistentes = pasajerosContainer.querySelectorAll(`.pasajero[data-tipo="${tipo}"]`);
+                for (let i = 0; i < Math.abs(diferencia); i++) {
+                    pasajerosExistentes[pasajerosExistentes.length - 1 - i].remove();
+                }
+            }
+        }
+    
+        function agregarCampoPasajero(container, habitacionId, tipo, index) {
+            let pasajeroHTML;
+    
+            if (tipo === 'adulto') {
+                pasajeroHTML = `
+                    <div class="row pasajero" data-tipo="${tipo}">
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label><strong>Nombre</strong></label>
+                                <input type="text" class="form-control" name="habitaciones[${habitacionId}][pasajeros][${tipo}_${index}][nombre]">
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="form-group">
+                                <label><strong>Fecha de Nacimiento</strong></label>
+                                <input type="text" class="form-control" name="habitaciones[${habitacionId}][pasajeros][${tipo}_${index}][fecha_nacimiento]">
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="form-group">
+                                <label><strong>Pasaporte</strong></label>
+                                <input type="text" class="form-control" name="habitaciones[${habitacionId}][pasajeros][${tipo}_${index}][pasaporte]">
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="form-group">
+                                <label><strong>Caducidad Pasaporte</strong></label>
+                                <input type="text" class="form-control" name="habitaciones[${habitacionId}][pasajeros][${tipo}_${index}][caducidad_pasaporte]">
+                            </div>
+                        </div>
+                        <div class="col-md-1 d-flex align-items-end">
+                            <a href="#" class="btn btn-outline-danger eliminar-pasajero"><i class="fas fa-trash-alt"></i></a>
+                        </div>
+                    </div>
+                `;
+            } else if (tipo === 'nino') {
+                pasajeroHTML = `
+                    <div class="row pasajero" data-tipo="${tipo}">
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label><strong>Nombre</strong></label>
+                                <input type="text" class="form-control" name="habitaciones[${habitacionId}][pasajeros][${tipo}_${index}][nombre]">
+                            </div>
+                        </div>
+                        <div class="col-md-1">
+                            <div class="form-group">
+                                <label><strong>Edad</strong></label>
+                                <input type="text" class="form-control" name="habitaciones[${habitacionId}][pasajeros][${tipo}_${index}][edad]" readonly>
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="form-group">
+                                <label><strong>Fecha de Nacimiento</strong></label>
+                                <input type="text" class="form-control" name="habitaciones[${habitacionId}][pasajeros][${tipo}_${index}][fecha_nacimiento]" onchange="calcularEdad(this)">
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="form-group">
+                                <label><strong>Pasaporte</strong></label>
+                                <input type="text" class="form-control" name="habitaciones[${habitacionId}][pasajeros][${tipo}_${index}][pasaporte]">
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="form-group">
+                                <label><strong>Caducidad Pasaporte</strong></label>
+                                <input type="text" class="form-control" name="habitaciones[${habitacionId}][pasajeros][${tipo}_${index}][caducidad_pasaporte]">
+                            </div>
+                        </div>
+                        <div class="col-md-1 d-flex align-items-end">
+                            <a href="#" class="btn btn-outline-danger eliminar-pasajero"><i class="fas fa-trash-alt"></i></a>
+                        </div>
+                    </div>
+                `;
+            }
+    
+            container.insertAdjacentHTML('beforeend', pasajeroHTML);
+        }      
+    });
+  </script>
+
+{% endblock %}

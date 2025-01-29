@@ -1,0 +1,80 @@
+{% block content %}
+
+<div class="card" style="width: 100%; max-width: 2000px; min-height: 700px;">
+    <div class="card-body">
+        <div class="row">
+            <h1>Habitaciones de ({{ hotel.hotel_nombre }})</h1>
+            <div class="col-md-2">
+                <button type="button" class="btn btn-outline-primary mb-3" data-bs-toggle="modal" data-bs-target="#crearHabitacionModal">
+                    Crear Habitación
+                </button>
+            </div>
+            <form method="post">
+                {% csrf_token %}
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th class="text-center align-middle">Tipo de Habitación</th>
+                            <th class="text-center align-middle">Descripción</th>
+                            <th class="text-center align-middle">Rango de Fechas Deshabilitado</th>                                
+                            <th class="text-center align-middle">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>                            
+                        {% for habitacion in habitaciones %}
+                        <tr>                                
+                            <td class="text-center align-middle">{{ habitacion.tipo }}</td>
+                            <td class="text-center align-middle">{{ habitacion.descripcion }}</td>
+                            <td class="text-center align-middle">{{ habitacion.datetimes }}</td>                                
+                            <td class="text-center align-middle">
+                                <a href="#" class="btn btn-outline-warning">
+                                    <i class="fas fa-pencil-alt"></i>
+                                </a>
+                                <a href="{% url 'backoffice:eliminar_habitacion' habitacion.id %}" class="btn btn-outline-danger">
+                                    <i class="fas fa-trash-alt"></i>
+                                </a>                                    
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                <button type="submit" class="btn btn-outline-success">Guardar</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+<!-- Modal -->
+<div class="modal fade" id="crearHabitacionModal" tabindex="-1" aria-labelledby="crearHabitacionModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="crearHabitacionModalLabel">Crear Habitación</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div id="modalContent">
+                    <!-- El contenido del modal se cargará aquí -->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Script para cargar contenido dinámico en el modal -->
+<script>
+    $(document).ready(function() {
+        $('#crearHabitacionModal').on('show.bs.modal', function (event) {
+            var modal = $(this);
+            var hotelId = {{ hotel.id }};  // Asumiendo que tienes el hotel.id disponible en tu plantilla
+            $.ajax({
+                url: "{% url 'backoffice:crear_habitacion' hotel.id %}",
+                success: function(data) {
+                    modal.find('#modalContent').html(data);
+                }
+            });
+        });
+    });
+</script>
+{% endblock %}

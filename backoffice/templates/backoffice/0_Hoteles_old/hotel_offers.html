@@ -1,0 +1,242 @@
+{% block content %}
+    
+    <div class="card">
+        <div class="card-body">
+            <div class="row">
+                <h1>Lista de Ofertas</h1>
+                <div class="col-md-2">
+                    <button type="button" class="btn btn-outline-primary mb-3" data-bs-toggle="modal" data-bs-target="#crearOfertaModal">
+                        Crear Oferta
+                    </button>
+                </div>
+                <div class="col-md-2">
+                    <button type="button" class="btn btn-outline-success mb-3" id="cargarDatosBtn">
+                        Cargar Datos
+                    </button>
+                </div>
+                <div class="col-md-2">
+                    <button type="button" class="btn btn-outline-primary mb-3" id="guardarOfertasBtn">
+                        Guardar Todas las Ofertas
+                    </button>
+                </div>
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th class="text-center align-middle"></th>
+                            <th class="text-center align-middle">Código Habitación</th>
+                            <th class="text-center align-middle">Tipo Habitación</th>
+                            <th class="text-center align-middle">Temporada</th>
+                            <th class="text-center align-middle">Booking Window</th>                            
+                            <th class="text-center align-middle">Doble</th>
+                            <th class="text-center align-middle">Triple</th>
+                            <th class="text-center align-middle">Sencilla</th>
+                            <th class="text-center align-middle">Primer Niño</th>
+                            <th class="text-center align-middle">Segundo Niño</th>
+                            <th class="text-center align-middle">Un Adulto Con Niños</th>
+                            <th class="text-center align-middle">Primer Niño con 1 Adulto</th>
+                            <th class="text-center align-middle">Segundo Niño con 1 Adulto</th>
+                            <th class="text-center align-middle">Edad Niño</th>
+                            <th class="text-center align-middle">Edad Infante</th>
+                            <th class="text-center align-middle">Noches Mínimas</th>
+                            <th class="text-center align-middle">Tipo Fee</th>
+                            <th class="text-center align-middle">Fee Doble</th>
+                            <th class="text-center align-middle">Fee Triple</th>
+                            <th class="text-center align-middle">Fee Sencilla</th>
+                            <th class="text-center align-middle">Fee Primer Niño</th>
+                            <th class="text-center align-middle">Fee Segundo Niño</th>
+                            <th class="text-center align-middle">Eliminar</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tablaOfertas">
+                        {% for oferta in ofertas %}
+                            <tr data-oferta-id="{{ oferta.id }}">
+                                <td class="text-center align-middle">
+                                    <div class="form-check text-center align-middle">
+                                        <input class="form-check-input" type="checkbox" value="" id="Disponible" name="disponible" {% if oferta.disponible %}checked{% endif %}>
+                                    </div>
+                                </td>
+                                <td class="text-center align-middle">{{ oferta.codigo }}</td>
+                                <td class="text-center align-middle">{{ oferta.tipo_habitacion }}</td>
+                                <td class="text-center align-middle">{{ oferta.temporada }}</td>
+                                <td class="text-center align-middle">{{ oferta.booking_window }}</td>                                
+                                <td class="text-center align-middle">{{ oferta.doble }}</td>
+                                <td class="text-center align-middle">{{ oferta.triple }}</td>
+                                <td class="text-center align-middle">{{ oferta.sencilla }}</td>
+                                <td class="text-center align-middle">{{ oferta.primer_nino }}</td>
+                                <td class="text-center align-middle">{{ oferta.segundo_nino }}</td>
+                                <td class="text-center align-middle">{{ oferta.un_adulto_con_ninos }}</td>
+                                <td class="text-center align-middle">{{ oferta.primer_nino_con_un_adulto }}</td>
+                                <td class="text-center align-middle">{{ oferta.segundo_nino_con_un_adulto }}</td>
+                                <td class="text-center align-middle">{{ oferta.edad_nino }}</td>
+                                <td class="text-center align-middle">{{ oferta.edad_infante }}</td>
+                                <td class="text-center align-middle">{{ oferta.noches_minimas }}</td>
+                                <td class="text-center align-middle">{{ oferta.tipo_fee }}</td>
+                                <td class="text-center align-middle">{{ oferta.fee_doble }}</td>
+                                <td class="text-center align-middle">{{ oferta.fee_triple }}</td>
+                                <td class="text-center align-middle">{{ oferta.fee_sencilla }}</td>
+                                <td class="text-center align-middle">{{ oferta.fee_primer_nino }}</td>
+                                <td class="text-center align-middle">{{ oferta.fee_segundo_nino }}</td>
+                                <td class="text-center align-middle">
+                                    <button type="button" class="btn btn-outline-danger eliminarOfertaBtn">
+                                        <i class="fas fa-trash-alt"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    
+
+    <!-- Modal -->
+    <div class="modal fade" id="crearOfertaModal" tabindex="-1" aria-labelledby="crearOfertaModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="crearOfertaModalLabel">Crear Oferta</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="modalContent">
+                        <!-- El contenido del modal se cargará aquí -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        $(document).ready(function() {
+            $('#crearOfertaModal').on('show.bs.modal', function (event) {
+                var modal = $(this);
+                var hotelId = {{ hotel.id }};  // Asumiendo que tienes el hotel.id disponible en tu plantilla
+                $.ajax({
+                    url: "{% url 'backoffice:hotel_crear_offers' hotel.id %}",
+                    success: function(data) {
+                        modal.find('#modalContent').html(data);
+                    }
+                });
+            });
+
+            $('#cargarDatosBtn').click(function() {
+                var hotelId = {{ hotel.id }};  // Asegúrate de que el hotel.id esté disponible en tu plantilla
+                $.ajax({
+                    url: "{% url 'backoffice:cargar_datos_hoteles' hotel.id %}",  // Cambia esta URL si es necesario
+                    method: 'GET',
+                    success: function(data) {
+                        var tablaOfertas = $('#tablaOfertas');
+                        tablaOfertas.empty();
+                        data.ofertas.forEach(function(oferta) {
+                            var checked = oferta.disponible ? 'checked' : '';
+                            var row = `<tr data-oferta-id="${oferta.id}">
+                                <td class="text-center align-middle">
+                                    <div class="form-check text-center align-middle">
+                                        <input class="form-check-input" type="checkbox" value="" id="Disponible" name="disponible" ${checked}>
+                                    </div>
+                                </td>
+                                <td class="text-center align-middle">${oferta.codigo}</td>
+                                <td class="text-center align-middle">${oferta.tipo_habitacion}</td>
+                                <td class="text-center align-middle">${oferta.temporada}</td>
+                                <td class="text-center align-middle">${oferta.booking_window}</td>                                
+                                <td class="text-center align-middle">${oferta.doble}</td>
+                                <td class="text-center align-middle">${oferta.triple}</td>
+                                <td class="text-center align-middle">${oferta.sencilla}</td>
+                                <td class="text-center align-middle">${oferta.primer_nino}</td>
+                                <td class="text-center align-middle">${oferta.segundo_nino}</td>
+                                <td class="text-center align-middle">${oferta.un_adulto_con_ninos}</td>
+                                <td class="text-center align-middle">${oferta.primer_nino_con_un_adulto}</td>
+                                <td class="text-center align-middle">${oferta.segundo_nino_con_un_adulto}</td>
+                                <td class="text-center align-middle">${oferta.edad_nino}</td>
+                                <td class="text-center align-middle">${oferta.edad_infante}</td>
+                                <td class="text-center align-middle">${oferta.noches_minimas}</td>
+                                <td class="text-center align-middle">${oferta.tipo_fee}</td>
+                                <td class="text-center align-middle">${oferta.fee_doble}</td>
+                                <td class="text-center align-middle">${oferta.fee_triple}</td>
+                                <td class="text-center align-middle">${oferta.fee_sencilla}</td>
+                                <td class="text-center align-middle">${oferta.fee_primer_nino}</td>
+                                <td class="text-center align-middle">${oferta.fee_segundo_nino}</td>
+                                <td class="text-center align-middle">
+                                    <button type="button" class="btn btn-outline-danger eliminarOfertaBtn">
+                                        <i class="fas fa-trash-alt"></i>
+                                    </button>
+                                </td>
+                            </tr>`;
+                            tablaOfertas.append(row);
+                        });
+                    }
+                });
+            });
+
+            $('#guardarOfertasBtn').click(function() {
+                var hotelId = {{ hotel.id }};  // Asegúrate de que el hotel.id esté disponible en tu plantilla
+                var ofertas = [];
+                $('#tablaOfertas tr').each(function() {
+                    var row = $(this);
+                    var oferta = {
+                        disponible: row.find('input[name="disponible"]').is(':checked'),
+                        codigo: row.find('td').eq(1).text().trim(),
+                        tipo_habitacion: row.find('td').eq(2).text().trim(),
+                        temporada: row.find('td').eq(3).text().trim(),
+                        booking_window: row.find('td').eq(4).text().trim(),                        
+                        doble: row.find('td').eq(6).text().trim(),
+                        triple: row.find('td').eq(7).text().trim(),
+                        sencilla: row.find('td').eq(5).text().trim(),
+                        primer_nino: row.find('td').eq(8).text().trim(),
+                        segundo_nino: row.find('td').eq(9).text().trim(),
+                        un_adulto_con_ninos: row.find('td').eq(10).text().trim(),
+                        primer_nino_con_un_adulto: row.find('td').eq(11).text().trim(),
+                        segundo_nino_con_un_adulto: row.find('td').eq(12).text().trim(),
+                        edad_nino: row.find('td').eq(13).text().trim(),
+                        edad_infante: row.find('td').eq(14).text().trim(),
+                        noches_minimas: row.find('td').eq(15).text().trim(),
+                        tipo_fee: row.find('td').eq(16).text().trim(),
+                        fee_doble: row.find('td').eq(17).text().trim(),
+                        fee_triple: row.find('td').eq(18).text().trim(),
+                        fee_sencilla: row.find('td').eq(19).text().trim(),
+                        fee_primer_nino: row.find('td').eq(20).text().trim(),
+                        fee_segundo_nino: row.find('td').eq(21).text().trim()
+                    };
+                    ofertas.push(oferta);
+                });
+                $.ajax({
+                    url: "{% url 'backoffice:guardar_todas_ofertas' hotel.id %}",
+                    method: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify({ ofertas: ofertas }),
+                    headers: {
+                        'X-CSRFToken': '{{ csrf_token }}'
+                    },
+                    success: function(response) {
+                        alert('Ofertas guardadas exitosamente');
+                    },
+                    error: function(error) {
+                        alert('Error al guardar las ofertas');
+                    }
+                });
+            });
+
+            $(document).on('click', '.eliminarOfertaBtn', function() {
+                var row = $(this).closest('tr');
+                var ofertaId = row.data('oferta-id');
+                $.ajax({
+                    url: "{% url 'backoffice:eliminar_oferta' hotel.id %}",
+                    method: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify({ id: ofertaId }),
+                    headers: {
+                        'X-CSRFToken': '{{ csrf_token }}'
+                    },
+                    success: function(response) {
+                        row.remove();
+                        alert('Oferta eliminada exitosamente');
+                    },
+                    error: function(error) {
+                        alert('Error al eliminar la oferta');
+                    }
+                });
+            });
+        });
+    </script>
+{% endblock %}

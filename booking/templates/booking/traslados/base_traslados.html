@@ -1,0 +1,192 @@
+<!-- base_traslados.html -->
+{% extends 'booking/base_tabs.html' %}
+{% load static %}
+
+{% block content %}
+<!-- ============================================= -->
+<!-- Formulario principal de búsqueda de TRASLADOS -->
+<!-- ============================================= -->
+<div class="container mt-4 search-bar">
+    <form method="GET" action="#" class="row g-2 needs-validation" novalidate>
+        
+        <!-- Selección de Tipología -->
+        <div class="col-md-2 d-flex justify-content-center align-items-center">
+            <select class="form-select" id="tipologia" name="tipologia" required>
+                <option value="" disabled selected>Tipología</option>
+                <option value="colectivo">Colectivo</option>
+                <option value="privado">Privado</option>
+            </select>
+            <div class="invalid-feedback">                
+            </div>
+        </div>
+
+        <!-- Selección de Origen con Select2 -->
+        <div class="col-md-3 d-flex justify-content-center align-items-center">
+            <select class="form-select select2" id="origen" name="origen" data-url="{% url 'booking:obtener_destinos' %}" required>
+                <option value="" disabled selected>Selecciona origen</option>
+                {% for ubicacion in ubicaciones %}
+                    <option value="{{ ubicacion.id }}">{{ ubicacion.nombre }}</option>
+                {% endfor %}
+            </select>
+            <div class="invalid-feedback">                
+            </div>
+        </div>
+
+        <!-- Selección de Destino con Select2 -->
+        <div class="col-md-3 d-flex justify-content-center align-items-center">
+            <select class="form-select select2" id="destino" name="destino" required>
+                <option value="" disabled selected>Selecciona destino</option>
+            </select>
+            <div class="invalid-feedback">                
+            </div>
+        </div>
+
+        <!-- Selección de Fecha con Date Range Picker -->
+        <div class="col-md-2 d-flex justify-content-center align-items-center">
+            <input type="text" class="form-control" id="fecha_traslado" name="fecha_traslado" placeholder="Fecha traslado" required>
+            <div class="invalid-feedback">
+                Por favor, elige una fecha.
+            </div>
+        </div>
+
+        <!-- Botón de búsqueda -->
+        <div class="col-md-2 d-flex justify-content-center align-items-center">
+            <button type="submit" class="btn btn-primary">Buscar</button>
+        </div>
+
+    </form>
+</div>
+
+<!-- ============================ -->
+<!-- Modal para seleccionar PAX -->
+<!-- ============================ -->
+<div class="modal fade" id="paxModal" tabindex="-1" aria-labelledby="paxModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="paxModalLabel">Seleccionar PAX</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-4">
+                        <label for="adultosSelect">Adultos</label>
+                        <select id="adultosSelect" class="form-select">
+                            {% for i in "12345" %}
+                                <option value="{{ i }}" {% if request.GET.adultos == i %}selected{% endif %}>
+                                    {{ i }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label for="ninosSelect">Niños</label>
+                        <select id="ninosSelect" class="form-select">
+                            {% for i in "0123" %}
+                                <option value="{{ i }}" {% if request.GET.ninos == i %}selected{% endif %}>
+                                    {{ i }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label for="infantesSelect">Infantes</label>
+                        <select id="infantesSelect" class="form-select">
+                            {% for i in "0123" %}
+                                <option value="{{ i }}" {% if request.GET.infantes == i %}selected{% endif %}>
+                                    {{ i }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    Cancelar
+                </button>
+                <button type="button" class="btn btn-primary" id="guardarPax">
+                    OK
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ============================== -->
+<!--  Scripts para Select2 y DatePicker -->
+<!-- ============================== -->
+
+<!-- Select2 CSS & JS -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
+
+<!-- Moment.js y Date Range Picker -->
+<script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+
+<!-- Script para inicializar Select2, DateRangePicker y Validación -->
+<script>
+    $(document).ready(function() {
+        // Inicializa Select2 con el tema Bootstrap 5
+        $('.select2').select2({
+            theme: 'bootstrap-5',
+            placeholder: "Selecciona una opción...",
+            allowClear: true
+        });
+
+        // Inicializa DateRangePicker para la fecha de traslado
+        $('#fecha_traslado').daterangepicker({
+            singleDatePicker: true,
+            autoUpdateInput: true,
+            locale: { format: 'DD-MM-YYYY' }
+        });
+
+        // Cargar destinos dinámicamente según el origen seleccionado
+        $('#origen').change(function() {
+            var origenID = $(this).val();
+            var destinoSelect = $('#destino');
+
+            if (origenID) {
+                $.ajax({
+                    url: "{% url 'booking:obtener_destinos' %}",
+                    data: {'origen_id': origenID},
+                    dataType: 'json',
+                    success: function(data) {
+                        destinoSelect.empty().append('<option value="" disabled selected>Selecciona destino</option>');
+                        let addedDestinos = new Set();
+                        $.each(data.destinos, function(index, destino) {
+                            if (!addedDestinos.has(destino.nombre)) {
+                                destinoSelect.append('<option value="'+ destino.nombre +'">'+ destino.nombre +'</option>');
+                                addedDestinos.add(destino.nombre);
+                            }
+                        });
+                        destinoSelect.trigger('change'); // Refresca Select2
+                    },
+                    error: function() {
+                        alert("Error al cargar los destinos.");
+                    }
+                });
+            }
+        });
+
+        // VALIDACIÓN DE BOOTSTRAP
+        (function () {
+            'use strict';
+            var forms = document.querySelectorAll('.needs-validation');
+
+            Array.prototype.slice.call(forms).forEach(function (form) {
+                form.addEventListener('submit', function (event) {
+                    if (!form.checkValidity()) {
+                        event.preventDefault();
+                        event.stopPropagation();
+                    }
+                    form.classList.add('was-validated');
+                }, false);
+            });
+        })();
+    });
+</script>
+
+{% block hotel_content %}{% endblock %}
+{% endblock %}

@@ -1,0 +1,103 @@
+{% extends 'base.html' %}
+
+{% block title %}Hotel Tabs{% endblock %}
+
+{% block content %}
+
+    <!-- Centered and Justified Nav Pills -->
+    <ul class="nav nav-pills nav-justified">
+        <li class="nav-item">
+            <a class="nav-link active" data-bs-toggle="pill" href="#hotel_editar">Hotel</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" data-bs-toggle="pill" href="#hotel_rooms" data-hotel-id="{{ hotel.id }}">Habitaciones</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" data-bs-toggle="pill" href="#hotel_settings" data-hotel-id="{{ hotel.id }}">Configuraciones</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" data-bs-toggle="pill" href="#hotel_offers" data-hotel-id="{{ hotel.id }}">Ofertas</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" data-bs-toggle="pill" href="#hotel_facilities">Instalaciones</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" data-bs-toggle="pill" href="#hotel_discounts">Descuentos</a>
+        </li>
+    </ul>
+
+    <!-- Tab panes -->
+    <div class="tab-content">
+        <div class="tab-pane container active" id="hotel_editar">
+            {% include 'backoffice/hotel_editar.html' %}
+        </div>
+        <div class="tab-pane container fade" id="hotel_rooms">
+            <!-- El contenido se cargará aquí -->
+        </div>
+        <div class="tab-pane container fade" id="hotel_settings">
+            <!-- El contenido se cargará aquí -->
+        </div>
+        <div class="tab-pane container fade" id="hotel_offers">
+            <!-- El contenido se cargará aquí -->
+        </div>
+        <div class="tab-pane container fade" id="hotel_facilities">
+            {% include 'backoffice/hotel_facilities.html' %}
+        </div>
+        <div class="tab-pane container fade" id="hotel_discounts">
+            {% include 'backoffice/hotel_discounts.html' %}
+        </div>
+    </div>
+
+
+<!-- Incluye Bootstrap JS (asegúrate de que esté en la plantilla base si no está ya incluido) -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/jquery/latest/jquery.min.js"></script>
+<script>
+    $(document).ready(function() {
+        // Activar la pestaña correspondiente basada en el parámetro de consulta
+        var urlParams = new URLSearchParams(window.location.search);
+        var tab = urlParams.get('tab');
+        if (tab) {
+            $('.nav-link[href="#' + tab + '"]').tab('show');
+            cargarContenidoPestana(tab);
+        }
+
+        $('a[data-bs-toggle="pill"]').on('shown.bs.tab', function (e) {
+            var target = $(e.target).attr("href").substring(1);  // Obtener el ID de la pestaña sin el '#'
+            cargarContenidoPestana(target);
+        });
+
+        function cargarContenidoPestana(tab) {
+            var hotelId = "{{ hotel.id }}";
+
+            if (tab === 'hotel_settings') {
+                $.ajax({
+                    url: "{% url 'backoffice:hotel_settings' hotel.id %}",
+                    success: function(data) {
+                        $('#hotel_settings').html(data);
+                    }
+                });
+            }
+
+            if (tab === 'hotel_rooms') {
+                $.ajax({
+                    url: "{% url 'backoffice:listar_habitaciones' hotel.id %}",
+                    success: function(data) {
+                        $('#hotel_rooms').html(data);
+                    }
+                });
+            }
+            
+            if (tab === 'hotel_offers') {
+                $.ajax({
+                    url: "{% url 'backoffice:hotel_offers' hotel.id %}",
+                    success: function(data) {
+                        $('#hotel_offers').html(data);
+                    }
+                });
+            }            
+        }
+    });
+</script>
+{% endblock %}
+

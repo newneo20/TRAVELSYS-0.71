@@ -1,0 +1,24 @@
+<!-- templates/partials/form_config.html -->
+<div class="tab-pane fade" id="config" role="tabpanel" aria-labelledby="config-tab">
+    <form id="configForm" class="mt-4" method="POST">
+        {% csrf_token %}
+        <input type="hidden" name="form_type" value="configuraciones">
+        <div class="row g-3">
+            <div class="col-md-3">
+                <label for="edad_limite_nino" class="form-label">Edad límite del niño</label>
+                <input type="number" class="form-control" id="edad_limite_nino" name="edad_limite_nino" value="{{ configuraciones.edad_limite_nino|default_if_none:'' }}">
+            </div>
+            <div class="col-md-3">
+                <label for="edad_limite_infante" class="form-label">Edad límite infante</label>
+                <input type="number" class="form-control" id="edad_limite_infante" name="edad_limite_infante" value="{{ configuraciones.edad_limite_infante|default_if_none:'' }}">
+            </div>
+            <div class="col-md-3">
+                <label for="cantidad_noches" class="form-label">Cantidad Noches</label>
+                <input type="number" class="form-control" id="cantidad_noches" name="cantidad_noches" value="{{ configuraciones.cantidad_noches|default_if_none:'' }}">
+            </div>
+        </div>
+        <button type="submit" class="btn btn-primary mt-4">
+            <i class="fas fa-save me-2"></i>Guardar Configuración
+        </button>
+    </form>
+</div>

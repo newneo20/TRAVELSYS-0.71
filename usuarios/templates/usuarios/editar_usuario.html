@@ -1,0 +1,201 @@
+<!-- usuarios/templates/usuarios/editar_usuario.html -->
+{% extends 'base.html' %}
+
+{% load static %} 
+
+{% block title %}Editar Usuario{% endblock %}
+
+{% block content %}
+<!-- Incluir el archivo de estilos CSS -->
+<link rel="stylesheet" href="{% static 'backoffice/css/formularios_crear.css' %}">
+
+<div class="form-container">
+    <h1 class="form-title">Editar Usuario</h1>
+    <form class="needs-validation" method="post" enctype="multipart/form-data" novalidate>
+        {% csrf_token %}
+        <div class="row">
+            <div class="col-md-4 form-group">
+                <label for="agencia" class="form-label">Agencia</label>
+                <input type="text" class="form-control" id="agencia" name="agencia" value="{{ usuario.agencia }}" required>
+                <div class="invalid-feedback">
+                    Por favor, proporciona el nombre de la agencia.
+                </div>
+            </div>
+            <div class="col-md-4 form-group">
+                <label for="email" class="form-label">Email</label>
+                <input type="email" class="form-control" id="email" name="email" value="{{ usuario.email }}" required>
+                <div class="invalid-feedback">
+                    Por favor, proporciona un correo electrónico válido.
+                </div>
+            </div>
+            <div class="col-md-4 form-group">
+                <label for="telefono" class="form-label">Teléfono</label>
+                <input type="text" class="form-control" id="telefono" name="telefono" value="{{ usuario.telefono }}" required>
+                <div class="invalid-feedback">
+                    Por favor, proporciona un número de teléfono.
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-8 form-group">
+                <label for="direccion" class="form-label">Dirección</label>
+                <input type="text" class="form-control" id="direccion" name="direccion" value="{{ usuario.direccion }}" required>
+                <div class="invalid-feedback">
+                    Por favor, proporciona una dirección.
+                </div>
+            </div>
+            <div class="col-md-4 form-group">
+                <label for="logo" class="form-label">Logo</label>
+                <div class="custom-file">
+                    <input type="file" class="custom-file-input" id="logo" name="logo">
+                    <label class="custom-file-label" for="logo">Elegir archivo</label>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-4 form-group">
+                <label for="username" class="form-label">Nombre de Usuario</label>
+                <input type="text" class="form-control" id="username" name="username" value="{{ usuario.username }}" required>
+                <div class="invalid-feedback">
+                    Por favor, proporciona un nombre de usuario.
+                </div>
+            </div>
+            <div class="col-md-4 form-group">
+                <label for="password" class="form-label">Contraseña (opcional)</label>
+                <input type="password" class="form-control" id="password" name="password">
+                <div class="invalid-feedback">
+                    Por favor, proporciona una contraseña.
+                </div>
+            </div>
+            <div class="col-md-4 form-group">
+                <label for="confirm_password" class="form-label">Confirmar Contraseña</label>
+                <input type="password" class="form-control" id="confirm_password" name="confirm_password">
+                <div class="invalid-feedback">
+                    Las contraseñas no coinciden.
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-2 form-group">
+                <label for="saldo_pendiente" class="form-label">Saldo en Fondo</label>
+                <input type="number" step="0.01" class="form-control" id="saldo_pendiente" name="saldo_pendiente" value="{{ usuario.saldo_pendiente }}" required>
+                <div class="invalid-feedback">
+                    Por favor, proporciona el saldo pendiente.
+                </div>
+            </div>
+  
+            <div class="col-md-4 form-group">
+                <label for="nombre_dueno" class="form-label">Nombre del Dueño</label>
+                <input type="text" class="form-control" id="nombre_dueno" name="nombre_dueno" value="{{ usuario.nombre_dueno }}" required>
+                <div class="invalid-feedback">
+                    Por favor, proporciona el nombre del dueño.
+                </div>
+            </div>
+            <div class="col-md-3 form-group">
+                <label for="telefono_dueno" class="form-label">Teléfono del Dueño</label>
+                <input type="text" class="form-control" id="telefono_dueno" name="telefono_dueno" value="{{ usuario.telefono_dueno }}" required>
+                <div class="invalid-feedback">
+                    Por favor, proporciona el teléfono del dueño.
+                </div>
+            </div>
+            <div class="col-md-3 form-group">
+                <div class="form-check mt-4">
+                    <input type="checkbox" class="form-check-input" id="is_manager" name="is_manager" {% if usuario.is_manager %}checked{% endif %}>
+                    <label for="is_manager" class="form-check-label">Es Manager</label>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-4 form-group">
+                <label for="fee_hotel" class="form-label">Fee Hotel</label>
+                <div class="fee-group">
+                    <input type="number" class="form-control" id="fee_hotel" name="fee_hotel" value="{{ usuario.fee_hotel }}" required>
+                    <select class="form-control" id="tipo_fee_hotel" name="tipo_fee_hotel" required>
+                        <option value="">Tipo</option>
+                        <option value="$" {% if usuario.tipo_fee_hotel == '$' %}selected{% endif %}>$</option>
+                        <option value="%" {% if usuario.tipo_fee_hotel == '%' %}selected{% endif %}>%</option>
+                    </select>
+                </div>
+                <div class="invalid-feedback">
+                    Por favor, proporciona un valor y tipo para el fee del hotel.
+                </div>
+            </div>
+            <div class="col-md-4 form-group">
+                <label for="fee_carro" class="form-label">Fee Carro</label>
+                <div class="fee-group">
+                    <input type="number" class="form-control" id="fee_carro" name="fee_carro" value="{{ usuario.fee_carro }}" required>
+                    <select class="form-control" id="tipo_fee_carro" name="tipo_fee_carro" required>
+                        <option value="">Tipo</option>
+                        <option value="$" {% if usuario.tipo_fee_carro == '$' %}selected{% endif %}>$</option>
+                        <option value="%" {% if usuario.tipo_fee_carro == '%' %}selected{% endif %}>%</option>
+                    </select>
+                </div>
+                <div class="invalid-feedback">
+                    Por favor, proporciona un valor y tipo para el fee del carro.
+                </div>
+            </div>
+            <div class="col-md-4 form-group">
+                <label for="fee_tarara" class="form-label">Fee Tarara</label>
+                <div class="fee-group">
+                    <input type="number" class="form-control" id="fee_tarara" name="fee_tarara" value="{{ usuario.fee_tarara }}" required>
+                    <select class="form-control" id="tipo_fee_tarara" name="tipo_fee_tarara" required>
+                        <option value="">Tipo</option>
+                        <option value="$" {% if usuario.tipo_fee_tarara == '$' %}selected{% endif %}>$</option>
+                        <option value="%" {% if usuario.tipo_fee_tarara == '%' %}selected{% endif %}>%</option>
+                    </select>
+                </div>
+                <div class="invalid-feedback">
+                    Por favor, proporciona un valor y tipo para el fee de Tarara.
+                </div>
+            </div>
+        </div>
+
+        <div class="text-center mt-4">
+            <button type="submit" class="btn btn-primary btn-submit">Guardar Cambios</button>
+        </div>
+    </form>
+</div>
+
+<script>
+    (function () {
+        'use strict'
+
+        var forms = document.querySelectorAll('.needs-validation');
+
+        Array.prototype.slice.call(forms)
+            .forEach(function (form) {
+                form.addEventListener('submit', function (event) {
+                    const password = document.getElementById('password');
+                    const confirmPassword = document.getElementById('confirm_password');
+
+                    // Verificar que las contraseñas coincidan si se ingresan
+                    if (password.value !== confirmPassword.value) {
+                        event.preventDefault();
+                        event.stopPropagation();
+                        confirmPassword.setCustomValidity("Las contraseñas no coinciden.");
+                    } else {
+                        confirmPassword.setCustomValidity("");
+                    }
+
+                    if (!form.checkValidity()) {
+                        event.preventDefault();
+                        event.stopPropagation();
+                    }
+
+                    form.classList.add('was-validated');
+                }, false);
+            });
+        
+        // Mostrar el nombre del archivo seleccionado
+        document.querySelector('.custom-file-input').addEventListener('change', function (e) {
+            var fileName = e.target.files[0].name;
+            var nextSibling = e.target.nextElementSibling;
+            nextSibling.innerText = fileName;
+        });
+    })();
+</script>
+{% endblock %}

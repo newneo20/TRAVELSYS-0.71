@@ -1,0 +1,95 @@
+{% extends 'base.html' %}
+
+{% block title %}Listar Ubicaciones{% endblock %}
+
+{% block content %}
+
+<div class="card">
+    <div class="card-body">
+        <div class="row">
+            <h1>Lista de Ubicaciones</h1>
+
+            <div class="col-md-2">
+                <a href="{% url 'backoffice:crear_ubicacion' %}" class="btn btn-outline-primary mb-3">
+                    Crear Ubicación
+                </a>
+            </div>
+
+            <div class="col-md-10">
+                <form method="GET" action="">
+                    <div class="input-group mb-3">
+                        <input type="text" class="form-control" placeholder="Buscar por nombre de ubicación" name="q" value="{{ query }}">
+                        <button class="btn btn-outline-secondary" type="submit">Buscar</button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="table-container">
+                <table class="table table-hover table-bordered">
+                    <thead class="table-dark">
+                        <tr>
+                            <th class="text-center align-middle">Nombre</th>
+                            <th class="text-center align-middle">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for ubicacion in ubicaciones %}
+                        <tr>
+                            <td class="text-center align-middle">{{ ubicacion.nombre }}</td>
+                            <td class="text-center align-middle">
+                                <a href="{% url 'backoffice:editar_ubicacion' ubicacion.pk %}" class="btn btn-outline-warning" title="Editar ubicación">
+                                    <i class="fas fa-pencil-alt"></i>
+                                </a>
+                                <a href="{% url 'backoffice:eliminar_ubicacion' ubicacion.pk %}" class="btn btn-outline-danger" title="Eliminar ubicación">
+                                    <i class="fas fa-trash-alt"></i>
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Paginador -->
+            <nav aria-label="Page navigation example">
+                <ul class="pagination justify-content-center">
+                    {% if ubicaciones.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page=1{% if query %}&q={{ query }}{% endif %}" aria-label="First">
+                            <span aria-hidden="true">&laquo;&laquo;</span>
+                        </a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ ubicaciones.previous_page_number }}{% if query %}&q={{ query }}{% endif %}" aria-label="Previous">
+                            <span aria-hidden="true">&laquo;</span>
+                        </a>
+                    </li>
+                    {% endif %}
+
+                    {% for num in ubicaciones.paginator.page_range %}
+                        {% if ubicaciones.number == num %}
+                            <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+                        {% elif num > ubicaciones.number|add:'-5' and num < ubicaciones.number|add:'5' %}
+                            <li class="page-item"><a class="page-link" href="?page={{ num }}{% if query %}&q={{ query }}{% endif %}">{{ num }}</a></li>
+                        {% endif %}
+                    {% endfor %}
+
+                    {% if ubicaciones.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ ubicaciones.next_page_number }}{% if query %}&q={{ query }}{% endif %}" aria-label="Next">
+                            <span aria-hidden="true">&raquo;</span>
+                        </a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ ubicaciones.paginator.num_pages }}{% if query %}&q={{ query }}{% endif %}" aria-label="Last">
+                            <span aria-hidden="true">&raquo;&raquo;</span>
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

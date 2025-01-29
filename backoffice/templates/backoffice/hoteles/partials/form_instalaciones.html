@@ -1,0 +1,271 @@
+<!-- templates/partials/form_instalaciones.html -->
+<div class="tab-pane fade" id="instalaciones" role="tabpanel" aria-labelledby="instalaciones-tab">
+    <form id="instalacionesForm" class="mt-4" method="POST">
+        {% csrf_token %}
+        <input type="hidden" name="form_type" value="instalaciones">
+        <div class="row g-3">
+            <div class="col-12">
+                <h4 class="section-title"><i class="fas fa-bath me-2"></i>Baño</h4>
+            </div>
+            <div class="col-md-4">
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="articulos_aseo" name="articulos_aseo">
+                    <label class="form-check-label" for="articulos_aseo"><i class="fas fa-pump-soap me-2"></i>Artículos de aseo gratuitos</label>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="inodoro" name="inodoro">
+                    <label class="form-check-label" for="inodoro"><i class="fas fa-toilet me-2"></i>Inodoro</label>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="toallas" name="toallas">
+                    <label class="form-check-label" for="toallas"><i class="fas fa-tshirt me-2"></i>Toallas</label>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="bano_privado" name="bano_privado">
+                    <label class="form-check-label" for="bano_privado"><i class="fas fa-door-closed me-2"></i>Baño privado</label>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="banera_ducha" name="banera_ducha">
+                    <label class="form-check-label" for="banera_ducha"><i class="fas fa-shower me-2"></i>Bañera o ducha</label>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="secador_pelo" name="secador_pelo">
+                    <label class="form-check-label" for="secador_pelo"><i class="fas fa-wind me-2"></i>Secador de pelo</label>
+                </div>
+            </div>
+            
+            <div class="col-12">
+                <h4 class="section-title"><i class="fas fa-shield-alt me-2"></i>Seguridad</h4>
+            </div>
+            <div class="col-md-4">
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="extintores" name="extintores">
+                    <label class="form-check-label" for="extintores"><i class="fas fa-fire-extinguisher me-2"></i>Extintores</label>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="detectores_humo" name="detectores_humo">
+                    <label class="form-check-label" for="detectores_humo"><i class="fas fa-smog me-2"></i>Detectores de humo</label>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="cctv" name="cctv">
+                    <label class="form-check-label" for="cctv"><i class="fas fa-video me-2"></i>CCTV en áreas comunes</label>
+                </div>
+            </div>
+            
+            <div class="col-12">
+                <h4 class="section-title"><i class="fas fa-bed me-2"></i>Dormitorio</h4>
+            </div>
+            <div class="col-md-6">
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="ropa_cama" name="ropa_cama">
+                    <label class="form-check-label" for="ropa_cama"><i class="fas fa-blanket me-2"></i>Ropa de cama</label>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="armario_ropero" name="armario_ropero">
+                    <label class="form-check-label" for="armario_ropero"><i class="fas fa-door-open me-2"></i>Armario o ropero</label>
+                </div>
+            </div>
+            
+            <div class="col-12">
+                <h4 class="section-title"><i class="fas fa-utensils me-2"></i>Comida y bebida</h4>
+            </div>
+            <div class="col-md-4">
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="bar" name="bar">
+                    <label class="form-check-label" for="bar"><i class="fas fa-glass-martini-alt me-2"></i>Bar</label>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="restaurante" name="restaurante">
+                    <label class="form-check-label" for="restaurante"><i class="fas fa-concierge-bell me-2"></i>Restaurante</label>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="menu_ninos" name="menu_ninos">
+                    <label class="form-check-label" for="menu_ninos"><i class="fas fa-child me-2"></i>Menú para niños</label>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="menu_dietetico" name="menu_dietetico">
+                    <label class="form-check-label" for="menu_dietetico"><i class="fas fa-carrot me-2"></i>Menús dietéticos especiales (a pedido)</label>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="desayuno_habitacion" name="desayuno_habitacion">
+                    <label class="form-check-label" for="desayuno_habitacion"><i class="fas fa-coffee me-2"></i>Desayuno en la habitación</label>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="tetera_cafetera" name="tetera_cafetera">
+                    <label class="form-check-label" for="tetera_cafetera"><i class="fas fa-mug-hot me-2"></i>Tetera/Cafetera</label>
+                </div>
+            </div>
+            
+            <div class="col-12">
+                <h4 class="section-title"><i class="fas fa-hotel me-2"></i>General</h4>
+            </div>
+            <div class="col-md-4">
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="ascensor" name="ascensor">
+                    <label class="form-check-label" for="ascensor"><i class="fas fa-arrow-alt-circle-up me-2"></i>Ascensor</label>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="instalaciones_discapacitados" name="instalaciones_discapacitados">
+                    <label class="form-check-label" for="instalaciones_discapacitados"><i class="fas fa-wheelchair me-2"></i>Instalaciones para personas con discapacidad</label>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="hipoalergenico" name="hipoalergenico">
+                    <label class="form-check-label" for="hipoalergenico"><i class="fas fa-leaf me-2"></i>Hipoalergénico</label>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="habitaciones_familiares" name="habitaciones_familiares">
+                    <label class="form-check-label" for="habitaciones_familiares"><i class="fas fa-users me-2"></i>Habitaciones familiares</label>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="prohibido_fumar" name="prohibido_fumar">
+                    <label class="form-check-label" for="prohibido_fumar"><i class="fas fa-smoking-ban me-2"></i>Prohibido fumar en todo el alojamiento</label>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="calefaccion" name="calefaccion">
+                    <label class="form-check-label" for="calefaccion"><i class="fas fa-temperature-high me-2"></i>Calefacción</label>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="alfombrado" name="alfombrado">
+                    <label class="form-check-label" for="alfombrado"><i class="fas fa-rug me-2"></i>Alfombrado</label>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="instalaciones_planchar" name="instalaciones_planchar">
+                    <label class="form-check-label" for="instalaciones_planchar"><i class="fas fa-tshirt me-2"></i>Instalaciones para planchar</label>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="plancha" name="plancha">
+                    <label class="form-check-label" for="plancha"><i class="fas fa-iron me-2"></i>Plancha</label>
+                </div>
+            </div>
+            
+            <div class="col-12">
+                <h4 class="section-title"><i class="fas fa-concierge-bell me-2"></i>Servicios de recepción</h4>
+            </div>
+            <div class="col-md-6">
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="guardaequipaje" name="guardaequipaje">
+                    <label class="form-check-label" for="guardaequipaje"><i class="fas fa-suitcase me-2"></i>Guardaequipaje</label>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="factura_proporcionada" name="factura_proporcionada">
+                    <label class="form-check-label" for="factura_proporcionada"><i class="fas fa-file-invoice-dollar me-2"></i>Factura proporcionada</label>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="recepcion_24h" name="recepcion_24h">
+                    <label class="form-check-label" for="recepcion_24h"><i class="fas fa-clock me-2"></i>Recepción 24 horas</label>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="registro_privado" name="registro_privado">
+                    <label class="form-check-label" for="registro_privado"><i class="fas fa-user-shield me-2"></i>Registro de entrada/salida privado</label>
+                </div>
+            </div>
+            
+            <div class="col-12">
+                <h4 class="section-title"><i class="fas fa-tv me-2"></i>Medios y tecnología</h4>
+            </div>
+            <div class="col-md-4">
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="tv_pantalla_plana" name="tv_pantalla_plana">
+                    <label class="form-check-label" for="tv_pantalla_plana"><i class="fas fa-tv me-2"></i>TV de pantalla plana</label>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="radio" name="radio">
+                    <label class="form-check-label" for="radio"><i class="fas fa-broadcast-tower me-2"></i>Radio</label>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="canales_satelite" name="canales_satelite">
+                    <label class="form-check-label" for="canales_satelite"><i class="fas fa-satellite-dish me-2"></i>Canales vía satélite</label>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="tv" name="tv">
+                    <label class="form-check-label" for="tv"><i class="fas fa-tv me-2"></i>TV</label>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="telefono" name="telefono">
+                    <label class="form-check-label" for="telefono"><i class="fas fa-phone me-2"></i>Teléfono</label>
+                </div>
+            </div>
+            
+            <div class="col-12">
+                <h4 class="section-title"><i class="fas fa-broom me-2"></i>Servicios de limpieza</h4>
+            </div>
+            <div class="col-md-4">
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="lavanderia" name="lavanderia">
+                    <label class="form-check-label" for="lavanderia"><i class="fas fa-washer me-2"></i>Lavandería</label>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="tintoreria" name="tintoreria">
+                    <label class="form-check-label" for="tintoreria"><i class="fas fa-tshirt me-2"></i>Tintorería</label>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="limpieza_diaria" name="limpieza_diaria">
+                    <label class="form-check-label" for="limpieza_diaria"><i class="fas fa-broom me-2"></i>Servicio de limpieza diario</label>
+                </div>
+            </div>
+        </div>
+        <button type="submit" class="btn btn-primary mt-4">
+            <i class="fas fa-save me-2"></i>Guardar Instalaciones
+        </button>
+    </form>
+</div>

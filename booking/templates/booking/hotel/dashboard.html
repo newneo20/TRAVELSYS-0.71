@@ -1,0 +1,141 @@
+{% extends 'booking/hotel/base_hotel.html' %}
+{% load static %}
+
+{% block title %}Dashboard de Hoteles Destacados{% endblock %}
+
+{% block hotel_content %}
+<!-- Custom CSS -->
+<link rel="stylesheet" type="text/css" href="{% static 'css/dashboard_hotel.css' %}"> 
+
+<div class="container px-4 py-5">
+    <h1 class="text-center mb-5 display-4 fw-bold">Descubre Nuestros Hoteles Destacados</h1>
+    
+    <!-- Carrusel mejorado para mostrar imágenes de hoteles -->
+    <div class="carousel-container mx-auto">
+        <div id="hotelCarousel" class="carousel slide carousel-fade rounded-carousel" data-bs-ride="carousel">
+            <!-- Indicadores del carrusel -->
+            <div class="carousel-indicators">
+                <button type="button" data-bs-target="#hotelCarousel" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Iberostar Grand Packard"></button>
+                <button type="button" data-bs-target="#hotelCarousel" data-bs-slide-to="1" aria-label="Memories Miramar Habana"></button>
+                <button type="button" data-bs-target="#hotelCarousel" data-bs-slide-to="2" aria-label="Gran Memories Santa Maria"></button>
+            </div>
+
+            <!-- Contenido del carrusel -->
+            <div class="carousel-inner rounded-carousel">
+                <!-- Primera diapositiva -->
+                <div class="carousel-item active">
+                    <img src="{% static 'backoffice/fotos_hoteles/iberostar_grand_packard.jpeg' %}" class="d-block w-100" alt="Iberostar Packard">
+                    <div class="carousel-caption d-none d-md-block bg-dark bg-opacity-75 rounded p-3">
+                        <h2 class="fs-4 fw-bold">Iberostar Packard</h2>
+                        <p class="fs-6">Lujo y confort en el corazón de La Habana</p>                        
+                    </div>
+                </div>
+
+                <!-- Segunda diapositiva -->
+                <div class="carousel-item">
+                    <img src="{% static 'backoffice/fotos_hoteles/memories_miramar_habana.jpeg' %}" class="d-block w-100" alt="Memories Miramar Habana">
+                    <div class="carousel-caption d-none d-md-block bg-dark bg-opacity-75 rounded p-3">
+                        <h2 class="fs-4 fw-bold">Memories Miramar Habana</h2>
+                        <p class="fs-6">Experiencias inolvidables con vistas al mar</p>                        
+                    </div>
+                </div>
+
+                <!-- Tercera diapositiva -->
+                <div class="carousel-item">
+                    <img src="{% static 'backoffice/fotos_hoteles/gran_memories_santa_maria.jpeg' %}" class="d-block w-100" alt="Gran Memories Santa Maria">
+                    <div class="carousel-caption d-none d-md-block bg-dark bg-opacity-75 rounded p-3">
+                        <h2 class="fs-4 fw-bold">Gran Memories Santa Maria</h2>
+                        <p class="fs-6">Paraíso tropical para unas vacaciones perfectas</p>                        
+                    </div>
+                </div>
+            </div>
+
+            <!-- Controles para navegar entre las diapositivas -->
+            <button class="carousel-control-prev" type="button" data-bs-target="#hotelCarousel" data-bs-slide="prev">
+                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Anterior</span>
+            </button>
+            <button class="carousel-control-next" type="button" data-bs-target="#hotelCarousel" data-bs-slide="next">
+                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Siguiente</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- El resto del contenido permanece igual -->
+    
+    <!-- Sección de características destacadas -->
+    <section class="py-5 bg-light">
+        <div class="container">
+            
+            <div class="row g-4 justify-content-center">
+                <div class="col-md-4 col-lg-3">
+                    <div class="card h-100 border-0 shadow-lg rounded-lg hover-card">
+                        <div class="card-body text-center d-flex flex-column">
+                            <div class="feature-icon-wrapper mb-4">
+                                <div class="feature-icon bg-primary text-white rounded-circle">
+                                    <i class="fas fa-star fa-2x"></i>
+                                </div>
+                            </div>
+                            <h3 class="card-title h4 mb-3">Calidad Superior</h3>
+                            <p class="card-text text-muted flex-grow-1">Nuestros hoteles ofrecen servicios de primera clase y comodidades excepcionales para una estancia inolvidable.</p>                            
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 col-lg-3">
+                    <div class="card h-100 border-0 shadow-lg rounded-lg hover-card">
+                        <div class="card-body text-center d-flex flex-column">
+                            <div class="feature-icon-wrapper mb-4">
+                                <div class="feature-icon bg-success text-white rounded-circle">
+                                    <i class="fas fa-map-marked-alt fa-2x"></i>
+                                </div>
+                            </div>
+                            <h3 class="card-title h4 mb-3">Ubicaciones Privilegiadas</h3>
+                            <p class="card-text text-muted flex-grow-1">Disfruta de las mejores vistas y acceso a los principales puntos de interés en cada destino.</p>                            
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 col-lg-3">
+                    <div class="card h-100 border-0 shadow-lg rounded-lg hover-card">
+                        <div class="card-body text-center d-flex flex-column">
+                            <div class="feature-icon-wrapper mb-4">
+                                <div class="feature-icon bg-info text-white rounded-circle">
+                                    <i class="fas fa-concierge-bell fa-2x"></i>
+                                </div>
+                            </div>
+                            <h3 class="card-title h4 mb-3">Servicio Personalizado</h3>
+                            <p class="card-text text-muted flex-grow-1">Nuestro personal está dedicado a hacer de tu estancia una experiencia única y memorable.</p>                            
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var myCarousel = new bootstrap.Carousel(document.getElementById('hotelCarousel'), {
+            interval: 6000,
+            wrap: true,
+            touch: true
+        });
+
+        // Animación para las tarjetas de características
+        const cards = document.querySelectorAll('.hover-card');
+        cards.forEach(card => {
+            card.addEventListener('mouseenter', () => {
+                card.style.transform = 'translateY(-5px)';
+                card.style.boxShadow = '0 4px 15px rgba(0,0,0,0.1)';
+            });
+            card.addEventListener('mouseleave', () => {
+                card.style.transform = 'translateY(0)';
+                card.style.boxShadow = '';
+            });
+        });
+    });
+</script>
+{% endblock %}
+
+
+{% endblock %}

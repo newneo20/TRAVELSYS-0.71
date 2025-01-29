@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+
+{% block title %}Tasas de Cambio{% endblock %}
+
+{% block header %}Tasas de Cambio{% endblock %}
+
+{% block content %}
+
+<h1>Tasas de Cambio</h1>
+<a href="{% url 'backoffice:crear_tasa_cambio' %}" class="btn btn-outline-primary mb-3">Crear Tasa de Cambio</a>
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th class="text-center align-middle">Tasa USD a CUP</th>
+            <th class="text-center align-middle">Tasa USD a MLC</th>
+            <th class="text-center align-middle">Fecha de Actualización</th>
+            <th class="text-center align-middle">Activa</th>
+            <th class="text-center align-middle">Acciones</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for tasa in tasas_cambio %}
+        <tr>
+            <td class="text-center align-middle">{{ tasa.tasa_cup }}</td>
+            <td class="text-center align-middle">{{ tasa.tasa_mlc }}</td>
+            <td class="text-center align-middle">{{ tasa.fecha_actualizacion|date:"Y-m-d H:i" }}</td>
+            <td class="text-center align-middle">
+                {% if tasa.activa %}
+                <span class="badge bg-success">Sí</span>
+                {% else %}
+                <span class="badge bg-secondary">No</span>
+                {% endif %}
+            </td>
+            <td class="text-center align-middle">
+                <a href="{% url 'backoffice:editar_tasa_cambio' tasa.pk %}" class="btn btn-outline-warning"><i class="fas fa-pencil-alt"></i></a>
+                <a href="{% url 'backoffice:eliminar_tasa_cambio' tasa.pk %}" class="btn btn-outline-danger"><i class="fas fa-trash-alt"></i></a>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% endblock %}

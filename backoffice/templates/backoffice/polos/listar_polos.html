@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+
+{% block title %}Listar Polos Turísticos{% endblock %}
+
+{% block content %}
+    
+<h1>Polos Turísticos</h1>
+<a href="{% url 'backoffice:crear_polo' %}" class="btn btn-outline-primary mb-3">Crear Polo Turístico</a>
+<table class="table table-bordered">        
+    <thead>
+        <tr>
+            <th class="text-center align-middle">Nombre</th>
+            <th class="text-center align-middle">País</th>
+            <th class="text-center align-middle">Acciones</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for polo in polos %}
+        <tr>
+            <td class="text-center align-middle">{{ polo.nombre }}</td>
+            <td class="text-center align-middle">{{ polo.pais }}</td>
+            <td class="text-center align-middle">
+                <a href="{% url 'backoffice:editar_polo_turistico' polo.pk %}" class="btn btn-outline-warning"><i class="fas fa-pencil-alt"></i></a>
+                <a href="{% url 'backoffice:eliminar_polo' polo.pk %}" class="btn btn-outline-danger"><i class="fas fa-trash-alt"></i></a>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% endblock %}

@@ -1,0 +1,284 @@
+{% extends 'booking/base_tabs.html' %}
+
+{% block content %}
+<!-- Formulario principal de búsqueda de hoteles -->
+<form method="GET" action="{% url 'booking:hotel_results' %}">
+    <div class="container mt-4 search-bar">
+        <div class="row">
+            <!-- Selección de destino -->
+            <div class="col-md-3 d-flex justify-content-center align-items-center">
+                <select class="form-select" id="destino" name="destino">
+                    <!-- Opción para seleccionar todos los destinos -->
+                    <option value="todos-los-destinos" style="color: #b3b3b3;" {% if request.GET.destino == "todos-los-destinos" %}selected{% endif %}>¿A dónde vas?</option>
+
+                    <!-- Ciclo para mostrar todos los destinos disponibles -->
+                    {% for destino in destinos %}
+                        <option value="{{ destino.nombre|slugify }}" {% if request.GET.destino == destino.nombre|slugify %}selected{% endif %}>{{ destino.nombre }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <!-- Calificación en estrellas (visual) -->
+            <div class="col-md-2 d-flex justify-content-center align-items-center">
+                <div class="star-rating">
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                </div>
+            </div>
+
+            <!-- Selección de fechas de viaje -->
+            <div class="col-md-3">
+                <div class="input-group">
+                    <input type="text" class="form-control" id="fechas_viaje" name="fechas_viaje" value="{{ request.GET.fechas_viaje }}" data-fechas-busqueda="{{ fechas_viaje }}">
+                </div>
+                <script>
+                    $(function() {
+                        // Inicialización del selector de rango de fechas
+                        $('input[name="fechas_viaje"]').daterangepicker({
+                            startDate: moment(), // Fecha de inicio por defecto (hoy)
+                            endDate: moment().add(1, 'days'), // Fecha de fin por defecto (mañana)
+                            locale: {
+                                format: 'YYYY-MM-DD' // Formato de fecha
+                            }
+                        });
+                    });
+                </script>
+            </div>
+
+            <!-- Botón para abrir el modal de selección de habitaciones y pasajeros -->
+            <div class="col-md-2 d-flex justify-content-center align-items-center">
+                <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#habitacionesModal">
+                    <i class="fas fa-bed"></i> {{ request.GET.habitaciones|default:"1" }} <i class="fas fa-user"></i> {{ request.GET.adultos|default:"2" }} <i class="fas fa-child"></i> {{ request.GET.ninos|default:"0" }}
+                </button>
+            </div>
+
+            <!-- Botón de búsqueda -->
+            <div class="col-md-2 d-flex justify-content-center align-items-center">
+                <button type="submit" class="btn btn-primary">Búsqueda</button>
+            </div>
+        </div>
+    </div>
+    <!-- Campos ocultos para almacenar información sobre habitaciones y pasajeros -->
+    <input type="hidden" id="habitaciones_input" name="habitaciones" value="{{ request.GET.habitaciones|default:"1" }}">
+    <input type="hidden" id="adultos_input" name="adultos" value="{{ request.GET.adultos|default:"2" }}">
+    <input type="hidden" id="ninos_input" name="ninos" value="{{ request.GET.ninos|default:"0" }}">
+    <input type="hidden" id="infoHabitacionesInput" name="info_habitaciones" value="">
+</form>
+
+<!-- Modal para seleccionar habitaciones y pasajeros -->
+<div class="modal fade" id="habitacionesModal" tabindex="-1" aria-labelledby="habitacionesModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="habitacionesModalLabel">Seleccionar habitaciones y pasajeros</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row align-items-start">
+                    <!-- Campo para seleccionar el número de habitaciones -->
+                    <div class="form-group col-md-2">
+                        <label for="habitaciones">Habitaciones</label>
+                        <select id="habitaciones" class="form-select">
+                            <!-- Opciones para seleccionar hasta 5 habitaciones -->
+                            <option value="1" {% if request.GET.habitaciones == "1" %}selected{% endif %}>1</option>
+                            <option value="2" {% if request.GET.habitaciones == "2" %}selected{% endif %}>2</option>
+                            <option value="3" {% if request.GET.habitaciones == "3" %}selected{% endif %}>3</option>
+                            <option value="4" {% if request.GET.habitaciones == "4" %}selected{% endif %}>4</option>
+                            <option value="5" {% if request.GET.habitaciones == "5" %}selected{% endif %}>5</option>
+                        </select>
+                    </div>
+                    <!-- Campo para seleccionar el número de adultos en la primera habitación -->
+                    <div class="form-group col-md-2">
+                        <label for="adultos1">Adultos</label>
+                        <select id="adultos1" class="form-select">
+                            <option value="1" {% if request.GET.adultos == "1" %}selected{% endif %}>1</option>
+                            <option value="2" {% if request.GET.adultos == "2" %}selected{% endif %}>2</option>
+                            <option value="3" {% if request.GET.adultos == "3" %}selected{% endif %}>3</option>
+                        </select>
+                    </div>
+                    <!-- Campo para seleccionar el número de niños en la primera habitación -->
+                    <div class="form-group col-md-2">
+                        <label for="ninos1">Niños</label>
+                        <select id="ninos1" class="form-select ninos-select" data-habitacion="1">
+                            <option value="0" {% if request.GET.ninos == "0" %}selected{% endif %}>0</option>
+                            <option value="1" {% if request.GET.ninos == "1" %}selected{% endif %}>1</option>
+                            <option value="2" {% if request.GET.ninos == "2" %}selected{% endif %}>2</option>
+                        </select>
+                    </div>
+                    <!-- Contenedor para los campos de edad de los niños en la primera habitación -->
+                    <div class="form-group col-md-6" id="edadesNinos1">
+                        <!-- Campos de edad de los niños se generan dinámicamente -->
+                    </div>
+                </div>
+                <!-- Contenedor dinámico para habitaciones adicionales -->
+                <div id="habitacionesContainer">
+                    <!-- Se generarán dinámicamente más habitaciones si es necesario -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <!-- Botón para cerrar el modal sin guardar -->
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <!-- Botón para guardar la selección de habitaciones y pasajeros -->
+                <button type="button" class="btn btn-primary" id="guardarHabitaciones">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function() {
+        
+        // Establece los valores por defecto al cargar la página
+        $('#habitaciones').val('1').trigger('change'); // 1 habitación
+        $('#adultos1').val('2'); // 2 adultos en la primera habitación
+        $('#ninos1').val('0'); // 0 niños en la primera habitación
+
+        // Función para actualizar el número de habitaciones y sus respectivos campos
+        function actualizarHabitaciones() {
+            var numHabitaciones = parseInt($('#habitaciones').val());
+            var habitacionesContainer = $('#habitacionesContainer');
+            habitacionesContainer.empty();
+
+            // Genera dinámicamente campos para cada habitación adicional
+            for (var i = 2; i <= numHabitaciones; i++) {
+                var habitacionHtml = `
+                    <div class="row align-items-start mt-3">
+                        <div class="form-group col-md-2">
+                        </div>    
+                        <div class="form-group col-md-2">
+                            <label for="adultos${i}">Adultos</label>
+                            <select id="adultos${i}" class="form-select">
+                                <option value="1">1</option>
+                                <option value="2" selected>2</option>
+                                <option value="3">3</option>
+                            </select>
+                        </div>
+                        <div class="form-group col-md-2">
+                            <label for="ninos${i}">Niños</label>
+                            <select id="ninos${i}" class="form-select ninos-select" data-habitacion="${i}">
+                                <option value="0" selected>0</option>
+                                <option value="1">1</option>
+                                <option value="2">2</option>
+                            </select>
+                        </div>
+                        <div class="form-group col-md-6" id="edadesNinos${i}">
+                            <!-- Campos de edad de los niños se generan dinámicamente -->
+                        </div>
+                    </div>
+                `;
+                habitacionesContainer.append(habitacionHtml);
+            }
+        }
+
+        // Función para actualizar los campos de edad de los niños para una habitación dada
+        function actualizarCamposEdadNinos(habitacion) {
+            var numNinos = parseInt($(`#ninos${habitacion}`).val());
+            var edadesNinosDiv = $(`#edadesNinos${habitacion}`);
+            edadesNinosDiv.empty();
+
+            // Genera dinámicamente campos de edad para cada niño
+            for (var i = 1; i <= numNinos; i++) {
+                var campoEdad = `
+                    <div class="d-inline-block me-2">
+                        <label for="edadNino${habitacion}_${i}" class="edad-label">Edad</label>
+                        <select id="edadNino${habitacion}_${i}" class="form-select edad-select">
+                            <option value="" selected>-</option>
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                            <option value="4">4</option>
+                            <option value="5">5</option>
+                            <option value="6">6</option>
+                            <option value="7">7</option>
+                            <option value="8">8</option>
+                            <option value="9">9</option>
+                            <option value="10">10</option>
+                            <option value="11">11</option>
+                            <option value="12">12</option>
+                            <option value="13">13</option>
+                        </select>
+                        <span class="edad-obligatoria text-danger">Edad obligatoria</span>
+                    </div>
+                `;
+                edadesNinosDiv.append(campoEdad);
+            }
+        }
+
+        // Actualiza las habitaciones cuando el usuario cambia el número de habitaciones
+        $('#habitaciones').change(function() {
+            actualizarHabitaciones();
+            actualizarCamposEdadNinos(1); // Actualiza los campos de edad para la primera habitación
+        });
+
+        // Actualiza los campos de edad de los niños cuando cambia el número de niños en una habitación
+        $(document).on('change', '.ninos-select', function() {
+            var habitacion = $(this).data('habitacion');
+            actualizarCamposEdadNinos(habitacion);
+        });
+
+        // Guardar la selección de habitaciones y pasajeros
+        $('#guardarHabitaciones').click(function() {
+            guardarSeleccionHabitaciones();
+            $('#habitacionesModal').modal('hide');
+        });
+
+        // Función para guardar la selección de habitaciones y pasajeros en los campos ocultos y actualizar el resumen
+        function guardarSeleccionHabitaciones() {
+            var numHabitaciones = $('#habitaciones').val();
+            var datosHabitaciones = [];
+            var totalAdultos = 0;
+            var totalNinos = 0;
+
+            for (var i = 1; i <= numHabitaciones; i++) {
+                var adultos = $(`#adultos${i}`).val();
+                var ninos = $(`#ninos${i}`).val();
+                var edadesNinos = [];
+
+                for (var j = 1; j <= ninos; j++) {
+                    edadesNinos.push($(`#edadNino${i}_${j}`).val());
+                }
+
+                totalAdultos += parseInt(adultos);
+                totalNinos += parseInt(ninos);
+
+                datosHabitaciones.push({
+                    habitacion: i,
+                    adultos: adultos,
+                    ninos: ninos,
+                    edadesNinos: edadesNinos
+                });
+            }
+
+            var infoHabitaciones = {
+                numHabitaciones: numHabitaciones,
+                totalAdultos: totalAdultos,
+                totalNinos: totalNinos,
+                datosHabitaciones: datosHabitaciones
+            };
+
+            $('#infoHabitacionesInput').val(JSON.stringify(infoHabitaciones));
+            $('#habitaciones_input').val(numHabitaciones);
+            $('#adultos_input').val(totalAdultos);
+            $('#ninos_input').val(totalNinos);
+
+            var habitacionesTexto = `<i class="fas fa-bed"></i> ${numHabitaciones}`;
+            var adultosTexto = `<i class="fas fa-user"></i> ${totalAdultos}`;
+            var ninosTexto = `<i class="fas fa-child"></i> ${totalNinos}`;
+            $('.btn-outline-primary').html(`${habitacionesTexto} ${adultosTexto} ${ninosTexto}`);
+        }
+
+        // Inicializa el modal con una habitación y actualiza los campos de edad
+        $('#habitaciones').val('1').trigger('change');
+        actualizarCamposEdadNinos(1);
+
+        // Llama a guardarSeleccionHabitaciones() después de asignar valores por defecto
+        guardarSeleccionHabitaciones();
+
+    });
+</script>
+
+{% block hotel_content %}{% endblock %}
+{% endblock %}

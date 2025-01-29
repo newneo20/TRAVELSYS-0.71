@@ -1,0 +1,131 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+    <div class="card">
+        <div class="card-body">
+            <div class="row">
+                <h1>Lista de Usuarios</h1>
+                <div class="col-md-2">
+                    <a href="{% url 'crear_usuario' %}" class="btn btn-outline-primary mb-3">
+                        Crear Usuario
+                    </a>
+                </div>
+                <div class="col-md-10">
+                    <form method="GET" action="">
+                        <div class="input-group mb-3">
+                            <input type="text" class="form-control" placeholder="Buscar por: (Usuario, Email, Dirección)" name="q" value="{{ query }}">
+                            <button class="btn btn-outline-secondary" type="submit">Buscar</button>
+                        </div>
+                    </form>
+                </div>
+                <div class="col-md-2 text-end">
+                    <!-- Crear Usuario -->
+                </div>
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th class="text-center align-middle">ID</th>
+                            <th class="text-center align-middle">Logo</th>
+                            <th class="text-center align-middle">Usuario</th>
+                            <th class="text-center align-middle">Email</th>
+                            <th class="text-center align-middle">Teléfono</th>
+                            <th class="text-center align-middle">Dirección</th>
+                            <th class="text-center align-middle">Manager</th>
+                            <th class="text-center align-middle">Saldo en Fondo</th>
+                            <th class="text-center align-middle">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for usuario in usuarios %}
+                        <tr>
+                            <td class="text-center align-middle">{{ usuario.id }}</td>
+                            <td class="text-center align-middle">
+                                {% if usuario.logo %}
+                                    <img src="{{ usuario.logo.url }}" alt="Logo de {{ usuario.username }}" style="width: 50px; height: 50px; object-fit: cover;">
+                                {% else %}
+                                    <span>Sin Logo</span>
+                                {% endif %}
+                            </td>
+                            <td class="text-center align-middle">{{ usuario.username }}</td>
+                            <td class="text-center align-middle">{{ usuario.email }}</td>
+                            <td class="text-center align-middle">{{ usuario.telefono }}</td>
+                            <td class="text-center align-middle">{{ usuario.direccion }}</td>
+                            <td class="text-center align-middle">
+                                {% if usuario.is_manager %}
+                                    <span class="badge bg-success">Sí</span>
+                                {% else %}
+                                    <span class="badge bg-secondary">No</span>
+                                {% endif %}
+                            </td>
+                            <td class="text-center align-middle">
+                                <strong class="{% if usuario.saldo_pendiente > 0 %}text-success{% elif usuario.saldo_pendiente < 0 %}text-danger{% else %}text-dark{% endif %}">
+                                    {% if usuario.saldo_pendiente < 0 %}
+                                        <i class="fas fa-arrow-down"></i> -${{ usuario.saldo_pendiente|floatformat:2|slice:"1:" }}
+                                    {% else %}
+                                        <i class="fas fa-arrow-up"></i> ${{ usuario.saldo_pendiente|floatformat:2 }}
+                                    {% endif %}
+                                </strong>
+                            </td>
+                            
+                            <td class="text-center align-middle">
+                                <a href="{% url 'editar_usuario' usuario_id=usuario.id %}" class="btn btn-outline-warning" title="Editar usuario">
+                                    <i class="fas fa-pencil-alt"></i>
+                                </a>
+                                <a href="{% url 'eliminar_usuario' usuario.id %}" class="btn btn-outline-danger" title="Eliminar usuario">
+                                    <i class="fas fa-trash-alt"></i>
+                                </a>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="9" class="text-center">No hay usuarios registrados.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                
+
+                <!-- Paginador -->
+                <nav aria-label="Page navigation example">
+                    <ul class="pagination justify-content-center">
+                        {% if usuarios.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page=1{% if query %}&q={{ query }}{% endif %}" aria-label="First">
+                                <span aria-hidden="true">&laquo;&laquo;</span>
+                            </a>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ usuarios.previous_page_number }}{% if query %}&q={{ query }}{% endif %}" aria-label="Previous">
+                                <span aria-hidden="true">&laquo;</span>
+                            </a>
+                        </li>
+                        {% endif %}
+
+                        {% for num in usuarios.paginator.page_range %}
+                            {% if usuarios.number == num %}
+                                <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+                            {% elif num > usuarios.number|add:'-5' and num < usuarios.number|add:'5' %}
+                                <li class="page-item"><a class="page-link" href="?page={{ num }}{% if query %}&q={{ query }}{% endif %}">{{ num }}</a></li>
+                            {% endif %}
+                        {% endfor %}
+
+                        {% if usuarios.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ usuarios.next_page_number }}{% if query %}&q={{ query }}{% endif %}" aria-label="Next">
+                                <span aria-hidden="true">&raquo;</span>
+                            </a>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ usuarios.paginator.num_pages }}{% if query %}&q={{ query }}{% endif %}" aria-label="Last">
+                                <span aria-hidden="true">&raquo;&raquo;</span>
+                            </a>
+                        </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}

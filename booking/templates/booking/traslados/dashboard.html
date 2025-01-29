@@ -1,0 +1,108 @@
+{% extends 'booking/traslados/base_traslados.html' %}
+{% load static %}
+
+{% block title %}Dashboard de TRASLADOS Destacados{% endblock %}
+
+{% block hotel_content %}
+<!-- ========== -->
+<!-- Custom CSS -->
+<!-- ========== -->
+<link rel="stylesheet" type="text/css" href="{% static 'css/dashboard_hotel.css' %}"> 
+
+<div class="container px-4 py-5">
+    <!-- ==================== -->
+    <!-- Título de la sección -->
+    <!-- ==================== -->
+    <h1 class="text-center mb-5 display-4 fw-bold">Descubre Nuestros Traslados Destacados</h1>
+    
+    <!-- ==================== -->
+    <!-- Carrusel de imágenes -->
+    <!-- ==================== -->
+    <div class="carousel-container mx-auto">
+        <div id="hotelCarousel" class="carousel slide carousel-fade rounded-carousel" data-bs-ride="carousel">
+            <!-- ======================== -->
+            <!-- Indicadores del carrusel -->
+            <!-- ======================== -->
+            <div class="carousel-indicators">
+                <button type="button" data-bs-target="#hotelCarousel" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Iberostar Grand Packard"></button>
+                <button type="button" data-bs-target="#hotelCarousel" data-bs-slide-to="1" aria-label="Memories Miramar Habana"></button>
+                <button type="button" data-bs-target="#hotelCarousel" data-bs-slide-to="2" aria-label="Gran Memories Santa Maria"></button>
+            </div>
+
+            <!-- ====================== -->
+            <!-- Contenido del carrusel -->
+            <!-- ====================== -->
+            <div class="carousel-inner rounded-carousel">
+
+                <!-- Primera diapositiva -->
+                <div class="carousel-item active">
+                    <img src="{% static 'backoffice/fotos_traslados/Transtur.jpeg' %}" class="d-block w-100" alt="Por los destinos de Cuba">
+                    <div class="carousel-caption d-none d-md-block bg-dark bg-opacity-75 rounded p-3">
+                        <h2 class="fs-4 fw-bold">Transtur</h2>
+                        <p class="fs-6">Por los destinos de Cuba.</p>                        
+                    </div>
+                </div>
+
+                <!-- Segunda diapositiva -->
+                <div class="carousel-item">
+                    <img src="{% static 'backoffice/fotos_traslados/Transgaviota.jpeg' %}" class="d-block w-100" alt="Liderazgo e innovación, exclusividad y visión de futuro">
+                    <div class="carousel-caption d-none d-md-block bg-dark bg-opacity-75 rounded p-3">
+                        <h2 class="fs-4 fw-bold">Transgaviota</h2>
+                        <p class="fs-6">Liderazgo e innovación, exclusividad y visión de futuro.</p>                        
+                    </div>
+                </div>
+
+                <!-- Tercera diapositiva -->
+                <div class="carousel-item">
+                    <img src="{% static 'backoffice/fotos_traslados/Taxis_Cuba.jpeg' %}" class="d-block w-100" alt="Unidos: Hacemos Cuba">
+                    <div class="carousel-caption d-none d-md-block bg-dark bg-opacity-75 rounded p-3">
+                        <h2 class="fs-4 fw-bold">Gran Memories Santa Maria</h2>
+                        <p class="fs-6">Unidos: Hacemos Cuba</p>                        
+                    </div>
+                </div>
+            </div>
+
+            <!-- ====================== -->
+            <!-- Controles del carrusel -->
+            <!-- ====================== -->
+            <button class="carousel-control-prev" type="button" data-bs-target="#hotelCarousel" data-bs-slide="prev">
+                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Anterior</span>
+            </button>
+            <button class="carousel-control-next" type="button" data-bs-target="#hotelCarousel" data-bs-slide="next">
+                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Siguiente</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- =================== -->
+    <!-- Scripts adicionales -->
+    <!-- =================== -->
+    {% block extra_js %}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var myCarousel = new bootstrap.Carousel(document.getElementById('hotelCarousel'), {
+                interval: 6000,
+                wrap: true,
+                touch: true,
+                pause: 'hover'
+            });
+
+            // Animación para las tarjetas de características
+            const cards = document.querySelectorAll('.hover-card');
+            cards.forEach(card => {
+                card.addEventListener('mouseenter', () => {
+                    card.style.transform = 'scale(1.05)';
+                    card.style.boxShadow = '0 10px 20px rgba(0,0,0,0.2)';
+                });
+                card.addEventListener('mouseleave', () => {
+                    card.style.transform = 'scale(1)';
+                    card.style.boxShadow = '';
+                });
+            });
+        });
+    </script>
+    {% endblock %}
+</div>
+{% endblock %}

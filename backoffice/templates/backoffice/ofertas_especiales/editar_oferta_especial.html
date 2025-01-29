@@ -1,0 +1,76 @@
+{% extends 'base.html' %}
+
+{% load static %} 
+
+{% block content %}
+
+<!-- Incluir el archivo de estilos CSS -->
+<link rel="stylesheet" href="{% static 'backoffice/css/formularios_crear.css' %}">
+
+<div class="form-container">
+    <h1 class="form-title">Editar Oferta</h1>
+    <form method="POST" class="needs-validation" novalidate>
+        {% csrf_token %}
+        <div class="form-group">
+            <label for="codigo" class="form-label">Código</label>
+            <input type="text" class="form-control" id="codigo" name="codigo" value="{{ oferta.codigo }}" required>
+            <div class="invalid-feedback">
+                Por favor, proporciona el código de la oferta.
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="nombre" class="form-label">Nombre</label>
+            <input type="text" class="form-control" id="nombre" name="nombre" value="{{ oferta.nombre }}" required>
+            <div class="invalid-feedback">
+                Por favor, proporciona el nombre de la oferta.
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="descripcion" class="form-label">Descripción</label>
+            <textarea class="form-control" id="descripcion" name="descripcion" required>{{ oferta.descripcion }}</textarea>
+            <div class="invalid-feedback">
+                Por favor, proporciona una descripción para la oferta.
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="tipo" class="form-label">Tipo</label>
+            <select class="form-control" id="tipo" name="tipo" required>
+                <option value="" {% if not oferta.tipo %}selected{% endif %}>Seleccione un tipo</option>
+                <option value="hoteles" {% if oferta.tipo == 'hoteles' %}selected{% endif %}>Hoteles</option>
+                <option value="carros" {% if oferta.tipo == 'carros' %}selected{% endif %}>Carros</option>
+                <option value="vuelos" {% if oferta.tipo == 'vuelos' %}selected{% endif %}>Vuelos</option>
+                <option value="traslados" {% if oferta.tipo == 'traslados' %}selected{% endif %}>Traslados</option>
+            </select>
+            <div class="invalid-feedback">
+                Por favor, selecciona un tipo de oferta.
+            </div>
+        </div>
+        <div class="form-group form-check">
+            <input type="checkbox" class="form-check-input" id="disponible" name="disponible" {% if oferta.disponible %}checked{% endif %}>
+            <label class="form-check-label" for="disponible">Disponible</label>
+        </div>
+        <div class="text-center mt-4">
+            <button type="submit" class="btn btn-primary btn-submit">Guardar Cambios</button>
+            <a href="{% url 'backoffice:listar_ofertas_especiales' %}" class="btn btn-secondary">Cancelar</a>
+        </div>
+    </form>
+</div>
+
+<script>
+    (function () {
+        'use strict'
+
+        var forms = document.querySelectorAll('.needs-validation');
+        Array.prototype.slice.call(forms).forEach(function (form) {
+            form.addEventListener('submit', function (event) {
+                if (!form.checkValidity()) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                }
+                form.classList.add('was-validated');
+            }, false);
+        });
+    })();
+</script>
+
+{% endblock %}

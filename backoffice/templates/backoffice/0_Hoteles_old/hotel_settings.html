@@ -1,0 +1,59 @@
+{% block content %}
+    
+    <div class="card">
+        <form id="configuracionHotelForm" method="post" class="row g-3">
+            {% csrf_token %}
+            <div class="card-body">                
+                <div class="row">
+                    <div class="col-md-3">
+                        <label for="edadLimite_nino" class="form-label"><strong>Edad límite del niño</strong></label>
+                        <input type="text" class="form-control" id="edadLimite_nino" name="edadLimite_nino" value="{{ setting.edad_limite_nino }}">
+                    </div>
+                    <div class="col-md-3">
+                        <label for="edadLimite_infante" class="form-label"><strong>Edad límite infante</strong></label>
+                        <input type="text" class="form-control" id="edadLimite_infante" name="edadLimite_infante" value="{{ setting.edad_limite_infante }}">
+                    </div>
+                    <div class="col-md-3">
+                        <label for="cantidad_noches" class="form-label"><strong>Cantidad Noches</strong></label>
+                        <input type="text" class="form-control" id="cantidad_noches" name="cantidad_noches" value="{{ setting.cantidad_noches }}">
+                    </div>
+                </div>
+                <div class="row mt-3">
+                    <div class="col-md-3">
+                        <button type="button" id="guardarConfiguracionBtn" class="btn btn-outline-success">Guardar Cambios</button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+    
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            $('#guardarConfiguracionBtn').click(function() {
+                var data = {
+                    edadLimite_nino: $('#edadLimite_nino').val(),
+                    edadLimite_infante: $('#edadLimite_infante').val(),
+                    cantidad_noches: $('#cantidad_noches').val(),
+                    csrfmiddlewaretoken: '{{ csrf_token }}'
+                };
+                $.ajax({
+                    url: "{% url 'backoffice:guardar_configuracion_hotel' hotel.id %}",
+                    method: 'POST',
+                    data: data,
+                    success: function(response) {
+                        if (response.status === 'success') {
+                            alert('Configuración guardada exitosamente');
+                        } else {
+                            alert('Error al guardar la configuración: ' + response.message);
+                        }
+                    },
+                    error: function(error) {
+                        alert('Error al guardar la configuración');
+                    }
+                });
+            });
+        });
+    </script>
+{% endblock %}

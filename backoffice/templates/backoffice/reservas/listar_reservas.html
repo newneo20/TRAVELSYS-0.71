@@ -1,0 +1,281 @@
+{% extends 'base.html' %}
+
+{% load custom_filters %}
+
+{% block content %}
+<!-- Add Tailwind CSS -->
+<link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+
+<div class="card">
+    <div class="card-body">
+        <div class="row">
+            <h1>Lista de Reservas</h1>
+            <div class="col-md-10">
+                <form method="GET" action="">
+                    <div class="row g-2">
+                        <div class="col-md-2">
+                            <input type="text" class="form-control" placeholder="ID Reserva" name="id_reserva" value="{{ id_reserva }}">
+                        </div>
+                        <div class="col-md-2">
+                            <input type="text" class="form-control" placeholder="Buscar (Hotel, Usuario, Email)" name="q" value="{{ query }}">
+                        </div>
+                        <div class="col-md-2">
+                            <input type="text" class="form-control" placeholder="Nombre Pasajero" name="nombre_pasajero" value="{{ nombre_pasajero }}">
+                        </div>
+                        <div class="col-md-2">
+                            <input type="date" class="form-control" name="fecha_inicio" value="{{ fecha_inicio }}">
+                        </div>
+                        <div class="col-md-2">
+                            <input type="date" class="form-control" name="fecha_fin" value="{{ fecha_fin }}">
+                        </div>
+                        <div class="col-md-2">
+                            <button class="btn btn-outline-secondary" type="submit">Filtrar</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th class="text-center align-middle">ID</th>
+                        <th class="text-center align-middle">Descripción</th>
+                        <th class="text-center align-middle">Usuario</th>
+                        <th class="text-center align-middle">Pasajero / Cliente</th>
+                        <th class="text-center align-middle">Fecha de Reserva</th>
+                        <th class="text-center align-middle">Estatus</th>
+                        <th class="text-center align-middle">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for reserva in reservas %}
+                    <tr>
+                        <td class="text-center align-middle">{{ reserva.id }}</td>
+                        <td class="text-center align-middle">
+                            {% if reserva.tipo == 'hoteles' %}
+                                {{ reserva.hotel.hotel_nombre }}
+                            {% else %}
+                                EN PROCESO - {{ reserva.tipo }}
+                            {% endif %}
+                        </td>
+                        <td class="text-center align-middle">{{ reserva.nombre_usuario }}</td>
+                        <td class="text-center align-middle">
+                            {% with habitacion=reserva.habitaciones_reserva.first %}
+                                {% if habitacion and habitacion.pasajeros.exists %}
+                                    {{ habitacion.pasajeros.first.nombre }}
+                                {% else %}
+                                    Sin Pasajeros
+                                {% endif %}
+                            {% endwith %}
+                        </td>
+                        <td class="text-center align-middle">{{ reserva.fecha_reserva }}</td>
+                        <td class="text-center align-middle">
+                            {% if reserva.estatus == 'solicitada' %}
+                                <span class="badge bg-info"><i class="fas fa-question-circle"></i> Solicitada</span>
+                            {% elif reserva.estatus == 'pendiente' %}
+                                <span class="badge bg-warning text-dark"><i class="fas fa-clock"></i> Pendiente</span>
+                            {% elif reserva.estatus == 'confirmada' %}
+                                <span class="badge bg-success"><i class="fas fa-check-circle"></i> Confirmada</span>
+                            {% elif reserva.estatus == 'modificada' %}
+                                <span class="badge bg-primary"><i class="fas fa-edit"></i> Modificada</span>
+                            {% elif reserva.estatus == 'ejecutada' %}
+                                <span class="badge bg-secondary"><i class="fas fa-calendar-check"></i> Ejecutada</span>
+                            {% elif reserva.estatus == 'cancelada' %}
+                                <span class="badge bg-danger"><i class="fas fa-times-circle"></i> Cancelada</span>
+                            {% elif reserva.estatus == 'reembolsada' %}
+                                <span class="badge bg-dark"><i class="fas fa-undo"></i> Reembolsada</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-center align-middle">
+                            <a href="#" class="btn btn-outline-primary ver-detalles" data-id="{{ reserva.pk }}">
+                                <i class="fas fa-eye"></i> 
+                            </a>
+                            <a href="{% url 'backoffice:edit_reserva_load' reserva.pk %}" class="btn btn-outline-warning">
+                                <i class="fas fa-pencil-alt"></i>
+                            </a>
+                            <a href="{% url 'backoffice:eliminar_reserva' reserva.pk %}" class="btn btn-outline-danger">
+                                <i class="fas fa-trash-alt"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="7" class="text-center">No hay reservas registradas.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+            <!-- Paginador -->
+            <nav aria-label="Page navigation example">
+                <ul class="pagination justify-content-center">
+                    {% if reservas.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page=1{% if query %}&q={{ query }}{% endif %}" aria-label="First">
+                            <span aria-hidden="true">&laquo;&laquo;</span>
+                        </a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ reservas.previous_page_number }}{% if query %}&q={{ query }}{% endif %}" aria-label="Previous">
+                            <span aria-hidden="true">&laquo;</span>
+                        </a>
+                    </li>
+                    {% endif %}
+
+                    {% for num in reservas.paginator.page_range %}
+                        {% if reservas.number == num %}
+                            <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+                        {% elif num > reservas.number|add:'-5' and num < reservas.number|add:'5' %}
+                            <li class="page-item"><a class="page-link" href="?page={{ num }}{% if query %}&q={{ query }}{% endif %}">{{ num }}</a></li>
+                        {% endif %}
+                    {% endfor %}
+
+                    {% if reservas.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ reservas.next_page_number }}{% if query %}&q={{ query }}{% endif %}" aria-label="Next">
+                            <span aria-hidden="true">&raquo;</span>
+                        </a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ reservas.paginator.num_pages }}{% if query %}&q={{ query }}{% endif %}" aria-label="Last">
+                            <span aria-hidden="true">&raquo;&raquo;</span>
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+<!-- Modal for showing reservation details -->
+<div id="verDetallesModal" class="fixed z-10 inset-0 overflow-y-auto hidden" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+    <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+        <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true"></div>
+        <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+        <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+            <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                <div class="sm:flex sm:items-start">
+                    <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left w-full">
+                        <h3 class="text-lg leading-6 font-medium text-gray-900" id="modal-title">
+                            Detalles de la Reserva (<span id="reservaId"></span>)
+                        </h3>
+                        <div class="mt-2">
+                            <!-- Spinner -->
+                            <div id="spinner" class="flex items-center justify-center h-16 hidden">
+                                <svg class="animate-spin -ml-1 mr-3 h-8 w-8 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8h8a8 8 0 01-8 8z"></path>
+                                </svg>
+                            </div>
+                            <div id="detallesReservaContent" class="text-sm text-gray-500">
+                                <!-- Content will be filled by JavaScript -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                <button type="button" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm" id="closeModal">
+                    Cerrar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const modal = document.getElementById('verDetallesModal');
+    const closeButton = document.getElementById('closeModal');
+    const detallesContent = document.getElementById('detallesReservaContent');
+    const spinner = document.getElementById('spinner');
+    const reservaIdSpan = document.getElementById('reservaId');
+
+    // Function to open modal
+    function openModal() {
+        modal.classList.remove('hidden');
+    }
+
+    // Function to close modal
+    function closeModal() {
+        modal.classList.add('hidden');
+    }
+
+    // Close modal when clicking the close button
+    closeButton.addEventListener('click', closeModal);
+
+    // Close modal when clicking outside
+    modal.addEventListener('click', function(event) {
+        if (event.target === modal) {
+            closeModal();
+        }
+    });
+
+    // Capture click events on "VER" buttons
+    document.querySelectorAll('.ver-detalles').forEach(button => {
+        button.addEventListener('click', function(event) {
+            event.preventDefault();
+            const reservaId = this.getAttribute('data-id');
+            reservaIdSpan.textContent = reservaId;  // Set the reservation ID in the title
+
+            // Show spinner and clear previous content
+            spinner.classList.remove('hidden');
+            detallesContent.innerHTML = '';
+
+            fetch(`/backoffice/reservas/detalles_reserva/${reservaId}/`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Error en la respuesta del servidor');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.error) {
+                        throw new Error(data.error);
+                    }
+                    // Hide spinner when data is ready
+                    spinner.classList.add('hidden');
+                    // Update modal content with reservation details
+                    detallesContent.innerHTML = `
+                        <div class="mb-4">
+                            <h4 class="font-semibold text-gray-700">Hotel</h4>
+                            <p>${data.hotel}</p>
+                        </div>
+                        <div class="mb-4">
+                            <h4 class="font-semibold text-gray-700">Dirección</h4>
+                            <p>${data.direccion}</p>
+                        </div>
+                        <div class="grid grid-cols-2 gap-4 mb-4">
+                            <div>
+                                <h4 class="font-semibold text-gray-700">Check-in</h4>
+                                <p>${data.checkin}</p>
+                            </div>
+                            <div>
+                                <h4 class="font-semibold text-gray-700">Check-out</h4>
+                                <p>${data.checkout}</p>
+                            </div>
+                        </div>
+                        <div>
+                            <h4 class="font-semibold text-gray-700 mb-2">Habitaciones</h4>
+                            ${data.habitaciones.map(habitacion => `
+                                <div class="bg-gray-100 p-3 rounded mb-2">
+                                    <h5 class="font-medium">${habitacion.nombre}</h5>
+                                    <p>Adultos: ${habitacion.adultos}, Niños: ${habitacion.ninos}</p>
+                                </div>
+                            `).join('')}
+                        </div>
+                    `;
+                    openModal();
+                })
+                .catch(error => {
+                    console.error('Error al cargar los detalles:', error);
+                    spinner.classList.add('hidden'); // Hide spinner if an error occurs
+                    detallesContent.innerHTML = `<p class="text-red-500">${error.message}</p>`;
+                    openModal();
+                });
+        });
+    });
+});
+</script>
+
+{% endblock %}

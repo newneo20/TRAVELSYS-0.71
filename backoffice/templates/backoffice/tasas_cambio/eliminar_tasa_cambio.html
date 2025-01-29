@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+
+{% block title %}Eliminar Tasa de Cambio{% endblock %}
+
+{% block header %}Eliminar Tasa de Cambio{% endblock %}
+
+{% block content %}
+    <div class="container mt-4">
+        <h1>Eliminar Tasa de Cambio</h1>
+        <p>¿Estás seguro de que deseas eliminar la tasa de cambio <strong>USD a CUP: {{ tasa_cambio.tasa_cup }}, USD a MLC: {{ tasa_cambio.tasa_mlc }}</strong>?</p>
+        <form method="post">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger">Eliminar</button>
+            <a href="{% url 'backoffice:listar_tasas_cambio' %}" class="btn btn-secondary">Cancelar</a>
+        </form>
+    </div>
+{% endblock %}

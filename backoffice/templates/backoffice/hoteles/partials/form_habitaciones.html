@@ -1,0 +1,276 @@
+{% load static %}
+
+<div class="tab-pane fade" id="habitacion" role="tabpanel" aria-labelledby="habitacion-tab">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3>Habitaciones del Hotel</h3>
+        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#habitacionModal">
+            <i class="fas fa-plus me-2"></i>Agregar Habitación
+        </button>
+    </div>
+
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th class="text-center align-middle">Tipo de Habitación</th>
+                <th class="text-center align-middle">Descripción</th>
+                <th class="text-center align-middle">Capacidad</th>
+                <th class="text-center align-middle">Solo Adultos</th>
+                <th class="text-center align-middle">Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for habitacion in habitaciones %}
+            <tr>
+                <td class="text-center align-middle">{{ habitacion.tipo }}</td>
+                <td class="text-center align-middle">{{ habitacion.descripcion }}</td>
+                <td class="text-center align-middle">{{ habitacion.max_capacidad }}</td>
+                <td class="text-center align-middle">{{ habitacion.solo_adultos }}</td>
+                <td class="text-center align-middle">
+                    <a href="#" class="btn btn-outline-warning editar-habitacion" data-id="{{ habitacion.id }}" title="Editar">
+                        <i class="fas fa-pencil-alt"></i>
+                    </a>
+                    <button type="button" class="btn btn-outline-danger eliminar-habitacion" data-id="{{ habitacion.id }}" title="Eliminar">
+                        <i class="fas fa-trash-alt"></i>
+                    </button>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="4" class="text-center">No hay habitaciones registradas.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <!-- Toast Notification -->
+    <div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 11;">
+        <div id="liveToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="toast-header">
+                <strong class="me-auto">Notificación</strong>
+                <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+            <div class="toast-body">Acción completada con éxito.</div>
+        </div>
+    </div>
+
+    <!-- Modal para agregar/editar habitación -->
+    <div class="modal fade" id="habitacionModal" tabindex="-1" aria-labelledby="habitacionModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="habitacionModalLabel">Agregar Habitación</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="spinner" class="text-center my-3 d-none">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Cargando...</span>
+                        </div>
+                    </div>
+                    <form id="habitacionForm" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <input type="hidden" name="hotel_id" value="{{ hotel.id }}">
+                        <input type="hidden" name="form_type" value="habitacion">
+                        <input type="hidden" id="habitacion_id" name="habitacion_id">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label for="tipo" class="form-label">Tipo de Habitación</label>
+                                <input type="text" class="form-control" id="tipo" name="tipo" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="descripcion" class="form-label">Descripción</label>
+                                <textarea class="form-control" id="descripcion" name="descripcion" rows="3"></textarea>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="datetimes" class="form-label">Fechas Deshabilitadas</label>
+                                <input type="text" class="form-control datepicker" id="datetimes" name="datetimes">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="foto" class="form-label">Foto</label>
+                                <input type="file" class="form-control" id="foto" name="foto" accept="image/*">
+                            </div>
+                            <div class="col-md-3">
+                                <label for="adultos" class="form-label">Adultos</label>
+                                <input type="number" class="form-control" id="adultos" name="adultos">
+                            </div>
+                            <div class="col-md-3">
+                                <label for="ninos" class="form-label">Niños</label>
+                                <input type="number" class="form-control" id="ninos" name="ninos">
+                            </div>
+                            <div class="col-md-3">
+                                <label for="max_capacidad" class="form-label">Máxima Capacidad</label>
+                                <input type="number" class="form-control" id="max_capacidad" name="max_capacidad">
+                            </div>
+                            <div class="col-md-3">
+                                <label for="min_capacidad" class="form-label">Mínima Capacidad</label>
+                                <input type="number" class="form-control" id="min_capacidad" name="min_capacidad">
+                            </div>
+                            <div class="col-md-12">
+                                <label for="descripcion_capacidad" class="form-label">Descripción de Capacidad</label>
+                                <textarea class="form-control" id="descripcion_capacidad" name="descripcion_capacidad" rows="3"></textarea>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="admite_3_con_1" name="admite_3_con_1">
+                                    <label class="form-check-label" for="admite_3_con_1">Admite 3 con 1</label>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="solo_adultos" name="solo_adultos">
+                                    <label class="form-check-label" for="solo_adultos">Solo adultos</label>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                    <button type="button" class="btn btn-primary" id="guardarHabitacion">Guardar Habitación</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para confirmar la eliminación de la habitación -->
+    <div class="modal fade" id="eliminarHabitacionModal" tabindex="-1" aria-labelledby="eliminarHabitacionModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="eliminarHabitacionModalLabel">Eliminar Habitación</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>¿Estás seguro de que deseas eliminar esta habitación?</p>
+                    <p><strong>Tipo:</strong> <span id="tipoHabitacionEliminar"></span></p>
+                    <p><strong>Descripción:</strong> <span id="descripcionHabitacionEliminar"></span></p>
+                </div>
+                <div class="modal-footer">
+                    <form method="POST" id="formEliminarHabitacion">
+                        {% csrf_token %}
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-danger">Eliminar</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Configuración del datepicker
+    $('.datepicker').daterangepicker({
+        locale: {
+            format: 'YYYY-MM-DD'
+        },
+        opens: 'right',
+        singleDatePicker: false
+    });
+
+    // Función para mostrar el toast de notificación
+    function showToast(message) {
+        const toastBody = document.querySelector('#liveToast .toast-body');
+        toastBody.textContent = message;
+        const toast = new bootstrap.Toast(document.getElementById('liveToast'));
+        toast.show();
+    }
+
+    // Evento para abrir el modal de edición y cargar los datos
+    document.querySelectorAll('.editar-habitacion').forEach(button => {
+        button.addEventListener('click', function() {
+            const habitacionId = this.getAttribute('data-id');
+            document.getElementById('spinner').classList.remove('d-none');
+            fetch(`/backoffice/obtener_habitacion_test/${habitacionId}/`)
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('spinner').classList.add('d-none');
+                if (data.habitacion) {
+                    const form = document.getElementById('habitacionForm');
+                    document.getElementById('habitacion_id').value = data.habitacion.id;
+                    document.getElementById('habitacionModalLabel').textContent = 'Editar Habitación';
+                    Object.entries(data.habitacion).forEach(([key, value]) => {
+                        const field = form.elements[key];
+                        if (field) {
+                            if (field.type === 'checkbox') {
+                                field.checked = value;
+                            } else {
+                                field.value = value;
+                            }
+                        }
+                    });
+                    $('#habitacionModal').modal('show');
+                } else {
+                    alert('No se encontraron datos para la habitación.');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Hubo un problema al cargar los datos de la habitación.');
+            });
+        });
+    });
+
+    // Evento para abrir el modal de eliminación de habitación
+    document.querySelectorAll('.eliminar-habitacion').forEach(button => {
+        button.addEventListener('click', function() {
+            const habitacionId = this.getAttribute('data-id');
+            
+            // Obtener tipo y descripción de la habitación a partir de los elementos del DOM
+            const row = this.closest('tr'); // Obtener la fila de la tabla donde está el botón
+            const tipoHabitacion = row.querySelector('td:nth-child(1)').textContent;
+            const descripcionHabitacion = row.querySelector('td:nth-child(2)').textContent;
+
+            // Asignar los valores al modal
+            document.getElementById('tipoHabitacionEliminar').textContent = tipoHabitacion;
+            document.getElementById('descripcionHabitacionEliminar').textContent = descripcionHabitacion;
+            
+            // Configurar la acción del formulario de eliminación
+            document.getElementById('formEliminarHabitacion').action = `/backoffice/eliminar_habitacion/${habitacionId}/`;
+
+            // Mostrar el modal
+            $('#eliminarHabitacionModal').modal('show');
+        });
+    });
+
+
+    // Evento para guardar la habitación
+    document.getElementById('guardarHabitacion').addEventListener('click', function() {
+        const form = document.getElementById('habitacionForm');
+        const formData = new FormData(form);
+        const habitacionId = document.getElementById('habitacion_id').value;
+        const hotelId = formData.get('hotel_id');
+        const url = habitacionId ? `/backoffice/editar_habitacion/${habitacionId}/` : `/backoffice/guardar_habitacion/${hotelId}/`;
+
+        // Validación de capacidad
+        const minCapacidad = parseInt(formData.get('min_capacidad')) || 0;
+        const maxCapacidad = parseInt(formData.get('max_capacidad')) || 0;
+        if (minCapacidad > maxCapacidad) {
+            alert('La capacidad mínima no puede ser mayor que la capacidad máxima.');
+            return;
+        }
+
+        fetch(url, {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRFToken': formData.get('csrfmiddlewaretoken')
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                $('#habitacionModal').modal('hide');
+                showToast('Habitación guardada exitosamente');
+                location.reload();
+            } else {
+                alert('Error al guardar la habitación');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Hubo un problema al guardar la habitación.');
+        });
+    });
+});
+</script>

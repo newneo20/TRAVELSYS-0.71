@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+
+{% block title %}Eliminar Reserva{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1>Eliminar Reserva</h1>
+    <p>¿Estás seguro que deseas eliminar la reserva {{ reserva.id }} - {{ reserva.hotel.hotel_nombre }}?</p>
+    <form method="post">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-danger">Eliminar</button>
+        <a href="{% url 'backoffice:listar_reservas' %}" class="btn btn-secondary">Cancelar</a>        
+    </form>
+</div>
+{% endblock %}

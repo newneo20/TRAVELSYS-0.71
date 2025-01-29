@@ -1,0 +1,155 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <!-- Viewport meta tag for responsive design -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TRAVELSYS Login</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Link to external CSS file -->
+    <link rel="stylesheet" type="text/css" href="{% static 'css/login.css' %}">
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="{% static 'img/favicon.png' %}">
+</head>
+<body>
+    <!-- Dark mode toggle button -->
+    <button class="dark-mode-toggle" aria-label="Toggle dark mode">
+        <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24">
+            <use xlink:href="#theme-icon"></use>
+        </svg>
+    </button>
+
+    <!-- SVG Icons -->
+    <svg style="display: none;">
+        <!-- Theme Icon -->
+        <symbol id="theme-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="5"/>
+            <line x1="12" y1="1" x2="12" y2="3"/>
+            <line x1="12" y1="21" x2="12" y2="23"/>
+            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
+            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+            <line x1="1" y1="12" x2="3" y2="12"/>
+            <line x1="21" y1="12" x2="23" y2="12"/>
+            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
+            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+        </symbol>
+        <!-- User Icon -->
+        <symbol id="user-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+            <circle cx="12" cy="7" r="4"></circle>
+        </symbol>
+        <!-- Lock Icon -->
+        <symbol id="lock-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+        </symbol>
+    </svg>
+
+    <div class="login-container">
+        <img src="{% static 'img/TRAVELSYS_logo_W.png' %}" alt="TRAVELSYS Logo" class="logo">
+        <h1>Bienvenido</h1>
+        <p class="subtitle">Por favor entre sus credenciales.</p>
+
+        {% if messages %}
+        <div class="messages" role="alert">
+            {% for message in messages %}
+            <div class="message {{ message.tags }}">{{ message }}</div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <form method="post" action="{% url 'login' %}" id="loginForm">
+            {% csrf_token %}
+            <div class="input-group">
+                <label for="username" class="visually-hidden">Username</label>
+                <input type="text" name="username" id="username" placeholder="Usuario" required autocomplete="username" value="{{ form.username.value|default:'' }}">
+                <svg aria-hidden="true" class="input-icon">
+                    <use xlink:href="#user-icon"></use>
+                </svg>
+            </div>
+
+            <div class="input-group">
+                <label for="password" class="visually-hidden">Password</label>
+                <input type="password" name="password" id="password" placeholder="Contraseña" required autocomplete="current-password">
+                <svg aria-hidden="true" class="input-icon">
+                    <use xlink:href="#lock-icon"></use>
+                </svg>
+
+                <div class="password-strength">
+                    <div class="password-strength-meter"></div>
+                    <span class="password-strength-text"></span>
+                </div>
+            </div>
+
+            <div class="options">
+                <div class="remember-me">
+                    <input type="checkbox" id="remember" name="remember">
+                    <label for="remember">Recuerdame</label>
+                </div>
+                
+            </div>
+
+            <button type="submit" id="loginButton">
+                <span>Entrar</span>
+            </button>
+        </form>
+
+    </div>
+
+    <script>
+        (function() {
+            // Dark mode toggle
+            function toggleDarkMode() {
+                document.body.classList.toggle('dark-mode');
+                localStorage.setItem('darkMode', document.body.classList.contains('dark-mode'));
+            }
+
+            document.querySelector('.dark-mode-toggle').addEventListener('click', toggleDarkMode);
+
+            // Check for saved dark mode preference or system preference
+            if (localStorage.getItem('darkMode') === 'true' || 
+                (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                document.body.classList.add('dark-mode');
+            }
+
+            // Password strength meter
+            const passwordInput = document.querySelector('#password');
+            const strengthMeter = document.querySelector('.password-strength-meter');
+            const strengthText = document.querySelector('.password-strength-text');
+
+            passwordInput.addEventListener('input', function(e) {
+                const password = e.target.value;
+                let strength = 0;
+
+                if (password.length >= 8) strength++;
+                if (/[a-z]/.test(password) && /[A-Z]/.test(password)) strength++;
+                if (/\d/.test(password)) strength++;
+                if (/[^A-Za-z0-9]/.test(password)) strength++; // Special characters
+
+                const strengthClass = strength <= 1 ? 'weak' : strength === 2 ? 'medium' : 'strong';
+
+                strengthMeter.className = 'password-strength-meter ' + strengthClass;
+
+                let strengthMessage = '';
+                if (strengthClass === 'weak') {
+                    strengthMessage = 'Weak';
+                } else if (strengthClass === 'medium') {
+                    strengthMessage = 'Medium';
+                } else if (strengthClass === 'strong') {
+                    strengthMessage = 'Strong';
+                }
+                strengthText.textContent = strengthMessage;
+            });
+
+            // Form submission handling
+            document.getElementById('loginForm').addEventListener('submit', function(e) {
+                const button = document.getElementById('loginButton');
+                button.classList.add('loading');
+                button.disabled = true;
+            });
+        })();
+    </script>
+</body>
+</html>

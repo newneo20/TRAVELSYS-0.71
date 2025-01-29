@@ -1,0 +1,163 @@
+{% extends 'booking/base_tabs.html' %}
+
+{% block content %}
+<!-- Formulario principal para las remesas con validación Bootstrap -->
+<div class="container mt-4">
+    <div class="card w-75 mx-auto shadow-sm">
+        <div class="card-header text-center">
+            <h3>Enviar Remesa</h3>
+            <p>Complete los detalles del remitente y destinatario para el envio de dinero.</p>
+        </div>
+        <div class="card-body">
+            <form id="form-remesa" action="{% url 'booking:guardar_remesa' %}" method="POST" class="row g-3 needs-validation" novalidate>
+                {% csrf_token %}
+                <!-- Datos del Remitente -->
+                <h4>Datos del Remitente</h4>
+                <div class="col-md-6">
+                    <label for="nombreRemitente" class="form-label">Nombre completo</label>
+                    <input type="text" class="form-control" id="nombreRemitente" name="nombreRemitente" required>
+                    <div class="valid-feedback">¡Parece correcto!</div>
+                    <div class="invalid-feedback">Por favor, ingrese el nombre completo.</div>
+                </div>
+                <div class="col-md-6">
+                    <label for="documentoRemitente" class="form-label">Documento de identidad (Licencia o pasaporte)</label>
+                    <input type="text" class="form-control" id="documentoRemitente" name="documentoRemitente" required>
+                    <div class="valid-feedback">¡Parece correcto!</div>
+                    <div class="invalid-feedback">Por favor, ingrese un documento válido.</div>
+                </div>
+                <div class="col-md-6">
+                    <label for="telefonoRemitente" class="form-label">Teléfono</label>
+                    <input type="tel" class="form-control" id="telefonoRemitente" name="telefonoRemitente" pattern="\d{10}" required>
+                    <div class="valid-feedback">¡Parece correcto!</div>
+                    <div class="invalid-feedback">Por favor, ingrese un número de teléfono válido (10 dígitos).</div>
+                </div>
+                <div class="col-md-6">
+                    <label for="emailRemitente" class="form-label">Correo electrónico (opcional)</label>
+                    <input type="email" class="form-control" id="emailRemitente" name="emailRemitente">
+                    <div class="valid-feedback">¡No es obligatorio!</div>
+                    <div class="invalid-feedback">Por favor, ingrese un correo electrónico válido.</div>
+                </div>
+
+                <!-- Datos del Destinatario -->
+                <h4>Datos del Destinatario</h4>
+                <div class="col-md-6">
+                    <label for="nombreDestinatario" class="form-label">Nombre del destinatario</label>
+                    <input type="text" class="form-control" id="nombreDestinatario" name="nombreDestinatario" required>
+                    <div class="valid-feedback">¡Parece correcto!</div>
+                    <div class="invalid-feedback">Por favor, ingrese el nombre del destinatario.</div>
+                </div>
+                <div class="col-md-6">
+                    <label for="telefonoDestinatario" class="form-label">Teléfono del destinatario</label>
+                    <input type="tel" class="form-control" id="telefonoDestinatario" name="telefonoDestinatario" pattern="\d{10}" required>
+                    <div class="valid-feedback">¡Parece correcto!</div>
+                    <div class="invalid-feedback">Por favor, ingrese un número de teléfono válido (10 dígitos).</div>
+                </div>
+                <div class="col-md-12">
+                    <label for="direccionDestinatario" class="form-label">Dirección del destinatario</label>
+                    <input type="text" class="form-control" id="direccionDestinatario" name="direccionDestinatario" required>
+                    <div class="valid-feedback">¡Parece correcto!</div>
+                    <div class="invalid-feedback">Por favor, ingrese una dirección válida.</div>
+                </div>
+
+                <!-- Detalles de la Remesa -->
+                <h4>Detalles de la Remesa</h4>
+                <div class="col-md-6">
+                    <label for="montoEnvio" class="form-label">Monto a enviar</label>
+                    <input type="number" class="form-control" id="montoEnvio" name="montoEnvio" min="1" step="0.01" required>
+                    <div class="valid-feedback">¡Parece correcto!</div>
+                    <div class="invalid-feedback">Por favor, ingrese un monto válido mayor a 0.</div>
+                </div>
+                <div class="col-md-6">
+                    <label for="monedaEnvio" class="form-label">Moneda de envío</label>
+                    <select class="form-select" id="monedaEnvio" name="monedaEnvio" required>
+                        <option value="USD" selected>Dólar estadounidense</option>
+                        <option value="CUP">Peso cubano</option>
+                        <option value="MLC">MLC</option>
+                    </select>
+                    <div class="valid-feedback">¡Parece correcto!</div>
+                    <div class="invalid-feedback">Por favor, seleccione una moneda de envío.</div>
+                </div>
+                <div class="col-md-6">
+                    <label for="montoEstimadoRecepcion" class="form-label">Monto estimado a recibir</label>
+                    <input type="text" class="form-control" id="montoEstimadoRecepcion" name="montoEstimadoRecepcion" readonly>
+                </div>
+                <div class="col-md-6">
+                    <label for="monedaRecepcion" class="form-label">Moneda de recepción</label>
+                    <select class="form-select" id="monedaRecepcion" name="monedaRecepcion" required>
+                        <option value="USD" selected>Dólar estadounidense</option>
+                        <option value="CUP">Peso cubano</option>
+                        <option value="MLC">MLC</option>
+                    </select>
+                    <div class="valid-feedback">¡Parece correcto!</div>
+                    <div class="invalid-feedback">Por favor, seleccione una moneda de recepción.</div>
+                </div>
+
+                <!-- Botón de enviar -->
+                <div class="col-12">
+                    <button type="submit" class="btn btn-primary btn-lg">Enviar Remesa</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const forms = document.querySelectorAll('.needs-validation');
+
+        Array.prototype.slice.call(forms).forEach(function (form) {
+            form.addEventListener('submit', function (event) {
+                if (!form.checkValidity()) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                }
+
+                form.classList.add('was-validated');
+            }, false);
+        });
+
+        const montoEnvioInput = document.getElementById('montoEnvio');
+        const monedaEnvioSelect = document.getElementById('monedaEnvio');
+        const monedaRecepcionSelect = document.getElementById('monedaRecepcion');
+        const montoEstimadoRecepcionInput = document.getElementById('montoEstimadoRecepcion');
+
+        // Tasa de cambio que se pasa desde la vista
+        const tasaCUP = {{ tasa_cambio.tasa_cup|default:0 }};
+        const tasaMLC = {{ tasa_cambio.tasa_mlc|default:0 }};
+        const tasaUSD = 1;  // USD -> USD siempre es 1
+
+        function calcularMontoEstimado() {
+            const montoEnvio = parseFloat(montoEnvioInput.value);
+            const monedaEnvio = monedaEnvioSelect.value;
+            const monedaRecepcion = monedaRecepcionSelect.value;
+
+            let tasa = 1;  // Por defecto la tasa es 1 (para USD -> USD)
+
+            if (monedaEnvio === 'USD' && monedaRecepcion === 'CUP') {
+                tasa = tasaCUP;
+            } else if (monedaEnvio === 'USD' && monedaRecepcion === 'MLC') {
+                tasa = tasaMLC;
+            } else if (monedaEnvio === 'CUP' && monedaRecepcion === 'USD') {
+                tasa = 1 / tasaCUP;
+            } else if (monedaEnvio === 'MLC' && monedaRecepcion === 'USD') {
+                tasa = 1 / tasaMLC;
+            } else if (monedaEnvio === 'USD' && monedaRecepcion === 'USD') {
+                tasa = tasaUSD;
+            }
+
+            if (montoEnvio && tasa) {
+                const estimado = (montoEnvio * tasa).toFixed(2);
+                montoEstimadoRecepcionInput.value = estimado;
+            } else {
+                montoEstimadoRecepcionInput.value = '';
+            }
+        }
+
+        // Eventos que actualizan el monto estimado
+        montoEnvioInput.addEventListener('input', calcularMontoEstimado);
+        monedaEnvioSelect.addEventListener('change', calcularMontoEstimado);
+        monedaRecepcionSelect.addEventListener('change', calcularMontoEstimado);
+    });
+</script>
+
+{% endblock %}

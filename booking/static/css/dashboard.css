@@ -1,0 +1,157 @@
+/* VARIABLES Y CONFIGURACIÓN GLOBAL */
+:root {
+    /* Colores */
+    --color-primary: #3498db;
+    --color-secondary: #2c3e50;
+    --color-background: #f0f4f8;
+    --color-white: #ffffff;
+    --color-text: #2c3e50;
+    --color-text-light: #ffffff;
+    --color-border: #eee;
+    --color-box-shadow: rgba(0, 0, 0, 0.1);
+    
+    /* Tipografía */
+    --font-family-base: 'Arial', sans-serif;
+    --font-size-base: 16px;
+    --font-size-large: 2.5em;
+    --font-size-medium: 1.5em;
+    --font-size-small: 1.2em;
+    --font-weight-bold: bold;
+    
+    /* Espaciados */
+    --spacing-xs: 5px;
+    --spacing-sm: 10px;
+    --spacing-md: 20px;
+    --spacing-lg: 30px;
+    
+    /* Bordes y sombras */
+    --border-radius: 10px;
+    --box-shadow: 0 4px 6px var(--color-box-shadow);
+    
+    /* Breakpoints */
+    --breakpoint-md: 768px;
+  }
+  
+  /* RESETEO DE ESTILOS BÁSICOS */
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+  
+  body {
+    margin: 0;
+    font-family: var(--font-family-base);
+    font-size: var(--font-size-base);
+    background-color: var(--color-background);
+    color: var(--color-text);
+  }
+  
+  /* CONTENEDOR PRINCIPAL DEL DASHBOARD */
+  .dashboard-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: var(--spacing-md);
+  }
+  
+  /* TÍTULO DEL DASHBOARD */
+  .dashboard-title {
+    text-align: center;
+    color: var(--color-secondary);
+    margin-bottom: var(--spacing-lg);
+    font-size: var(--font-size-large);
+    font-weight: var(--font-weight-bold);
+  }
+  
+  /* CONTENEDORES DE SECCIONES */
+  .stats-container,
+  .lists-container,
+  .charts-container {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    margin-bottom: var(--spacing-lg);
+  }
+  
+  /* TARJETAS GENERALES */
+  .card {
+    background-color: var(--color-white);
+    border-radius: var(--border-radius);
+    padding: var(--spacing-md);
+    box-shadow: var(--box-shadow);
+    margin-bottom: var(--spacing-md);
+    transition: transform 0.3s ease;
+  }
+  
+  /* TARJETAS DE ESTADÍSTICAS, LISTAS Y GRÁFICAS */
+  .stat-card,
+  .list-card,
+  .chart-card {
+    flex-basis: calc(33.333% - var(--spacing-md));
+  }
+  
+  .stat-card:hover,
+  .list-card:hover,
+  .chart-card:hover {
+    transform: translateY(-5px);
+  }
+  
+  /* ICONOS EN TARJETAS DE ESTADÍSTICAS */
+  .stat-card i {
+    font-size: var(--font-size-medium);
+    margin-bottom: var(--spacing-sm);
+    color: var(--color-primary);
+  }
+  
+  /* TÍTULOS EN TARJETAS */
+  .card h3 {
+    margin-bottom: var(--spacing-sm);
+    color: var(--color-secondary);
+    font-weight: var(--font-weight-bold);
+  }
+  
+  /* NÚMEROS DE ESTADÍSTICAS */
+  .stat-number {
+    font-size: var(--font-size-medium);
+    font-weight: var(--font-weight-bold);
+    color: var(--color-secondary);
+  }
+  
+  /* LISTAS EN TARJETAS DE LISTAS */
+  .list-card ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+  }
+  
+  .list-card li {
+    padding: var(--spacing-xs) 0;
+    border-bottom: 1px solid var(--color-border);
+    color: var(--color-text);
+  }
+  
+  /* TARJETAS DE GRÁFICAS */
+  .chart-card {
+    flex-basis: calc(50% - var(--spacing-md));
+  }
+  
+  .chart-card h3 {
+    text-align: center;
+    margin-bottom: var(--spacing-md);
+    color: var(--color-secondary);
+    font-weight: var(--font-weight-bold);
+  }
+  
+  /* MEDIA QUERIES PARA RESPONSIVIDAD */
+  @media (max-width: var(--breakpoint-md)) {
+    .stat-card,
+    .list-card,
+    .chart-card {
+      flex-basis: 100%;
+    }
+    
+    .charts-container {
+      flex-direction: column;
+    }
+  }
+  

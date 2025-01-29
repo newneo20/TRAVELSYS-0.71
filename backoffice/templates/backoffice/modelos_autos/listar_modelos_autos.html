@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+
+{% block title %}Listar Modelos de Autos{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-body">
+        <div class="row">
+            <h1>Lista de Modelos de Autos</h1>
+            <div class="col-md-2">
+                <a href="{% url 'backoffice:crear_modelo_auto' %}" class="btn btn-outline-primary mb-3">
+                    Crear Modelo de Auto
+                </a>
+            </div>
+            <div class="col-md-10">
+                <form method="GET" action="">
+                    <div class="input-group mb-3">
+                        <input type="text" class="form-control" placeholder="Buscar por: (Nombre, Categoría)" name="q" value="{{ query }}">
+                        <button class="btn btn-outline-secondary" type="submit">Buscar</button>
+                    </div>
+                </form>
+            </div>
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th class="text-center align-middle">ID</th>
+                        <th class="text-center align-middle">Nombre</th>
+                        <th class="text-center align-middle">Descripción</th>
+                        <th class="text-center align-middle">Categoría</th>
+                        <th class="text-center align-middle">Foto</th>
+                        <th class="text-center align-middle">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for modelo in modelos %}
+                    <tr>
+                        <td class="text-center align-middle">{{ modelo.id }}</td>
+                        <td class="text-center align-middle">{{ modelo.nombre }}</td>
+                        <td class="text-center align-middle">{{ modelo.descripcion }}</td>
+                        <td class="text-center align-middle">{{ modelo.categoria.nombre }}</td>
+                        <td class="text-center align-middle">
+                            {% if modelo.foto %}
+                                <img src="{{ modelo.foto.url }}" alt="{{ modelo.nombre }}" class="img-thumbnail" style="max-width: 100px;">
+                            {% else %}
+                                No tiene foto
+                            {% endif %}
+                        </td>
+                        <td class="text-center align-middle">
+                            <a href="{% url 'backoffice:editar_modelo_auto' modelo_id=modelo.id %}" class="btn btn-outline-warning">                            
+                                <i class="fas fa-pencil-alt"></i>
+                            </a>
+                            <a href="{% url 'backoffice:eliminar_modelo_auto' modelo.id %}" class="btn btn-outline-danger">
+                                <i class="fas fa-trash-alt"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+            <!-- Paginador (si es necesario) -->
+            <nav aria-label="Page navigation example">
+                <ul class="pagination justify-content-center">
+                    <!-- Implementación del paginador aquí -->
+                </ul>
+            </nav>
+        </div>
+    </div>
+</div>
+{% endblock %}
