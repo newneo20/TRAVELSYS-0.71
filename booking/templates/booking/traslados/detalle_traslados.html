@@ -1,0 +1,72 @@
+<!-- booking/templates/booking/traslados/result_traslados.html -->
+
+{% extends 'booking/traslados/base_traslados.html' %}
+
+{% load static %}
+{% load dictionary_extras %}
+
+{% block title %}Detalles del Traslados{% endblock %}
+
+{% block hotel_content %}
+
+<!-- Campo de búsqueda -->
+<div class="container mt-5">
+    <div class="row mb-4">
+        <div class="col-12">
+            <input type="text" id="trasladoSearchInput" class="form-control" placeholder="Buscar traslado por transportista...">
+            <h2 class="mb-3 mt-4">Detalles de la búsqueda:</h2>
+            
+        </div>
+    </div>
+
+    <div class="row justify-content-center">
+        
+        <!-- Lista de traslados -->
+        <div class="col-md-11" id="trasladosContainer">
+            
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    $(document).ready(function() {
+        // Llenar los campos con los valores del backend
+        $('#tipologia').val("{{ tipologia }}").trigger('change');
+        $('#origen').val("{{ origen }}").trigger('change');
+        $('#destino').append(new Option("{{ destino }}", "{{ destino }}", true, true)).trigger('change');
+        $('#fecha_traslado').val("{{ fecha_traslado }}");
+        $('#adultos').val("{{ adultos }}");
+        $('#ninos').val("{{ ninos }}");
+        $('#infantes').val("{{ infantes }}");
+
+        // Actualizar la visualización en el botón de pasajeros
+        $('#adultosDisplay').text("{{ adultos }}");
+        $('#ninosDisplay').text("{{ ninos }}");
+        $('#infantesDisplay').text("{{ infantes }}");
+
+        // Filtrado de traslados en tiempo real
+        $('#trasladoSearchInput').on('input', function() {
+            var searchText = $(this).val().toLowerCase();  // Convertir a minúsculas
+            var visibleTraslados = 0;
+
+            $('.traslado-card').each(function() {
+                var trasladoName = $(this).data('traslado-name');
+                if (trasladoName.includes(searchText)) {
+                    $(this).show();
+                    visibleTraslados++;
+                } else {
+                    $(this).hide();
+                }
+            });
+
+            // Actualizar el contador de traslados visibles
+            $('#trasladoCountText').text(`Encontramos ${visibleTraslados} traslados para tu búsqueda en {{ destino }}`);
+        });
+
+        // Si tienes funcionalidades adicionales como modales, datepickers, etc., agrégalas aquí
+    });
+</script>
+{% endblock %}

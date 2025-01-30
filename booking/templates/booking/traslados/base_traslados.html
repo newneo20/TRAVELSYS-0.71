@@ -7,14 +7,15 @@
 <!-- Formulario principal de búsqueda de TRASLADOS -->
 <!-- ============================================= -->
 <div class="container mt-4 search-bar">
-    <form method="GET" action="#" class="row g-2 needs-validation" novalidate>
+    <form method="POST" action="{% url 'booking:result_traslados' %}" class="row g-2 needs-validation" novalidate>
+        {% csrf_token %}
         
         <!-- Selección de Tipología -->
-        <div class="col-md-2 d-flex justify-content-center align-items-center">
+        <div class="col-md-1 d-flex justify-content-center align-items-center">
             <select class="form-select" id="tipologia" name="tipologia" required>
-                <option value="" disabled selected>Tipología</option>
-                <option value="colectivo">Colectivo</option>
-                <option value="privado">Privado</option>
+                <option value="" disabled {% if not tipologia %}selected{% endif %}>Modo</option>
+                <option value="colectivo" {% if tipologia == "colectivo" %}selected{% endif %}>Colectivo</option>
+                <option value="privado" {% if tipologia == "privado" %}selected{% endif %}>Privado</option>
             </select>
             <div class="invalid-feedback">                
             </div>
@@ -23,9 +24,9 @@
         <!-- Selección de Origen con Select2 -->
         <div class="col-md-3 d-flex justify-content-center align-items-center">
             <select class="form-select select2" id="origen" name="origen" data-url="{% url 'booking:obtener_destinos' %}" required>
-                <option value="" disabled selected>Selecciona origen</option>
+                <option value="" disabled {% if not origen %}selected{% endif %}>Selecciona origen</option>
                 {% for ubicacion in ubicaciones %}
-                    <option value="{{ ubicacion.id }}">{{ ubicacion.nombre }}</option>
+                    <option value="{{ ubicacion.id }}" {% if origen == ubicacion.id|stringformat:"s" %}selected{% endif %}>{{ ubicacion.nombre }}</option>
                 {% endfor %}
             </select>
             <div class="invalid-feedback">                
@@ -35,24 +36,42 @@
         <!-- Selección de Destino con Select2 -->
         <div class="col-md-3 d-flex justify-content-center align-items-center">
             <select class="form-select select2" id="destino" name="destino" required>
-                <option value="" disabled selected>Selecciona destino</option>
+                <option value="" disabled {% if not destino %}selected{% endif %}>Selecciona destino</option>
+                <option value="{{ destino }}" selected>{{ destino }}</option>
             </select>
             <div class="invalid-feedback">                
             </div>
         </div>
 
         <!-- Selección de Fecha con Date Range Picker -->
-        <div class="col-md-2 d-flex justify-content-center align-items-center">
-            <input type="text" class="form-control" id="fecha_traslado" name="fecha_traslado" placeholder="Fecha traslado" required>
+        <div class="col-md-2 d-flex justify-content-center align-items-center">            
+            <input type="text" class="form-control" id="fecha_traslado" name="fecha_traslado" value="{{ fecha_traslado }}" required>
             <div class="invalid-feedback">
                 Por favor, elige una fecha.
             </div>
         </div>
 
-        <!-- Botón de búsqueda -->
+        <!-- Botón para abrir el modal de selección de pasajeros -->
         <div class="col-md-2 d-flex justify-content-center align-items-center">
+            <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#paxModal">
+                <i class="fas fa-user"></i> 
+                <span id="adultosDisplay">{{ request.GET.adultos|default:"1" }}</span> 
+                <i class="fas fa-child"></i> 
+                <span id="ninosDisplay">{{ request.GET.ninos|default:"0" }}</span> 
+                <i class="fas fa-baby"></i> 
+                <span id="infantesDisplay">{{ request.GET.infantes|default:"0" }}</span>
+            </button>
+        </div>
+
+        <!-- Botón de búsqueda -->
+        <div class="col-md-1 d-flex justify-content-center align-items-center">
             <button type="submit" class="btn btn-primary">Buscar</button>
         </div>
+
+        <!-- Campos ocultos para pasar los valores del modal al formulario -->
+        <input type="hidden" name="adultos" id="adultos" value="{{ adultos }}">
+        <input type="hidden" name="ninos" id="ninos" value="{{ ninos }}">
+        <input type="hidden" name="infantes" id="infantes" value="{{ infantes }}">
 
     </form>
 </div>
@@ -64,42 +83,29 @@
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="paxModalLabel">Seleccionar PAX</h5>
+                <h5 class="modal-title">Seleccionar Pasajeros</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <div class="row">
-                    <div class="col-md-4">
-                        <label for="adultosSelect">Adultos</label>
-                        <select id="adultosSelect" class="form-select">
-                            {% for i in "12345" %}
-                                <option value="{{ i }}" {% if request.GET.adultos == i %}selected{% endif %}>
-                                    {{ i }}
-                                </option>
-                            {% endfor %}
-                        </select>
+                <form id="paxForm">
+                    <div class="row">
+                        <!-- Selección de Adultos -->
+                        <div class="col-md-4">
+                            <label for="adultosInput" class="form-label"><strong>Adultos</strong></label>
+                            <input type="number" id="adultosInput" class="form-control" min="1" max="10" value="{{ adultos|default:1 }}">
+                        </div>
+                        <!-- Selección de Niños -->
+                        <div class="col-md-4">
+                            <label for="ninosInput" class="form-label"><strong>Niños</strong></label>
+                            <input type="number" id="ninosInput" class="form-control" min="0" max="10" value="{{ ninos|default:0 }}">
+                        </div>
+                        <!-- Selección de Infantes -->
+                        <div class="col-md-4">
+                            <label for="infantesInput" class="form-label"><strong>Infantes</strong></label>
+                            <input type="number" id="infantesInput" class="form-control" min="0" max="5" value="{{ infantes|default:0 }}">
+                        </div>
                     </div>
-                    <div class="col-md-4">
-                        <label for="ninosSelect">Niños</label>
-                        <select id="ninosSelect" class="form-select">
-                            {% for i in "0123" %}
-                                <option value="{{ i }}" {% if request.GET.ninos == i %}selected{% endif %}>
-                                    {{ i }}
-                                </option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                    <div class="col-md-4">
-                        <label for="infantesSelect">Infantes</label>
-                        <select id="infantesSelect" class="form-select">
-                            {% for i in "0123" %}
-                                <option value="{{ i }}" {% if request.GET.infantes == i %}selected{% endif %}>
-                                    {{ i }}
-                                </option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                </div>
+                </form>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
@@ -121,9 +127,14 @@
 <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
 
+
+
+
 <!-- Moment.js y Date Range Picker -->
 <script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
 <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+
+
 
 <!-- Script para inicializar Select2, DateRangePicker y Validación -->
 <script>
@@ -185,6 +196,34 @@
                 }, false);
             });
         })();
+
+        // Manejo del botón "OK" en el modal
+        $('#guardarPax').click(function(){
+            // Obtener los valores de los inputs numéricos
+            var adultos = $('#adultosInput').val();
+            var ninos = $('#ninosInput').val();
+            var infantes = $('#infantesInput').val();
+        
+            // Validar que los valores sean números válidos y mayores o iguales a 0
+            if (adultos < 1) {
+                alert("Debe haber al menos un adulto.");
+                return;
+            }
+        
+            // Actualizar los campos ocultos en el formulario
+            $('#adultos').val(adultos);
+            $('#ninos').val(ninos);
+            $('#infantes').val(infantes);
+        
+            // Actualizar la visualización en el botón de pasajeros
+            $('#adultosDisplay').text(adultos);
+            $('#ninosDisplay').text(ninos);
+            $('#infantesDisplay').text(infantes);
+        
+            // Cerrar el modal
+            $('#paxModal').modal('hide');
+        });
+        
     });
 </script>
 

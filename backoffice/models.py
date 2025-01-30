@@ -507,10 +507,12 @@ class Vehiculo(models.Model):
         ('omnibus_34_plazas', 'Ómnibus 34 Plazas (23-32 Pax)'),
         ('omnibus_44_plazas', 'Ómnibus 44 Plazas (33-42 Pax)'),
         ('omnibus_48_plazas', 'Ómnibus 48 Plazas (43-46 Pax)'),
+        
         ('auto_estandar', 'Auto estándar (1-2 Pax)'),
         ('auto_lujo', 'Auto Lujo (1-3 Pax)'),
-        ('jeep', 'Jeep (1-4 Pax)'),
+        ('jeep', 'Jeep (1-4 Pax)'),        
         ('micro_1_5_pax', 'Micro (1-5 Pax)'),
+        
         ('microbus_6_10_plazas', 'Microbús de 6-10 plazas (6-10 Pax)'),
         ('minibus_11_16_plazas', 'Minibús hasta 16 plazas (11-16 Pax)'),
         ('minibus_21_24_plazas', 'Minibús de 21-24 plazas (21-24 Pax)'),
@@ -520,6 +522,7 @@ class Vehiculo(models.Model):
     tipo = models.CharField(max_length=50, choices=TIPO_VEHICULO_CHOICES, unique=True)
     capacidad_min = models.PositiveIntegerField()
     capacidad_max = models.PositiveIntegerField()
+    foto = models.ImageField(upload_to='fotos_vehiculos/', null=True, blank=True)
 
     def __str__(self):
         return dict(self.TIPO_VEHICULO_CHOICES).get(self.tipo, self.tipo)

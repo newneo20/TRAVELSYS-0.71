@@ -18,6 +18,7 @@ from django.core.serializers.json import DjangoJSONEncoder # type: ignore
 from django.core.paginator import Paginator # type: ignore
 from sympy import Q # type: ignore
 from django.db.models import F # type: ignore
+from django.core.exceptions import ObjectDoesNotExist # type: ignore
 
 from django.db.models import Sum as DjangoSum # type: ignore
 from decimal import Decimal, ROUND_HALF_UP
@@ -1477,8 +1478,190 @@ def traslado_dashboard(request):
     }    
     return render(request, 'booking/traslados/dashboard.html', context)
 
+@login_required
+def result_traslados(request):
+    transportistas = Transportista.objects.all()
+    ubicaciones = Ubicacion.objects.all()
+    vehiculos = Vehiculo.objects.all()
+    
+    if request.method == 'POST':
+        print('ES UN POST')
+        # Obtener los datos del formulario
+        tipologia = request.POST.get('tipologia')
+        origen = request.POST.get('origen')
+        destino = request.POST.get('destino')
+        fecha_traslado = request.POST.get('fecha_traslado')
+        adultos = request.POST.get('adultos')
+        ninos = request.POST.get('ninos')
+        infantes = request.POST.get('infantes')
+        
+        # CALCULO DEL PAX
+        try:
+            pax = int(adultos) + int(ninos) + int(infantes)
+        except (ValueError, TypeError):
+            pax = 0  # O manejar el error adecuadamente
+            messages.error(request, "Cantidad de pasajeros inválida.")
+            return redirect('booking:result_traslados') # Redirigir al formulario de búsqueda
+
+        # VALIDACIONES ADICIONALES
+        if pax < 1:
+            messages.error(request, "El número total de pasajeros debe ser al menos 1.")
+            return redirect('booking:result_traslados') # Redirigir al formulario de búsqueda
+
+        # LISTA DE TRASLADOS
+        try:
+            lista_traslados = buscar_traslados(pax, origen, destino)
+        except Exception as e:
+            messages.error(request, f"Error al buscar traslados: {e}")
+            lista_traslados = Traslado.objects.none()
+
+        # PRINTS para la depuración
+        print(f"Tipología: {tipologia}")
+        print(f"Origen ID: {origen}")
+        print(f"Destino Nombre: {destino}")
+        print(f"Fecha de traslado: {fecha_traslado}")
+        print(f"Adultos: {adultos}")
+        print(f"Niños: {ninos}")
+        print(f"Infantes: {infantes}")
+        print(f"PAX: {pax}")
+        print(f"LISTA DE TRASLADOS: {lista_traslados}")
+        
+        context = {
+            'tipologia': tipologia,
+            'origen': origen,
+            'destino': destino,
+            'fecha_traslado': fecha_traslado,
+            'adultos': adultos,
+            'ninos': ninos,
+            'infantes': infantes,
+            'pax': pax,
+            'transportistas': transportistas,
+            'ubicaciones': ubicaciones,
+            'vehiculos': vehiculos,
+            'traslados': lista_traslados,  # Pasar la lista filtrada de traslados
+        }
+
+        return render(request, 'booking/traslados/result_traslados.html', context)  # Cambiado a result_traslados.html
+    
+    else:
+        print('NO FUE UN POST')
+        # Opcional: Redirigir al formulario de búsqueda si se accede a esta vista por GET
+        return redirect('booking:result_traslados') # Redirigir al formulario de búsqueda  # Asegúrate de tener esta URL configurada
+    
+
+def detalle_traslados(request, traslado_id):
+    transportistas = Transportista.objects.all()
+    ubicaciones = Ubicacion.objects.all()
+    vehiculos = Vehiculo.objects.all()
+    traslado = get_object_or_404(Traslado, id=traslado_id)
+    
+    if request.method == 'POST':
+        print('ES UN POST')
+
+        # Obtener los datos del formulario
+        tipologia = request.POST.get('tipologia')
+        origen = request.POST.get('origen')
+        destino = request.POST.get('destino')
+        fecha_traslado = request.POST.get('fecha_traslado')
+        adultos = request.POST.get('adultos')
+        ninos = request.POST.get('ninos')
+        infantes = request.POST.get('infantes')
+        
+        # CALCULO DEL PAX
+        try:
+            pax = int(adultos) + int(ninos) + int(infantes)
+        except (ValueError, TypeError):
+            pax = 0
+            messages.error(request, "Cantidad de pasajeros inválida.")
+            return redirect('booking:result_traslados')
+
+        # VALIDACIONES ADICIONALES
+        if pax < 1:
+            messages.error(request, "El número total de pasajeros debe ser al menos 1.")
+            return redirect('booking:result_traslados')
+
+        # LISTA DE TRASLADOS
+        try:
+            lista_traslados = buscar_traslados(pax, origen, destino)
+        except Exception as e:
+            messages.error(request, f"Error al buscar traslados: {e}")
+            lista_traslados = Traslado.objects.none()
+
+        # PRINTS para la depuración
+        print(f"Tipología: {tipologia}")
+        print(f"Origen ID: {origen}")
+        print(f"Destino Nombre: {destino}")
+        print(f"Fecha de traslado: {fecha_traslado}")
+        print(f"Adultos: {adultos}")
+        print(f"Niños: {ninos}")
+        print(f"Infantes: {infantes}")
+        print(f"PAX: {pax}")
+        print(f"LISTA DE TRASLADOS: {lista_traslados}")
+        print("--------- DETALLES ----------------")
+        print(f"Traslado: {traslado}")
+        
+        context = {
+            'tipologia': tipologia,
+            'origen': origen,
+            'destino': destino,
+            'fecha_traslado': fecha_traslado,
+            'adultos': adultos,
+            'ninos': ninos,
+            'infantes': infantes,
+            'pax': pax,
+            'transportistas': transportistas,
+            'ubicaciones': ubicaciones,
+            'vehiculos': vehiculos,
+            'traslados': lista_traslados,
+            'traslado': traslado,
+        }
+
+        return render(request, 'booking/traslados/detalle_traslados.html', context)
+
+    else:    
+        print('NO FUE UN POST')
+        messages.error(request, "Acceso inválido a detalles de traslado.")
+        return render(request, 'booking/traslados/error_page.html')  # Crea esta página
 
 
+def error_page(request):
+    return render(request, 'booking/traslados/error_page.html')
+
+def buscar_traslados(pax, origen_id, destino_nombre):
+    """
+    Busca y devuelve una lista de traslados que coinciden con los criterios proporcionados.
+
+    Parámetros:
+    - pax (int): Número total de pasajeros.
+    - origen_id (int): ID de la ubicación de origen.
+    - destino_nombre (str): Nombre de la ubicación de destino.
+
+    Retorna:
+    - QuerySet: Lista de objetos Traslado que cumplen con los criterios.
+    """
+    traslados = Traslado.objects.none()
+
+    try:
+        origen = Ubicacion.objects.get(id=origen_id)
+    except Ubicacion.DoesNotExist:
+        print(f"Error: No existe una ubicación con ID {origen_id} como origen.")
+        return traslados
+
+    try:
+        destino = Ubicacion.objects.get(nombre__iexact=destino_nombre)
+    except Ubicacion.DoesNotExist:
+        print(f"Error: No existe una ubicación con nombre '{destino_nombre}' como destino.")
+        return traslados
+
+    traslados = Traslado.objects.filter(
+        origen=origen,
+        destino=destino,
+        vehiculo__capacidad_min__lte=pax,
+        vehiculo__capacidad_max__gte=pax
+    ).select_related('transportista', 'vehiculo')
+
+    return traslados
+        
 
 def obtener_destinos(request):
     """ Devuelve los destinos disponibles según el origen seleccionado sin duplicados """

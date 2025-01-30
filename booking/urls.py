@@ -10,6 +10,7 @@ urlpatterns = [
     path('en_desarrollo/', views.en_desarrollo, name='en_desarrollo'),    
     path('en_mantenimiento/', views.en_mantenimiento, name='en_mantenimiento'),
     
+        
     path('check-session/', views.check_session_status, name='check_session'),
     
     
@@ -42,9 +43,13 @@ urlpatterns = [
 
     # ---------------------------------------- Sección: Traslados ---------------------------------------- #
 
+    path('traslados/error/', views.error_page, name='error_page'),
     path('traslados_search/', views.traslados_search, name='traslados_search'),
     path('traslados/dashboard/', views.traslado_dashboard, name='traslado_dashboard'),
     path('obtener-destinos/', views.obtener_destinos, name='obtener_destinos'),
+    path('traslados/result_traslados/', views.result_traslados, name='result_traslados'),    
+    path('traslados/detalle_traslados/<int:traslado_id>/', views.detalle_traslados, name='detalle_traslados'),
+
 
 
     

@@ -1,304 +1,110 @@
-{% extends 'booking/hotel/base_hotel.html' %}
+<!-- booking/templates/booking/traslados/result_traslados.html -->
+
+{% extends 'booking/traslados/base_traslados.html' %}
 
 {% load static %}
 {% load dictionary_extras %}
 
-{% block title %}Resultados de la búsqueda{% endblock %}
+{% block title %}Resultados de la búsqueda de Traslados{% endblock %}
 
 {% block hotel_content %}
-
-<!-- Formulario oculto para mantener los valores de la búsqueda -->
-<form id="hiddenSearchForm" method="get" action="{% url 'booking:hotel_results' %}" class="d-none">
-    <input name="destino" value="{{ destino }}">
-    <input name="fechas_viaje" value="{{ fechas_viaje }}">
-    <input name="habitaciones" value="{{ cant_habitaciones }}">
-    <input name="adultos" value="{{ cant_adultos }}">
-    <input name="ninos" value="{{ cant_ninos }}">
-    <input name="info_habitaciones" value="{{ info_habitaciones|escape }}">
-</form>
-
 
 <!-- Campo de búsqueda -->
 <div class="container mt-5">
     <div class="row mb-4">
         <div class="col-12">
-            <input type="text" id="hotelSearchInput" class="form-control" placeholder="Buscar hotel por nombre...">
+            <input type="text" id="trasladoSearchInput" class="form-control" placeholder="Buscar traslado por transportista...">
             <h2 class="mb-3 mt-4">Resultados de la búsqueda:</h2>
-            <p class="lead" id="hotelCountText">Encontramos {{ hoteles|length }} hoteles para tu estancia en {{ destino }}</p>
+            <p class="lead" id="trasladoCountText">Encontramos {{ traslados|length }} traslados para tu búsqueda en {{ destino }}</p>
         </div>
     </div>
 
     <div class="row justify-content-center">
         
-        <!-- Lista de hoteles -->
-        <div class="col-md-11" id="hotelsContainer">
-            {% for hotel in hoteles %}
-                {% with oferta_mas_barata=ofertas_mas_baratas|dictkey:hotel.id %}
-                    {% if oferta_mas_barata %}
-                        <div class="card mb-4 shadow-sm hotel-card" data-hotel-name="{{ hotel.hotel_nombre|lower }}">
-                            <div class="row g-0">
-                                <div class="col-md-4">
-                                    <img src="{% static 'backoffice/fotos_hoteles/' %}{{ hotel.foto_hotel }}" class="img-fluid rounded-start h-100 object-fit-cover" alt="{{ hotel.hotel_nombre }}">
-                                </div>
-                                <div class="col-md-8">
-                                    <div class="card-body d-flex flex-column h-100">
-                                        <div class="d-flex justify-content-between align-items-start mb-2">
-                                            <h5 class="card-title mb-0">{{ hotel.hotel_nombre }}</h5>
-                                            <span class="badge bg-primary">
-                                                {% for i in "12345" %}
-                                                    <i class="fas fa-star{% if i > hotel.categoria|stringformat:"d" %} text-muted{% endif %}"></i>
-                                                {% endfor %}
-                                            </span>
-                                        </div>
-                                        <p class="card-text text-muted mb-2">
-                                            <i class="fas fa-map-marker-alt me-1"></i>{{ hotel.polo_turistico.nombre }} - {{ hotel.direccion }}
-                                        </p>
-                                        <p class="card-text mb-3">{{ hotel.descripcion_hotel|truncatewords:30 }}</p>
-                                        <div class="mt-auto">
-                                            <div class="d-flex flex-wrap gap-2 mb-3">
-                                                {% if hotel.hotelsetting.cantidad_noches > 0 %}
-                                                    <span class="badge bg-warning text-dark">
-                                                        <i class="fas fa-clock me-1"></i>Estancia mínima {{ hotel.hotelsetting.cantidad_noches }} noches
-                                                    </span>
-                                                {% endif %}
-                                                <span class="badge bg-info">
-                                                    <i class="fas fa-utensils me-1"></i>{{ hotel.plan_alimenticio }}
-                                                </span>
-                                            </div>
-                                            
-                                            <div class="d-flex justify-content-between align-items-center">
-                                                <a href="{% url 'booking:hotel_detalle' hotel.id %}?{{ request.GET.urlencode }}" class="btn btn-primary">Ver Detalles</a>
-                                                <div class="text-end">
-                                                    <span class="d-inline text-muted small">Desde</span>
-                                                    <span class="d-inline h4 text-primary mb-0">${{ oferta_mas_barata|floatformat:2 }}</span>
-                                                    <span class="d-block text-muted small">por persona por noche.</span>
-                                                </div>
-                                            </div>
-                                            
-                                        </div>
-                                    </div>
-                                </div>
+        <!-- Lista de traslados -->
+        <div class="col-md-11" id="trasladosContainer">
+            {% for traslado in traslados %}
+                <div class="card mb-4 shadow-sm traslado-card p-3" data-traslado-name="{{ traslado.transportista.nombre|lower }}">
+                    <div class="row g-3 align-items-center">
+                        <!-- Imagen del Vehículo -->
+                        <div class="col-md-4 d-flex align-items-center">
+                            {% if traslado.vehiculo.foto %}
+                                <img src="{{ traslado.vehiculo.foto.url }}" class="img-fluid rounded h-100 object-fit-cover" alt="{{ traslado.vehiculo.tipo }}">
+                            {% else %}
+                                <img src="{% static 'backoffice/fotos_vehiculos/default.jpg' %}" class="img-fluid rounded h-100 object-fit-cover" alt="Vehículo sin imagen">
+                            {% endif %}
+                        </div>
+
+                        <!-- Información del traslado -->
+                        <div class="col-md-5">
+                            <h5 class="mb-2"><i class="fas fa-map-marker-alt me-1"></i> {{ traslado.origen.nombre }} - {{ traslado.destino.nombre }}</h5>
+                            <p class="mb-1">
+                                <strong>Vehículo:</strong> {{ traslado.vehiculo.tipo|title }} <br>
+                                <strong>Capacidad:</strong> {{ traslado.vehiculo.capacidad_min }} - {{ traslado.vehiculo.capacidad_max }} pasajeros
+                            </p>
+                            <span class="badge bg-primary">{{ traslado.vehiculo.tipo|upper }}</span>
+                        </div>
+
+                        <!-- Precio y botón de detalles -->
+                        <div class="col-md-3 text-center">
+                            <div class="d-flex flex-column align-items-center">
+                                <span class="badge bg-warning text-dark px-3 py-2 mb-2">
+                                    <i class="fas fa-user me-1"></i> {{ pax }} pasajeros
+                                </span>
+                                <span class="text-primary h4 mb-2">${{ traslado.costo|floatformat:2 }}</span>                                
+                                <a href="{% url 'booking:detalle_traslados' traslado.id %}" class="btn btn-primary w-100">Detalles</a>
+
                             </div>
                         </div>
-                    {% endif %}
-                {% endwith %}
+                    </div>
+                </div>
             {% empty %}
                 <div class="alert alert-info" role="alert">
-                    No se encontraron hoteles que coincidan con tu búsqueda. Por favor, intenta con diferentes criterios.
+                    No se encontraron traslados que coincidan con tu búsqueda. Por favor, intenta con diferentes criterios.
                 </div>
             {% endfor %}
-
         </div>
     </div>
 </div>
-
-<!-- Modal de habitaciones -->
-<div class="modal fade" id="habitacionesModal" tabindex="-1" role="dialog" aria-labelledby="habitacionesModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg" role="document">
-        <div class="modal-content">
-            <!-- Contenido del modal -->
-            <div class="modal-header">
-                <h5 class="modal-title" id="habitacionesModalLabel">Seleccionar habitaciones y pasajeros</h5>
-                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Cerrar">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <!-- Aquí irá el contenido dinámico del modal -->
-                <div class="form-row">
-                    <div class="form-group col-md-2">
-                        <label for="habitaciones">Habitaciones</label>
-                        <select id="habitaciones" class="form-select">
-                            <!-- Opciones de habitaciones -->
-                            <option value="1">1</option>
-                            <option value="2">2</option>
-                            <!-- Agrega más opciones si es necesario -->
-                        </select>
-                    </div>
-                    <!-- Campos para adultos y niños de la habitación 1 -->
-                    <div class="form-group col-md-2">
-                        <label for="adultos1">Adultos</label>
-                        <select id="adultos1" class="form-select">
-                            <option value="1">1</option>
-                            <option value="2">2</option>
-                            <!-- Agrega más opciones si es necesario -->
-                        </select>
-                    </div>
-                    <div class="form-group col-md-2">
-                        <label for="ninos1">Niños</label>
-                        <select id="ninos1" class="form-select ninos-select" data-habitacion="1">
-                            <option value="0">0</option>
-                            <option value="1">1</option>
-                            <!-- Agrega más opciones si es necesario -->
-                        </select>
-                    </div>
-                </div>
-                <div id="habitacionesContainer">
-                    <!-- Contenido dinámico de habitaciones adicionales y edades de niños -->
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                <button type="button" class="btn btn-primary" id="guardarHabitaciones">OK</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Campo oculto para info_habitaciones -->
-<input type="hidden" id="infoHabitacionesInput" value='{{ info_habitaciones|escapejs }}'>
 
 {% endblock %}
 
 {% block extra_js %}
 <script>
     $(document).ready(function() {
-        // Filtrado de hoteles en tiempo real
-        $('#hotelSearchInput').on('input', function() {
-            var searchText = $(this).val().toLowerCase();  // Convertir a minúsculas
-            var visibleHotels = 0;
+        // Llenar los campos con los valores del backend
+        $('#tipologia').val("{{ tipologia }}").trigger('change');
+        $('#origen').val("{{ origen }}").trigger('change');
+        $('#destino').append(new Option("{{ destino }}", "{{ destino }}", true, true)).trigger('change');
+        $('#fecha_traslado').val("{{ fecha_traslado }}");
+        $('#adultos').val("{{ adultos }}");
+        $('#ninos').val("{{ ninos }}");
+        $('#infantes').val("{{ infantes }}");
 
-            $('.hotel-card').each(function() {
-                var hotelName = $(this).data('hotel-name');
-                if (hotelName.includes(searchText)) {
+        // Actualizar la visualización en el botón de pasajeros
+        $('#adultosDisplay').text("{{ adultos }}");
+        $('#ninosDisplay').text("{{ ninos }}");
+        $('#infantesDisplay').text("{{ infantes }}");
+
+        // Filtrado de traslados en tiempo real
+        $('#trasladoSearchInput').on('input', function() {
+            var searchText = $(this).val().toLowerCase();  // Convertir a minúsculas
+            var visibleTraslados = 0;
+
+            $('.traslado-card').each(function() {
+                var trasladoName = $(this).data('traslado-name');
+                if (trasladoName.includes(searchText)) {
                     $(this).show();
-                    visibleHotels++;
+                    visibleTraslados++;
                 } else {
                     $(this).hide();
                 }
             });
 
-            // Actualizar el contador de hoteles visibles
-            $('#hotelCountText').text(`Encontramos ${visibleHotels} hoteles para tu estancia en {{ destino }}`);
+            // Actualizar el contador de traslados visibles
+            $('#trasladoCountText').text(`Encontramos ${visibleTraslados} traslados para tu búsqueda en {{ destino }}`);
         });
 
-        // Inicializar el datepicker sin fechas específicas
-        $('#fechas_viaje').daterangepicker({
-            autoUpdateInput: false,
-            locale: {
-                format: 'YYYY-MM-DD',
-                separator: ' - ',
-                applyLabel: 'Aplicar',
-                cancelLabel: 'Cancelar'
-            }
-        });
-
-        // Establecer las fechas después de un pequeño retraso
-        setTimeout(function() {
-            var fechasViaje = "{{ fechas_viaje }}";
-            console.log("Variable fechasViaje desde Django:", fechasViaje);
-
-            if (fechasViaje) {
-                var fechas = fechasViaje.split(' - ');
-                console.log("Fechas separadas:", fechas);
-
-                $('#fechas_viaje').data('daterangepicker').setStartDate(fechas[0]);
-                $('#fechas_viaje').data('daterangepicker').setEndDate(fechas[1]);
-                $('#fechas_viaje').val(fechasViaje);
-
-                console.log("Fechas establecidas después del retraso:", fechasViaje);
-            } else {
-                console.warn("No se recibió fechas_viaje desde Django.");
-            }
-        }, 1); // retraso de 1 milisegundo
-
-        // Manejo de eventos del datepicker
-        $('#fechas_viaje').on('apply.daterangepicker', function(ev, picker) {
-            $(this).val(picker.startDate.format('YYYY-MM-DD') + ' - ' + picker.endDate.format('YYYY-MM-DD'));
-            console.log("Nuevas fechas seleccionadas:", $(this).val());
-        });
-
-        $('#fechas_viaje').on('cancel.daterangepicker', function(ev, picker) {
-            $(this).val('');
-            console.log("Selección de fechas cancelada, input limpiado.");
-        });
-
-        // --- Código para cargar los valores del modal ---
-        // Parsear info_habitaciones desde el input oculto
-        var infoHabitaciones = JSON.parse($('#infoHabitacionesInput').val());
-        console.log("Información de habitaciones:", infoHabitaciones);
-
-        // Función para cargar los valores en el modal
-        function cargarValoresModal(info) {
-            $('#habitaciones').val(info.numHabitaciones).trigger('change');
-            for (var i = 0; i < info.datosHabitaciones.length; i++) {
-                var habitacion = info.datosHabitaciones[i];
-                $('#adultos' + (i + 1)).val(habitacion.adultos);
-                $('#ninos' + (i + 1)).val(habitacion.ninos).trigger('change');
-                for (var j = 0; j < habitacion.edadesNinos.length; j++) {
-                    $('#edadNino' + (i + 1) + '_' + (j + 1)).val(habitacion.edadesNinos[j]);
-                }
-            }
-            console.log("Valores cargados en el modal:", info);
-        }
-
-        // Cargar valores en el modal al abrirlo
-        $('#habitacionesModal').on('show.bs.modal', function() {
-            if (infoHabitaciones) {
-                cargarValoresModal(infoHabitaciones);
-            } else {
-                console.warn("infoHabitaciones no está definida o es nula.");
-            }
-        });
-
-        // Manejo del botón "Guardar" en el modal
-        $('#guardarHabitaciones').click(function() {
-            var numHabitaciones = $('#habitaciones').val();
-            var datosHabitaciones = [];
-            var totalAdultos = 0;
-            var totalNinos = 0;
-
-            for (var i = 1; i <= numHabitaciones; i++) {
-                var adultos = $('#adultos' + i).val();
-                var ninos = $('#ninos' + i).val();
-                var edadesNinos = [];
-
-                for (var j = 1; j <= ninos; j++) {
-                    edadesNinos.push($('#edadNino' + i + '_' + j).val());
-                }
-
-                totalAdultos += parseInt(adultos);
-                totalNinos += parseInt(ninos);
-
-                datosHabitaciones.push({
-                    habitacion: i.toString(),
-                    adultos: adultos,
-                    ninos: ninos,
-                    edadesNinos: edadesNinos
-                });
-            }
-
-            infoHabitaciones = {
-                numHabitaciones: numHabitaciones,
-                totalAdultos: totalAdultos,
-                totalNinos: totalNinos,
-                datosHabitaciones: datosHabitaciones
-            };
-
-            console.log("Información de habitaciones actualizada:", infoHabitaciones);
-
-            // Actualizar el input oculto
-            $('#infoHabitacionesInput').val(JSON.stringify(infoHabitaciones));
-
-            // Actualizar los campos ocultos
-            $('input[name="habitaciones"]').val(numHabitaciones);
-            $('input[name="adultos"]').val(totalAdultos);
-            $('input[name="ninos"]').val(totalNinos);
-            $('input[name="info_habitaciones"]').val(JSON.stringify(infoHabitaciones));
-
-            // Actualizar el botón del modal con la información
-            var habitacionesTexto = `<i class="fas fa-bed"></i> ${numHabitaciones}`;
-            var adultosTexto = `<i class="fas fa-user"></i> ${totalAdultos}`;
-            var ninosTexto = `<i class="fas fa-child"></i> ${totalNinos}`;
-            $('.btn-outline-primary').html(`${habitacionesTexto} ${adultosTexto} ${ninosTexto}`);
-
-            // Cerrar el modal
-            $('#habitacionesModal').modal('hide');
-        });
-
-        // --- Fin del código para cargar los valores del modal ---
-
-        // Otros scripts y lógica necesaria
     });
 </script>
 {% endblock %}
