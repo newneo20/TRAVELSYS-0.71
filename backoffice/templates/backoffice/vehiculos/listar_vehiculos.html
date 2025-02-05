@@ -3,11 +3,13 @@
 {% block title %}Listar Vehículos{% endblock %}
 
 {% block content %}
-<h1>Vehículos</h1>
+<h1 class="text-center mb-4">Vehículos</h1>
 <a href="{% url 'backoffice:crear_vehiculo' %}" class="btn btn-outline-primary mb-3">Crear Vehículo</a>
-<table class="table table-bordered">
-    <thead>
+
+<table class="table table-bordered table-hover">
+    <thead class="table-dark">
         <tr>
+            <th class="text-center align-middle">Foto</th>
             <th class="text-center align-middle">Tipo</th>
             <th class="text-center align-middle">Capacidad Mínima</th>
             <th class="text-center align-middle">Capacidad Máxima</th>
@@ -17,7 +19,14 @@
     <tbody>
         {% for vehiculo in vehiculos %}
         <tr>
-            <td class="text-center align-middle">{{ vehiculo.tipo }}</td>
+            <td class="text-center align-middle">
+                {% if vehiculo.foto %}
+                    <img src="{{ vehiculo.foto.url }}" alt="Foto Vehículo" class="img-thumbnail" width="80">
+                {% else %}
+                    <i class="fas fa-car fa-2x text-secondary"></i>  <!-- Ícono si no hay foto -->
+                {% endif %}
+            </td>
+            <td class="text-center align-middle">{{ vehiculo.get_tipo_display }}</td>
             <td class="text-center align-middle">{{ vehiculo.capacidad_min }}</td>
             <td class="text-center align-middle">{{ vehiculo.capacidad_max }}</td>
             <td class="text-center align-middle">
@@ -28,5 +37,5 @@
         {% endfor %}
     </tbody>
 </table>
-{% endblock %}
 
+{% endblock %}

@@ -1,72 +1,175 @@
-<!-- booking/templates/booking/traslados/result_traslados.html -->
-
 {% extends 'booking/traslados/base_traslados.html' %}
 
 {% load static %}
-{% load dictionary_extras %}
 
-{% block title %}Detalles del Traslados{% endblock %}
+{% block title %}Detalles del Traslado{% endblock %}
 
 {% block hotel_content %}
 
-<!-- Campo de búsqueda -->
 <div class="container mt-5">
-    <div class="row mb-4">
-        <div class="col-12">
-            <input type="text" id="trasladoSearchInput" class="form-control" placeholder="Buscar traslado por transportista...">
-            <h2 class="mb-3 mt-4">Detalles de la búsqueda:</h2>
-            
+    <div class="card shadow-lg border-0 rounded">
+        <div class="card-header bg-primary text-white text-center">
+            <h2 class="mb-0">
+                {{ traslado.origen.nombre }} → {{ traslado.destino.nombre }}
+            </h2>
+            <p class="mb-0">Detalles del traslado</p>
         </div>
-    </div>
 
-    <div class="row justify-content-center">
-        
-        <!-- Lista de traslados -->
-        <div class="col-md-11" id="trasladosContainer">
-            
+        <div class="card-body p-4">            
+            <form method="POST" action="{% url 'booking:reserva_traslados' traslado.id %}" class="row g-3 needs-validation" novalidate>
+                {% csrf_token %}
+                
+                <input type="hidden" name="traslado_id" value="{{ traslado.id }}">                
+                <input type="hidden" name="precio" value="{{ traslado.costo }}">
+                <input type="hidden" name="tipologia" value="{{ tipologia }}">
+                <input type="hidden" name="origen" value="{{ traslado.origen.id }}">
+
+                <input type="hidden" name="destino" value="{{ destino }}">
+                <input type="hidden" name="fecha_traslado" value="{{ fecha_traslado }}">
+                <input type="hidden" name="adultos" value="{{ adultos }}">
+                <input type="hidden" name="ninos" value="{{ ninos }}">
+                <input type="hidden" name="infantes" value="{{ infantes }}">
+
+                <div class="row">
+                    <!-- Imagen del Vehículo -->
+                    <div class="col-md-4">
+                        <div class="rounded overflow-hidden shadow-sm">
+                            {% if traslado.vehiculo.foto %}
+                                <img src="{{ traslado.vehiculo.foto.url }}" class="img-fluid w-100" alt="{{ traslado.vehiculo.tipo }}">
+                            {% else %}
+                                <img src="{% static 'backoffice/fotos_vehiculos/default.jpg' %}" class="img-fluid w-100" alt="Vehículo sin imagen">
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Información del Traslado -->
+                    <div class="col-md-8">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h5 class="text-primary"><i class="fas fa-bus me-2"></i> Transporte</h5>                                                        
+                                <span class="badge bg-info text-white px-3 py-2 mb-2"><i class="fas fa-car me-1"></i> Vehículo: {{ traslado.vehiculo.tipo|title }}</span>
+                                <span class="badge bg-success text-white px-3 py-2 mb-2"><i class="fas fa-users me-1"></i> Capacidad: {{ traslado.vehiculo.capacidad_min }} - {{ traslado.vehiculo.capacidad_max }} pasajeros </span>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <h5 class="text-primary"><i class="fas fa-calendar-alt me-2"></i> Información del Viaje</h5>                            
+                                <span class="badge bg-warning text-dark px-3 py-2"><i class="fas fa-calendar-day me-1"></i> Fecha del Traslado: {{ fecha_traslado }}</span>
+                            </div>
+                        </div>
+
+                        <!-- Origen y Destino Lado a Lado -->
+                        <div class="row mt-4">
+                            <!-- Origen -->
+                            <div class="col-md-6">
+                                <label class="form-label">
+                                    <strong>Origen</strong>
+                                    {% if calificacion_origen == "HOTEL" %}
+                                        <i class="fas fa-hotel text-primary"></i>
+                                    {% elif calificacion_origen == "AEROPUERTO" %}
+                                        <i class="fas fa-plane-departure text-danger"></i>
+                                    {% else %}
+                                        <i class="fas fa-map-marker-alt text-secondary"></i>
+                                    {% endif %}
+                                </label>
+
+                                {% if calificacion_origen == "HOTEL" %}
+                                    <select id="hotel_origen" class="form-select select2" required>
+                                        <option value="" selected>Seleccione un hotel</option>
+                                        {% for hotel in hoteles_origen %}
+                                            <option value="{{ hotel.id }}">{{ hotel.hotel_nombre }}</option>
+                                        {% endfor %}
+                                    </select>
+                                    <div class="invalid-feedback">Por favor seleccione un hotel de origen.</div>
+                                {% else %}
+                                    <p class="border p-2 rounded bg-light text-center">{{ traslado.origen.nombre }}</p>
+                                {% endif %}
+
+                                {% if calificacion_origen == "AEROPUERTO" %}
+                                    <label class="form-label mt-2"><strong>No. de Vuelo</strong></label>
+                                    <input type="text" id="numero_vuelo_origen" class="form-control" placeholder="Ingrese el número de vuelo" required>
+                                    <div class="invalid-feedback">Ingrese un número de vuelo válido.</div>
+                                {% endif %}
+                            </div>
+
+                            <!-- Destino -->
+                            <div class="col-md-6">
+                                <label class="form-label">
+                                    <strong>Destino</strong>
+                                    {% if calificacion_destino == "HOTEL" %}
+                                        <i class="fas fa-hotel text-primary"></i>
+                                    {% elif calificacion_destino == "AEROPUERTO" %}
+                                        <i class="fas fa-plane-arrival text-danger"></i>
+                                    {% else %}
+                                        <i class="fas fa-map-marker-alt text-secondary"></i>
+                                    {% endif %}
+                                </label>
+
+                                {% if calificacion_destino == "HOTEL" %}
+                                    <select id="hotel_destino" class="form-select select2" required>
+                                        <option value="" selected>Seleccione un hotel</option>
+                                        {% for hotel in hoteles_destino %}
+                                            <option value="{{ hotel.id }}">{{ hotel.hotel_nombre }}</option>
+                                        {% endfor %}
+                                    </select>
+                                    <div class="invalid-feedback">Por favor seleccione un hotel de destino.</div>
+                                {% else %}
+                                    <p class="border p-2 rounded bg-light text-center">{{ traslado.destino.nombre }}</p>
+                                {% endif %}
+
+                                {% if calificacion_destino == "AEROPUERTO" %}
+                                    <label class="form-label mt-2"><strong>No. de Vuelo</strong></label>
+                                    <input type="text" id="numero_vuelo_destino" class="form-control" placeholder="Ingrese el número de vuelo" required>
+                                    <div class="invalid-feedback">Ingrese un número de vuelo válido.</div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- Información de Pasajeros y Precio -->
+                        <div class="mt-3">
+                            <h5 class="text-primary"><i class="fas fa-users me-2"></i> Pasajeros</h5>
+                            <div class="row align-items-center">
+                                <div class="col-md-8">
+                                    <div class="d-flex flex-wrap gap-3">
+                                        <span class="badge bg-primary text-white px-3 py-2"><i class="fas fa-user me-1"></i> Adultos: {{ adultos }}</span>
+                                        <span class="badge bg-info text-white px-3 py-2"><i class="fas fa-child me-1"></i> Niños: {{ ninos }}</span>
+                                        <span class="badge bg-success text-white px-3 py-2"><i class="fas fa-baby me-1"></i> Infantes: {{ infantes }}</span>
+                                    </div>
+                                </div>
+                                <div class="col-md-4 text-end mt-3">
+                                    <h4 class="text-primary fw-bold"><i class="fas fa-dollar-sign me-1"></i> {{ traslado.costo|floatformat:2 }}</h4>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Botón de Enviar -->
+                        <div class="d-flex justify-content-end mt-4">                        
+                            <button class="btn btn-primary btn-lg hover-effect" type="submit"><i class="fas fa-check-circle me-2"></i> Reservar Traslado</button>
+                        </div>
+                    </div>
+                </div>
+            </form>
         </div>
     </div>
 </div>
 
-{% endblock %}
-
-{% block extra_js %}
+<!-- Script para activar la validación -->
 <script>
-    $(document).ready(function() {
-        // Llenar los campos con los valores del backend
-        $('#tipologia').val("{{ tipologia }}").trigger('change');
-        $('#origen').val("{{ origen }}").trigger('change');
-        $('#destino').append(new Option("{{ destino }}", "{{ destino }}", true, true)).trigger('change');
-        $('#fecha_traslado').val("{{ fecha_traslado }}");
-        $('#adultos').val("{{ adultos }}");
-        $('#ninos').val("{{ ninos }}");
-        $('#infantes').val("{{ infantes }}");
+    (function () {
+        'use strict';
+        var forms = document.querySelectorAll('.needs-validation');
 
-        // Actualizar la visualización en el botón de pasajeros
-        $('#adultosDisplay').text("{{ adultos }}");
-        $('#ninosDisplay').text("{{ ninos }}");
-        $('#infantesDisplay').text("{{ infantes }}");
-
-        // Filtrado de traslados en tiempo real
-        $('#trasladoSearchInput').on('input', function() {
-            var searchText = $(this).val().toLowerCase();  // Convertir a minúsculas
-            var visibleTraslados = 0;
-
-            $('.traslado-card').each(function() {
-                var trasladoName = $(this).data('traslado-name');
-                if (trasladoName.includes(searchText)) {
-                    $(this).show();
-                    visibleTraslados++;
-                } else {
-                    $(this).hide();
+        Array.prototype.slice.call(forms).forEach(function (form) {
+            form.addEventListener('submit', function (event) {
+                if (!form.checkValidity()) {
+                    event.preventDefault();
+                    event.stopPropagation();
                 }
-            });
-
-            // Actualizar el contador de traslados visibles
-            $('#trasladoCountText').text(`Encontramos ${visibleTraslados} traslados para tu búsqueda en {{ destino }}`);
+                form.classList.add('was-validated');
+            }, false);
         });
-
-        // Si tienes funcionalidades adicionales como modales, datepickers, etc., agrégalas aquí
-    });
+    })();
 </script>
+
 {% endblock %}
+
+

@@ -1,13 +1,14 @@
-<!-- base_tabs.html -->
 {% load static %}
+{% load i18n %}
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
+    <!-- Meta etiquetas para diseño responsivo y compatibilidad -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}TravelSYS{% endblock %}</title>
 
-    <!-- jQuery -->
+    <!-- jQuery (se carga antes de algunos plugins que lo requieren) -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
   
     <!-- Font Awesome -->
@@ -33,31 +34,31 @@
 </head>
 <body>
     {% block navbar %}
-    <nav class="navbar navbar-expand-lg navbar-light bg-white fixed-top shadow-sm">
+    <!-- Navbar principal -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-white fixed-top shadow-sm" role="navigation" aria-label="{% trans 'Barra de navegación principal' %}">
         <div class="container-fluid d-flex justify-content-between">
             <div class="navbar-brand-wrapper">
                 {% if request.user.is_authenticated and request.user.is_manager %}
                     <a class="navbar-brand d-flex align-items-center" href="{% url 'dashboard' %}">
-                        <img src="{% static 'images/TRAVELSYS_logo_W.png' %}" alt="Logo TRAVELSYS" class="me-2" style="height: 40px;">
+                        <img src="{% static 'images/TRAVELSYS_logo_W.png' %}" alt="{% trans 'Logo TravelSYS' %}" class="me-2" style="height: 40px;">
                         <span class="brand-text">TRAVEL<span class="text-primary fw-bold">SYS</span></span>
                     </a>
                 {% else %}
                     <span class="navbar-brand d-flex align-items-center">
-                        <img src="{% static 'images/TRAVELSYS_logo_W.png' %}" alt="Logo TRAVELSYS" class="me-2" style="height: 40px;">
+                        <img src="{% static 'images/TRAVELSYS_logo_W.png' %}" alt="{% trans 'Logo TravelSYS' %}" class="me-2" style="height: 40px;">
                         <span class="brand-text">TRAVEL<span class="text-primary fw-bold">SYS</span></span>
                     </span>
                 {% endif %}
             </div>
 
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" 
-                    aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                    aria-controls="navbarNav" aria-expanded="false" aria-label="{% trans 'Alternar navegación' %}">
                 <span class="navbar-toggler-icon"></span>
             </button>
 
-
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                    <!-- Agregar elementos de navegación adicionales aquí si es necesario -->
+                    <!-- Aquí podrías agregar más enlaces si fuera necesario -->
                 </ul>
 
                 <ul class="navbar-nav ms-auto">
@@ -65,17 +66,25 @@
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                                 <i class="fas fa-user-circle me-2" aria-hidden="true"></i>
-                                <span>Bienvenido, {{ user.agencia|default:"Usuario" }}</span>
+                                <span>{% trans "Bienvenido" %}, {{ user.agencia|default:"Usuario" }}</span>
                             </a>
                             <ul class="dropdown-menu dropdown-menu-end shadow" aria-labelledby="navbarDropdown">
-                                <li><a class="dropdown-item" href="{% url 'booking:perfil_cliente' %}"><i class="fas fa-user me-2" aria-hidden="true"></i>Perfil</a></li>
-                                <li><a class="dropdown-item" href="{% url 'booking:perfil_cliente' %}"><i class="fas fa-cog me-2" aria-hidden="true"></i>Configuración</a></li>
+                                <li>
+                                    <a class="dropdown-item" href="{% url 'booking:perfil_cliente' %}">
+                                        <i class="fas fa-user me-2" aria-hidden="true"></i>{% trans "Perfil" %}
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" href="{% url 'booking:perfil_cliente' %}">
+                                        <i class="fas fa-cog me-2" aria-hidden="true"></i>{% trans "Configuración" %}
+                                    </a>
+                                </li>
                                 <li><hr class="dropdown-divider"></li>
                                 <li>
                                     <form method="post" action="{% url 'logout' %}">
                                         {% csrf_token %}
                                         <button type="submit" class="dropdown-item text-danger">
-                                            <i class="fas fa-sign-out-alt me-2" aria-hidden="true"></i>Cerrar sesión
+                                            <i class="fas fa-sign-out-alt me-2" aria-hidden="true"></i>{% trans "Cerrar sesión" %}
                                         </button>
                                     </form>
                                 </li>
@@ -84,12 +93,12 @@
                     {% else %}
                         <li class="nav-item">
                             <a class="nav-link btn btn-outline-primary me-2" href="{% url 'login' %}">
-                                <i class="fas fa-sign-in-alt me-2" aria-hidden="true"></i>Iniciar sesión
+                                <i class="fas fa-sign-in-alt me-2" aria-hidden="true"></i>{% trans "Iniciar sesión" %}
                             </a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link btn btn-primary text-white" href="{% url 'register' %}">
-                                <i class="fas fa-user-plus me-2" aria-hidden="true"></i>Registrarse
+                                <i class="fas fa-user-plus me-2" aria-hidden="true"></i>{% trans "Registrarse" %}
                             </a>
                         </li>
                     {% endif %}
@@ -99,82 +108,82 @@
     </nav>
 
     <!-- Menú adicional -->
-    <nav class="navbar navbar-expand-lg navbar-light navbar-center" style="background-color: #e3f2fd;">
+    <nav class="navbar navbar-expand-lg navbar-light navbar-center" style="background-color: #e3f2fd;" role="navigation" aria-label="{% trans 'Menú secundario' %}">
         <div class="container-fluid">
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" 
+                    aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="{% trans 'Alternar menú secundario' %}">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
                 <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                     <li class="nav-item">
                         <a class="nav-link btn btn-primary m-2" href="{% url 'booking:user_dashboard' %}" aria-current="page">
-                            <i class="fas fa-home me-2"></i>Home
+                            <i class="fas fa-home me-2"></i>{% trans "Home" %}
                         </a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link btn btn-primary m-2" href="{% url 'booking:hotel_dashboard' %}">
-                            <i class="fas fa-hotel me-2"></i>HOTELES
+                            <i class="fas fa-hotel me-2"></i>{% trans "Hoteles" %}
                         </a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link btn btn-primary m-2" href="{% url 'booking:remesas' %}">
-                            <i class="fas fa-car me-2"></i>REMESAS
+                            <i class="fas fa-car me-2"></i>{% trans "Remesas" %}
                         </a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link btn btn-primary m-2" href="{% url 'booking:traslado_dashboard' %}">
-                            <i class="fas fa-bus me-2"></i>TRASLADOS 
+                            <i class="fas fa-bus me-2"></i>{% trans "Traslados" %}
                         </a>
-                    </li>                  
+                    </li>
                     <li class="nav-item">
                         <a class="nav-link btn btn-primary m-2" href="{% url 'booking:en_desarrollo' %}">
-                            <i class="fas fa-hiking me-2"></i>EXCURSIONES
+                            <i class="fas fa-hiking me-2"></i>{% trans "Excursiones" %}
                         </a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link btn btn-primary m-2" href="{% url 'booking:perfil_cliente' %}">
-                            <i class="fas fa-cog me-2"></i>SETTINGS
+                            <i class="fas fa-cog me-2"></i>{% trans "Settings" %}
                         </a>
                     </li>
                 </ul>
             </div>
         </div>
     </nav>
-
     {% endblock navbar %}
 
     <!-- Contenido principal -->
-    <div class="container-fluid">
+    <div class="container-fluid mt-5 pt-3">
         {% block content %}{% endblock %}
     </div>
 
     <!-- Footer -->
-    <footer class="text-light py-4">
+    <footer class="text-light py-4" role="contentinfo">
         <div class="container">
             <div class="row">
                 <div class="col-md-6">
-                    <h5>Sobre Nosotros</h5>
-                    <p>Este es un sitio web de ejemplo para la gestión de hoteles. Aquí puedes encontrar información y realizar reservas.</p>
+                    <h5>{% trans "Sobre Nosotros" %}</h5>
+                    <p>{% trans "Este es un sitio web de ejemplo para la gestión de hoteles. Aquí puedes encontrar información y realizar reservas." %}</p>
                 </div>
                 <div class="col-md-3">
-                    <h5>Enlaces Rápidos</h5>
+                    <h5>{% trans "Enlaces Rápidos" %}</h5>
                     <ul class="list-unstyled">
-                        <li><a href="#" class="text-light">Inicio</a></li>
-                        <li><a href="#" class="text-light">Reservas</a></li>
-                        <li><a href="#" class="text-light">Contacto</a></li>
+                        <li><a href="#" class="text-light">{% trans "Inicio" %}</a></li>
+                        <li><a href="#" class="text-light">{% trans "Reservas" %}</a></li>
+                        <li><a href="#" class="text-light">{% trans "Contacto" %}</a></li>
                     </ul>
                 </div>
                 <div class="col-md-3">
-                    <h5>Contacto</h5>
+                    <h5>{% trans "Contacto" %}</h5>
                     <ul class="list-unstyled">
-                        <li>Email: info@rutamultiservice.com</li>
-                        <li>Teléfono: +1 786 499 0612</li>
-                        <li>Dirección: 9666 Coral Way, Miami, Florida, 33165 </li>
+                        <li>{% trans "Email:" %} info@rutamultiservice.com</li>
+                        <li>{% trans "Teléfono:" %} +1 786 499 0612</li>
+                        <li>{% trans "Dirección:" %} 9666 Coral Way, Miami, Florida, 33165</li>
                     </ul>
                 </div>
             </div>
             <div class="text-center mt-3">
-                <p>&copy; 2024 TravelSYS.com Todos los derechos reservados.</p>
+                <p>&copy; 2024 TravelSYS.com {% trans "Todos los derechos reservados." %}</p>
             </div>
         </div>
     </footer>
@@ -192,45 +201,35 @@
     
     <script>
         $(document).ready(function() {
-            // Ejemplo de inicialización de un select2 con el theme bootstrap-5
-            // Asegúrate de que tu(s) <select> tenga(n) algún ID: #miSelect2, #otroSelect2, etc.
+            // Ejemplo de inicialización de daterangepicker para un campo (puedes adaptarlo o removerlo si ya lo inicializas en otros archivos)
             $('#fechas_viaje').daterangepicker({
                 startDate: moment(),
                 endDate: moment().add(1, 'days'),
-                locale: {
-                    format: 'YYYY-MM-DD'
-                }
+                locale: { format: 'YYYY-MM-DD' }
             });
-
-            // Inicializa Select2
-            $('.mi-select2').select2({
-                theme: 'bootstrap-5'
-            });
+            // Inicializa Select2 en cualquier <select> con la clase .mi-select2
+            $('.mi-select2').select2({ theme: 'bootstrap-5' });
         });
 
-        // Configura el intervalo para verificar la sesión cada 5 minutos (300000 ms)
+        // Verificación de sesión cada 5 minutos
         setInterval(function() {
             fetch("{% url 'check_session' %}")
                 .then(response => {
                     if (!response.ok) {
-                        // Si la respuesta no es 200 OK, redirige al inicio de sesión
                         window.location.href = "{% url 'login' %}";
                     }
                     return response.json();
                 })
                 .then(data => {
                     if (data.status !== 'active') {
-                        // Redirige al usuario al inicio de sesión si el estado no es "active"
                         window.location.href = "{% url 'login' %}";
                     }
                 })
                 .catch(error => {
-                    console.error("Error verificando el estado de la sesión:", error);
-                    // También puedes redirigir al inicio de sesión en caso de error
+                    console.error("{% trans 'Error verificando el estado de la sesión:' %}", error);
                     window.location.href = "{% url 'login' %}";
                 });
-        }, 300000);  // Verifica cada 5 minutos
+        }, 300000);  // Cada 5 minutos
     </script>
-        
 </body>
 </html>

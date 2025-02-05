@@ -1,15 +1,26 @@
 {% extends 'base.html' %}
+{% load i18n %}
 
-{% block title %}Eliminar Reserva{% endblock %}
+{% block title %}{% trans "Eliminar Reserva" %}{% endblock %}
 
 {% block content %}
-<div class="container mt-4">
-    <h1>Eliminar Reserva</h1>
-    <p>¿Estás seguro que deseas eliminar la reserva {{ reserva.id }} - {{ reserva.hotel.hotel_nombre }}?</p>
-    <form method="post">
-        {% csrf_token %}
-        <button type="submit" class="btn btn-danger">Eliminar</button>
-        <a href="{% url 'backoffice:listar_reservas' %}" class="btn btn-secondary">Cancelar</a>        
-    </form>
+<div class="container mt-4" role="main">
+  <h1 class="mb-3">{% trans "Eliminar Reserva" %}</h1>
+  <p>
+    {% blocktrans with reserva_id=reserva.id hotel_nombre=reserva.hotel.hotel_nombre %}
+      ¿Estás seguro que deseas eliminar la reserva {{ reserva_id }} - {{ hotel_nombre }}?
+    {% endblocktrans %}
+  </p>
+  <form method="post" role="form">
+    {% csrf_token %}
+    <div class="d-flex gap-2">
+      <button type="submit" class="btn btn-danger" aria-label="{% trans 'Eliminar Reserva' %}">
+        {% trans "Eliminar" %}
+      </button>
+      <a href="{% url 'backoffice:listar_reservas' %}" class="btn btn-secondary" role="button" aria-label="{% trans 'Cancelar' %}">
+        {% trans "Cancelar" %}
+      </a>
+    </div>
+  </form>
 </div>
 {% endblock %}

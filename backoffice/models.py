@@ -318,9 +318,17 @@ class HabitacionReserva(models.Model):
 
     def __str__(self):
         return f'Habitación {self.habitacion_nombre} - Reserva {self.reserva.id}'
-    
+
 class Pasajero(models.Model):
-    habitacion = models.ForeignKey(HabitacionReserva, related_name='pasajeros', on_delete=models.CASCADE, blank=True, null=True)
+    # Relaciones con otros modelos
+    habitacion = models.ForeignKey(
+        'HabitacionReserva', related_name='pasajeros', on_delete=models.CASCADE, blank=True, null=True
+    )
+    traslado = models.ForeignKey(
+        'Traslado', related_name='pasajeros', on_delete=models.CASCADE, blank=True, null=True 
+    )
+
+    # Datos personales del pasajero
     nombre = models.CharField(max_length=255)
     fecha_nacimiento = models.DateField(blank=True, null=True)
     pasaporte = models.CharField(max_length=50, blank=True, null=True)
@@ -329,11 +337,32 @@ class Pasajero(models.Model):
     email = models.EmailField(blank=True, null=True)
     telefono = models.CharField(max_length=20, blank=True, null=True)
     direccion = models.CharField(max_length=1000, blank=True, null=True)
-    estado_civil = models.CharField(max_length=10, choices=[('soltero', 'Soltero'), ('casado', 'Casado'), ('divorciado', 'Divorciado'), ('viudo', 'Viudo')], blank=True, null=True)
-    tipo = models.CharField(max_length=10, choices=[('adulto', 'Adulto'), ('nino', 'Niño')], blank=True, null=True)
+    estado_civil = models.CharField(
+        max_length=10,
+        choices=[
+            ('soltero', 'Soltero'),
+            ('casado', 'Casado'),
+            ('divorciado', 'Divorciado'),
+            ('viudo', 'Viudo')
+        ],
+        blank=True, null=True
+    )
+    tipo = models.CharField(
+        max_length=10,
+        choices=[('adulto', 'Adulto'), ('nino', 'Niño')],
+        blank=True, null=True
+    )
 
     def __str__(self):
-        return f'Pasajero {self.nombre} - Habitación {self.habitacion.habitacion_nombre}'
+        """
+        Devuelve una representación del pasajero, indicando si está asociado a una habitación o a un traslado.
+        """
+        if self.habitacion:
+            return f'Pasajero {self.nombre} - Habitación {self.habitacion.habitacion_nombre}'
+        elif self.traslado:
+            return f'Pasajero {self.nombre} - Traslado {self.traslado.origen.nombre} -> {self.traslado.destino.nombre}'
+        return f'Pasajero {self.nombre} - Sin asignación'
+
 
 class OpcionCertificado(models.Model):
     nombre = models.CharField(max_length=255)
@@ -361,6 +390,7 @@ class Reserva(models.Model):
     hotel = models.ForeignKey('Hotel', on_delete=models.CASCADE, blank=True, null=True)
     remesa = models.ForeignKey('Remesa', on_delete=models.CASCADE, blank=True, null=True)
     certificado_vacaciones = models.ForeignKey('CertificadoVacaciones', on_delete=models.CASCADE, blank=True, null=True)
+    traslado = models.ForeignKey('Traslado', on_delete=models.CASCADE, blank=True, null=True) 
 
     # Campos generales
     fecha_reserva = models.DateTimeField(auto_now_add=True)

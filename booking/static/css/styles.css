@@ -646,3 +646,18 @@ outline: none;
 border-color: var(--color-primary);
 box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.25);
 }
+
+/* Agrega espacio entre los elementos */
+.badge {
+  font-size: 1rem;
+  padding: 0.6rem 1.2rem;
+  border-radius: 20px;
+}
+
+/* Efecto de hover en el botón */
+.hover-effect:hover {
+  background-color: #007bff;
+  color: white;
+  transform: scale(1.05);
+  transition: all 0.3s ease;
+}

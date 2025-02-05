@@ -1,478 +1,637 @@
 {% extends 'base.html' %}
-
 {% load static %}
+{% load i18n %}
 
-{% block title %}Editar Reserva ({{reserva.id}}) {% endblock %}
+{% block title %}{% trans "Editar Reserva" %} ({{ reserva.id }}){% endblock %}
 
 {% block content %}
-<!-- Incluir el archivo de estilos CSS -->
+<!-- Incluir el archivo de estilos CSS para formularios -->
 <link rel="stylesheet" href="{% static 'backoffice/css/formularios_crear.css' %}">
 
-  <h1>Editar Reserva</h1>
-  <form method="post" action="{% url 'backoffice:edit_reserva_save' reserva.pk %}">
-    {% csrf_token %}
-    <div class="card mt-3 mb-3">
-      <div class="card-body">
-        <div class="row">
-          <!-- Datos de Usuario y Reserva -->
-          <div class="col-md-3">
-            <div class="form-group">
-              <label for="nombre_usuario"><strong>Nombre de Usuario</strong></label>
-              <input type="text" class="form-control" id="nombre_usuario" name="nombre_usuario" value="{{ reserva.nombre_usuario }}">
-            </div>
+<h1>{% trans "Editar Reserva" %}</h1>
+<form method="post" action="{% url 'backoffice:edit_reserva_save' reserva.pk %}">
+  {% csrf_token %}
+  
+  <!-- Campos generales, comunes para todos los tipos de reserva -->
+  <div class="card mt-3 mb-3">
+    <div class="card-body">
+      <div class="row">
+        <!-- Nombre de Usuario -->
+        <div class="col-md-3">
+          <div class="form-group">
+            <label for="nombre_usuario"><strong>{% trans "Nombre de Usuario" %}</strong></label>
+            <input type="text" class="form-control" id="nombre_usuario" name="nombre_usuario" value="{{ reserva.nombre_usuario }}">
           </div>
-          <div class="col-md-3">
-            <div class="form-group">
-              <label for="email_empleado"><strong>Email del Empleado</strong></label>
-              <input type="email" class="form-control" id="email_empleado" name="email_empleado" value="{{ reserva.email_empleado }}">
-            </div>
+        </div>
+        <!-- Email del Empleado -->
+        <div class="col-md-3">
+          <div class="form-group">
+            <label for="email_empleado"><strong>{% trans "Email del Empleado" %}</strong></label>
+            <input type="email" class="form-control" id="email_empleado" name="email_empleado" value="{{ reserva.email_empleado }}">
           </div>
-
-          <div class="col-md-2">
-            <div class="form-group">
-                <label for="costo_total"><strong>Costo Proveedor</strong></label>
-                <input class="form-control" id="costo_proveedor" name="costo_total" value="{{ reserva.costo_sin_fee }}" readonly>
-            </div>
+        </div>
+        <!-- Costo Proveedor -->
+        <div class="col-md-2">
+          <div class="form-group">
+            <label for="costo_proveedor"><strong>{% trans "Costo Proveedor" %}</strong></label>
+            <input type="text" class="form-control" id="costo_proveedor" name="costo_total" value="{{ reserva.costo_sin_fee }}" readonly>
           </div>
-        
-          <div class="col-md-2">
-            <div class="form-group">
-              <label for="costo_total"><strong>Costo Agencia</strong></label>
-              <input type="number" step="1.00" class="form-control" id="costo_total" name="costo_total" value="{{ reserva.costo_total }}">
-            </div>
+        </div>
+        <!-- Costo Agencia -->
+        <div class="col-md-2">
+          <div class="form-group">
+            <label for="costo_total"><strong>{% trans "Costo Agencia" %}</strong></label>
+            <input type="number" step="1.00" class="form-control" id="costo_total" name="costo_total" value="{{ reserva.costo_total }}">
           </div>
-          <div class="col-md-2">
-            <div class="form-group">
-              <label for="precio_total"><strong>Precio Agencia</strong></label>
-              <input type="number" step="1.00" class="form-control" id="precio_total" name="precio_total" value="{{ reserva.precio_total }}">
-            </div>
-          </div>
-
-          <!-- ________________________________________________________________________ -->
-
-          <div class="col-md-1">
-            <div class="form-group">
-              <label for="tipo"><strong>Tipo</strong></label>
-              <select class="form-control" id="tipo" name="tipo">
-                <option value="hoteles" {% if reserva.tipo == 'hoteles' %}selected{% endif %}>Hoteles</option>
-                <option value="carros" {% if reserva.tipo == 'carros' %}selected{% endif %}>Carros</option>
-                <option value="vuelos" {% if reserva.tipo == 'vuelos' %}selected{% endif %}>Vuelos</option>
-                <option value="traslados" {% if reserva.tipo == 'traslados' %}selected{% endif %}>Traslados</option>
-              </select>
-            </div>
-          </div>
-          <div class="col-md-1">
-            <div class="form-group">
-              <label for="estatus"><strong>Estatus</strong></label>
-              <select class="form-control" id="estatus" name="estatus">
-                <option value="solicitada" {% if reserva.estatus == 'solicitada' %}selected{% endif %}>Solicitada</option>
-                <option value="pendiente" {% if reserva.estatus == 'pendiente' %}selected{% endif %}>Pendiente</option>
-                <option value="confirmada" {% if reserva.estatus == 'confirmada' %}selected{% endif %}>Confirmada</option>
-                <option value="modificada" {% if reserva.estatus == 'modificada' %}selected{% endif %}>Modificada</option>
-                <option value="ejecutada" {% if reserva.estatus == 'ejecutada' %}selected{% endif %}>Ejecutada</option>
-                <option value="cancelada" {% if reserva.estatus == 'cancelada' %}selected{% endif %}>Cancelada</option>
-                <option value="reembolsada" {% if reserva.estatus == 'reembolsada' %}selected{% endif %}>Reembolsada</option>
-              </select>
-            </div>
-          </div>
-          <div class="col-md-2">
-            <div class="form-group">
-              <label for="numero_confirmacion"><strong>Número de Confirmación</strong></label>
-              <input type="text" class="form-control" id="numero_confirmacion" name="numero_confirmacion" value="{{ reserva.numero_confirmacion }}">
-            </div>
-          </div>
-          <div class="col-md-6">
-            <div class="form-group">
-              <label for="notas"><strong>Notas</strong></label>
-              <textarea class="form-control" id="notas" name="notas">{{ reserva.notas }}</textarea>
-            </div>
-          </div>
-          <div class="col-md-1">
-            <div class="form-group">
-              <label for="cobrada"><strong>Cobrada</strong></label>
-              <input type="checkbox" class="form-check-input" id="cobrada" name="cobrada" {% if reserva.cobrada %}checked{% endif %}>
-            </div>
-          </div>
-          <div class="col-md-1">
-            <div class="form-group">
-              <label for="pagada"><strong>Pagada</strong></label>
-              <input type="checkbox" class="form-check-input" id="pagada" name="pagada" {% if reserva.pagada %}checked{% endif %}>
-            </div>
+        </div>
+        <!-- Precio Agencia -->
+        <div class="col-md-2">
+          <div class="form-group">
+            <label for="precio_total"><strong>{% trans "Precio Agencia" %}</strong></label>
+            <input type="number" step="1.00" class="form-control" id="precio_total" name="precio_total" value="{{ reserva.precio_total }}">
           </div>
         </div>
       </div>
     </div>
-
-    <!-- Información de las habitaciones -->
-    <h2>Hotel: {{ reserva.hotel.hotel_nombre }}</h2>
-    <div id="habitaciones-container">
-      {% for habitacion in habitaciones %}
-      <div class="card mt-3 mb-3">
-        <div class="card-body">
-          <h4>Habitación {{ forloop.counter }}</h4>
-          <input type="hidden" name="habitacion_id_{{ habitacion.id }}" value="{{ habitacion.id }}">
-
-          <div class="row">
-            <div class="col-md-1" >
-                  <div class="form-group">
-                    <label for="habitacion_id_{{ forloop.counter }}"><strong>ID</strong></label>
-                    <input class="form-control" id="habitacion_id_{{ forloop.counter }}" name="habitaciones[{{ forloop.counter }}][id]" value="{{ habitacion.id }}">
-                  </div>
-            </div>  
-            <div class="col-md-3">
-              <label for="habitacion_nombre_{{ habitacion.id }}"><strong>Nombre de Habitación</strong></label>
-              <select class="form-control habitacion-select" id="habitacion_nombre_{{ habitacion.id }}" name="habitacion_nombre_{{ habitacion.id }}">
+  </div>
+  
+  <!-- Sección condicional según el tipo de reserva -->
+  {% if reserva.tipo == 'hoteles' %}
+  <!-- Formulario para Reservas de Hoteles -->
+  <div class="card mt-3 mb-3">
+    <div class="card-body">
+      <div class="row">
+        <!-- Tipo y Estatus -->
+        <div class="col-md-1">
+          <div class="form-group">
+            <label for="tipo"><strong>{% trans "Tipo" %}</strong></label>
+            <select class="form-control" id="tipo" name="tipo">
+              <option value="hoteles" {% if reserva.tipo == 'hoteles' %}selected{% endif %}>{% trans "Hoteles" %}</option>
+              <option value="carros" {% if reserva.tipo == 'carros' %}selected{% endif %}>{% trans "Carros" %}</option>
+              <option value="vuelos" {% if reserva.tipo == 'vuelos' %}selected{% endif %}>{% trans "Vuelos" %}</option>
+              <option value="traslados" {% if reserva.tipo == 'traslados' %}selected{% endif %}>{% trans "Traslados" %}</option>
+            </select>
+          </div>
+        </div>
+        <div class="col-md-1">
+          <div class="form-group">
+            <label for="estatus"><strong>{% trans "Estatus" %}</strong></label>
+            <select class="form-control" id="estatus" name="estatus">
+              <option value="solicitada" {% if reserva.estatus == 'solicitada' %}selected{% endif %}>{% trans "Solicitada" %}</option>
+              <option value="pendiente" {% if reserva.estatus == 'pendiente' %}selected{% endif %}>{% trans "Pendiente" %}</option>
+              <option value="confirmada" {% if reserva.estatus == 'confirmada' %}selected{% endif %}>{% trans "Confirmada" %}</option>
+              <option value="modificada" {% if reserva.estatus == 'modificada' %}selected{% endif %}>{% trans "Modificada" %}</option>
+              <option value="ejecutada" {% if reserva.estatus == 'ejecutada' %}selected{% endif %}>{% trans "Ejecutada" %}</option>
+              <option value="cancelada" {% if reserva.estatus == 'cancelada' %}selected{% endif %}>{% trans "Cancelada" %}</option>
+              <option value="reembolsada" {% if reserva.estatus == 'reembolsada' %}selected{% endif %}>{% trans "Reembolsada" %}</option>
+            </select>
+          </div>
+        </div>
+        <div class="col-md-2">
+          <div class="form-group">
+            <label for="numero_confirmacion"><strong>{% trans "Número de Confirmación" %}</strong></label>
+            <input type="text" class="form-control" id="numero_confirmacion" name="numero_confirmacion" value="{{ reserva.numero_confirmacion }}">
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="form-group">
+            <label for="notas"><strong>{% trans "Notas" %}</strong></label>
+            <textarea class="form-control" id="notas" name="notas">{{ reserva.notas }}</textarea>
+          </div>
+        </div>
+        <div class="col-md-1">
+          <div class="form-group">
+            <label for="cobrada"><strong>{% trans "Cobrada" %}</strong></label>
+            <input type="checkbox" class="form-check-input" id="cobrada" name="cobrada" {% if reserva.cobrada %}checked{% endif %}>
+          </div>
+        </div>
+        <div class="col-md-1">
+          <div class="form-group">
+            <label for="pagada"><strong>{% trans "Pagada" %}</strong></label>
+            <input type="checkbox" class="form-check-input" id="pagada" name="pagada" {% if reserva.pagada %}checked{% endif %}>
+          </div>
+        </div>
+      </div>
+      <!-- Información de habitaciones -->
+      <h2>{% trans "Hotel:" %} {{ reserva.hotel.hotel_nombre }}</h2>
+      <div id="habitaciones-container">
+        {% for habitacion in habitaciones %}
+        <div class="card mt-3 mb-3">
+          <div class="card-body">
+            <h4>{% trans "Habitación" %} {{ forloop.counter }}</h4>
+            <input type="hidden" name="habitacion_id_{{ habitacion.id }}" value="{{ habitacion.id }}">
+            <div class="row">
+              <div class="col-md-1">
+                <div class="form-group">
+                  <label for="habitacion_id_{{ forloop.counter }}"><strong>{% trans "ID" %}</strong></label>
+                  <input class="form-control" id="habitacion_id_{{ forloop.counter }}" name="habitaciones[{{ forloop.counter }}][id]" value="{{ habitacion.id }}">
+                </div>
+              </div>
+              <div class="col-md-3">
+                <label for="habitacion_nombre_{{ habitacion.id }}"><strong>{% trans "Nombre de Habitación" %}</strong></label>
+                <select class="form-control habitacion-select" id="habitacion_nombre_{{ habitacion.id }}" name="habitacion_nombre_{{ habitacion.id }}">
                   {% for tipo in tipos_habitacion %}
-                      <option value="{{ tipo.tipo }}" data-solo-adultos="{{ tipo.solo_adultos }}" {% if habitacion.habitacion_nombre == tipo.tipo %}selected{% endif %}>{{ tipo.tipo }}</option>
+                    <option value="{{ tipo.tipo }}" data-solo-adultos="{{ tipo.solo_adultos }}" {% if habitacion.habitacion_nombre == tipo.tipo %}selected{% endif %}>
+                      {{ tipo.tipo }}
+                    </option>
                   {% endfor %}
-              </select>
-            </div>        
-            <div class="col-md-1">
-              <label for="adultos_{{ habitacion.id }}"><strong>Adultos</strong></label>
-              <input type="number" class="form-control" id="adultos_{{ habitacion.id }}" name="adultos_{{ habitacion.id }}" value="{{ habitacion.adultos }}">
+                </select>
+              </div>
+              <div class="col-md-1">
+                <label for="adultos_{{ habitacion.id }}"><strong>{% trans "Adultos" %}</strong></label>
+                <input type="number" class="form-control" id="adultos_{{ habitacion.id }}" name="adultos_{{ habitacion.id }}" value="{{ habitacion.adultos }}">
+              </div>
+              <div class="col-md-1">
+                <label for="ninos_{{ habitacion.id }}"><strong>{% trans "Niños" %}</strong></label>
+                <input type="number" class="form-control" id="ninos_{{ habitacion.id }}" name="ninos_{{ habitacion.id }}" value="{{ habitacion.ninos }}">
+              </div>
+              <div class="col-md-3">
+                <label for="fechas_viaje_{{ habitacion.id }}"><strong>{% trans "Fechas de Viaje" %}</strong></label>
+                <input type="text" class="form-control daterange-picker" id="fechas_viaje_{{ habitacion.id }}" name="fechas_viaje_{{ habitacion.id }}" value="{{ habitacion.fechas_viaje }}">
+              </div>
             </div>
-            <div class="col-md-1">
-              <label for="ninos_{{ habitacion.id }}"><strong>Niños</strong></label>
-              <input type="number" class="form-control" id="ninos_{{ habitacion.id }}" name="ninos_{{ habitacion.id }}" value="{{ habitacion.ninos }}">
-            </div>     
-            <div class="col-md-3">
-              <label for="fechas_viaje_{{ habitacion.id }}"><strong>Fechas de Viaje</strong></label>
-              <input type="text" class="form-control daterange-picker" id="fechas_viaje_{{ habitacion.id }}" name="fechas_viaje_{{ habitacion.id }}" value="{{ habitacion.fechas_viaje }}">
-            </div>           
+            <!-- Sección de pasajeros -->
+            <h5 class="mt-4">{% trans "Pasajeros" %}</h5>
+            {% for pasajero in habitacion.pasajeros.all %}
+            <div class="row mt-3 pasajero-row">
+              <div class="col-md-2">
+                <label for="pasajero_nombre_{{ pasajero.id }}"><strong>{% trans "Nombre" %}</strong></label>
+                <input type="text" class="form-control" id="pasajero_nombre_{{ pasajero.id }}" name="pasajero_nombre_{{ pasajero.id }}" value="{{ pasajero.nombre }}">
+              </div>
+              <div class="col-md-2">
+                <label for="pasajero_fecha_nacimiento_{{ pasajero.id }}"><strong>{% trans "Fecha de Nacimiento" %}</strong></label>
+                <input type="text" class="form-control datepicker" id="pasajero_fecha_nacimiento_{{ pasajero.id }}" name="pasajero_fecha_nacimiento_{{ pasajero.id }}" value="{{ pasajero.fecha_nacimiento|date:'m/d/Y' }}">
+              </div>
+              <div class="col-md-1">
+                <label for="pasajero_pasaporte_{{ pasajero.id }}"><strong>{% trans "Pasaporte" %}</strong></label>
+                <input type="text" class="form-control" id="pasajero_pasaporte_{{ pasajero.id }}" name="pasajero_pasaporte_{{ pasajero.id }}" value="{{ pasajero.pasaporte }}">
+              </div>
+              <div class="col-md-2">
+                <label for="pasajero_caducidad_pasaporte_{{ pasajero.id }}"><strong>{% trans "Caducidad Pasaporte" %}</strong></label>
+                <input type="text" class="form-control datepicker" id="pasajero_caducidad_pasaporte_{{ pasajero.id }}" name="pasajero_caducidad_pasaporte_{{ pasajero.id }}" value="{{ pasajero.caducidad_pasaporte|date:'m/d/Y' }}">
+              </div>
+              <div class="col-md-2">
+                <label for="pasajero_pais_emision_pasaporte_{{ pasajero.id }}"><strong>{% trans "País de Emisión" %}</strong></label>
+                <input type="text" class="form-control" id="pasajero_pais_emision_pasaporte_{{ pasajero.id }}" name="pasajero_pais_emision_pasaporte_{{ pasajero.id }}" value="{{ pasajero.pais_emision_pasaporte }}">
+              </div>
+              <div class="col-md-1">
+                <label for="pasajero_tipo_{{ pasajero.id }}"><strong>{% trans "Adulto/Niño" %}</strong></label>
+                <select class="form-control" id="pasajero_tipo_{{ pasajero.id }}" name="pasajero_tipo_{{ pasajero.id }}">
+                  <option value="adulto" {% if pasajero.tipo == 'adulto' %}selected{% endif %}>{% trans "Adulto" %}</option>
+                  <option value="nino" {% if pasajero.tipo == 'nino' %}selected{% endif %}>{% trans "Niño" %}</option>
+                </select>
+              </div>
+              <div class="col-md-1">
+                <label for="edad_{{ pasajero.id }}"><strong>{% trans "Edad" %}</strong></label>
+                <input type="hidden" class="form-control edad-campo" id="edad_{{ pasajero.id }}" name="edad_{{ pasajero.id }}" readonly>
+              </div>
+              <div class="col-md-1 d-flex align-items-end">
+                <button type="button" class="btn btn-outline-danger eliminar-pasajero">
+                  <i class="fas fa-trash-alt"></i>
+                </button>
+              </div>
+            </div>
+            {% endfor %}
+            <div class="mt-3">
+              <button type="button" class="btn btn-primary agregar-pasajero" data-habitacion-id="{{ habitacion.id }}">{% trans "Agregar Pasajero" %}</button>
+            </div>
           </div>
-
-          <!-- Información de los pasajeros -->
-          <h5 class="mt-4">Pasajeros</h5>
-          {% for pasajero in habitacion.pasajeros.all %}
-          <div class="row mt-3 pasajero-row">
-            <div class="col-md-2">
-              <label for="pasajero_nombre_{{ pasajero.id }}"><strong>Nombre</strong></label>
-              <input type="text" class="form-control" id="pasajero_nombre_{{ pasajero.id }}" name="pasajero_nombre_{{ pasajero.id }}" value="{{ pasajero.nombre }}">
-            </div>
-            <div class="col-md-2">
-              <label for="pasajero_fecha_nacimiento_{{ pasajero.id }}"><strong>Fecha de Nacimiento</strong></label>
-              <input type="text" class="form-control datepicker" id="pasajero_fecha_nacimiento_{{ pasajero.id }}" name="pasajero_fecha_nacimiento_{{ pasajero.id }}" value="{{ pasajero.fecha_nacimiento|date:'m/d/Y' }}">
-            </div>
-            <div class="col-md-1">
-              <label for="pasajero_pasaporte_{{ pasajero.id }}"><strong>Pasaporte</strong></label>
-              <input type="text" class="form-control" id="pasajero_pasaporte_{{ pasajero.id }}" name="pasajero_pasaporte_{{ pasajero.id }}" value="{{ pasajero.pasaporte }}">
-            </div>
-            <div class="col-md-2">
-              <label for="pasajero_caducidad_pasaporte_{{ pasajero.id }}"><strong>Caducidad Pasaporte</strong></label>
-              <input type="text" class="form-control datepicker" id="pasajero_caducidad_pasaporte_{{ pasajero.id }}" name="pasajero_caducidad_pasaporte_{{ pasajero.id }}" value="{{ pasajero.caducidad_pasaporte|date:'m/d/Y' }}">
-            </div>
-            <div class="col-md-2">
-              <label for="pasajero_pais_emision_pasaporte_{{ pasajero.id }}"><strong>País de Emisión</strong></label>
-              <input type="text" class="form-control" id="pasajero_pais_emision_pasaporte_{{ pasajero.id }}" name="pasajero_pais_emision_pasaporte_{{ pasajero.id }}" value="{{ pasajero.pais_emision_pasaporte }}">
-            </div>
-            <div class="col-md-1">
-              <label for="pasajero_tipo_{{ pasajero.id }}"><strong>Adulto/Niño</strong></label>
-              <select class="form-control" id="pasajero_tipo_{{ pasajero.id }}" name="pasajero_tipo_{{ pasajero.id }}">
-                <option value="adulto" {% if pasajero.tipo == 'adulto' %}selected{% endif %}>Adulto</option>
-                <option value="nino" {% if pasajero.tipo == 'nino' %}selected{% endif %}>Niño</option>
-              </select>
-            </div>
-            <div class="col-md-1">
-              <label for="edad_{{ pasajero.id }}"><strong>Edad</strong></label>
-              <input type="hidden" class="form-control edad-campo" id="edad_{{ pasajero.id }}" name="edad_{{ pasajero.id }}" readonly>
-            </div>
-            <div class="col-md-1 d-flex align-items-end">
-              <button type="button" class="btn btn-outline-danger eliminar-pasajero"><i class="fas fa-trash-alt"></i></button>
-            </div>
+        </div>
+        {% endfor %}
+      </div>
+      <!-- Botón para agregar nueva habitación en reservas de hoteles -->
+      <button type="button" class="btn btn-success mt-3" id="agregar-habitacion">{% trans "Agregar Habitación" %}</button>
+  
+  {% elif reserva.tipo == 'traslados' %}
+  <!-- Formulario para Reservas de Traslados -->
+  <div class="card mt-3 mb-3">
+    <div class="card-body">
+      <div class="row">
+        <!-- Campos generales para traslados -->
+        <div class="col-md-3">
+          <div class="form-group">
+            <label for="nombre_usuario"><strong>{% trans "Nombre de Usuario" %}</strong></label>
+            <input type="text" class="form-control" id="nombre_usuario" name="nombre_usuario" value="{{ reserva.nombre_usuario }}">
           </div>
-          {% endfor %}
-          <div class="mt-3">
-            <button type="button" class="btn btn-primary agregar-pasajero" data-habitacion-id="{{ habitacion.id }}">Agregar Pasajero</button>
+        </div>
+        <div class="col-md-3">
+          <div class="form-group">
+            <label for="email_empleado"><strong>{% trans "Email del Empleado" %}</strong></label>
+            <input type="email" class="form-control" id="email_empleado" name="email_empleado" value="{{ reserva.email_empleado }}">
           </div>
+        </div>
+        <div class="col-md-3">
+          <div class="form-group">
+            <label for="costo_proveedor"><strong>{% trans "Costo Proveedor" %}</strong></label>
+            <input type="text" class="form-control" id="costo_proveedor" name="costo_total" value="{{ reserva.costo_sin_fee }}" readonly>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="form-group">
+            <label for="costo_total"><strong>{% trans "Costo Agencia" %}</strong></label>
+            <input type="number" step="1.00" class="form-control" id="costo_total" name="costo_total" value="{{ reserva.costo_total }}">
+          </div>
+        </div>
+      </div>
+      <div class="row mt-3">
+        <div class="col-md-2">
+          <div class="form-group">
+            <label for="tipo"><strong>{% trans "Tipo" %}</strong></label>
+            <select class="form-control" id="tipo" name="tipo">
+              <option value="traslados" {% if reserva.tipo == 'traslados' %}selected{% endif %}>{% trans "Traslados" %}</option>
+              <option value="hoteles" {% if reserva.tipo == 'hoteles' %}selected{% endif %}>{% trans "Hoteles" %}</option>
+              <option value="carros" {% if reserva.tipo == 'carros' %}selected{% endif %}>{% trans "Carros" %}</option>
+              <option value="vuelos" {% if reserva.tipo == 'vuelos' %}selected{% endif %}>{% trans "Vuelos" %}</option>
+            </select>
+          </div>
+        </div>
+        <div class="col-md-2">
+          <div class="form-group">
+            <label for="estatus"><strong>{% trans "Estatus" %}</strong></label>
+            <select class="form-control" id="estatus" name="estatus">
+              <option value="solicitada" {% if reserva.estatus == 'solicitada' %}selected{% endif %}>{% trans "Solicitada" %}</option>
+              <option value="pendiente" {% if reserva.estatus == 'pendiente' %}selected{% endif %}>{% trans "Pendiente" %}</option>
+              <option value="confirmada" {% if reserva.estatus == 'confirmada' %}selected{% endif %}>{% trans "Confirmada" %}</option>
+              <option value="modificada" {% if reserva.estatus == 'modificada' %}selected{% endif %}>{% trans "Modificada" %}</option>
+              <option value="ejecutada" {% if reserva.estatus == 'ejecutada' %}selected{% endif %}>{% trans "Ejecutada" %}</option>
+              <option value="cancelada" {% if reserva.estatus == 'cancelada' %}selected{% endif %}>{% trans "Cancelada" %}</option>
+              <option value="reembolsada" {% if reserva.estatus == 'reembolsada' %}selected{% endif %}>{% trans "Reembolsada" %}</option>
+            </select>
+          </div>
+        </div>
+        <div class="col-md-2">
+          <div class="form-group">
+            <label for="numero_confirmacion"><strong>{% trans "Número de Confirmación" %}</strong></label>
+            <input type="text" class="form-control" id="numero_confirmacion" name="numero_confirmacion" value="{{ reserva.numero_confirmacion }}">
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="form-group">
+            <label for="notas"><strong>{% trans "Notas" %}</strong></label>
+            <textarea class="form-control" id="notas" name="notas">{{ reserva.notas }}</textarea>
+          </div>
+        </div>
+        <div class="col-md-1">
+          <div class="form-group">
+            <label for="cobrada"><strong>{% trans "Cobrada" %}</strong></label>
+            <input type="checkbox" class="form-check-input" id="cobrada" name="cobrada" {% if reserva.cobrada %}checked{% endif %}>
+          </div>
+        </div>
+        <div class="col-md-1">
+          <div class="form-group">
+            <label for="pagada"><strong>{% trans "Pagada" %}</strong></label>
+            <input type="checkbox" class="form-check-input" id="pagada" name="pagada" {% if reserva.pagada %}checked{% endif %}>
+          </div>
+        </div>
+      </div>
+      <!-- Campos específicos de Traslados -->
+      <h2 class="mt-4">{% trans "Datos del Traslado" %}</h2>
+      <div class="row mt-3">
+        <div class="col-md-3">
+          <div class="form-group">
+            <label for="transportista"><strong>{% trans "Transportista" %}</strong></label>
+            <input type="text" class="form-control" id="transportista" name="transportista" value="{{ reserva.traslado.transportista.nombre }}">
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="form-group">
+            <label for="origen"><strong>{% trans "Origen" %}</strong></label>
+            <input type="text" class="form-control" id="origen" name="origen" value="{{ reserva.traslado.origen.nombre }}">
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="form-group">
+            <label for="destino"><strong>{% trans "Destino" %}</strong></label>
+            <input type="text" class="form-control" id="destino" name="destino" value="{{ reserva.traslado.destino.nombre }}">
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="form-group">
+            <label for="vehiculo"><strong>{% trans "Vehículo" %}</strong></label>
+            <input type="text" class="form-control" id="vehiculo" name="vehiculo" value="{{ reserva.traslado.vehiculo.tipo }}">
+          </div>
+        </div>
+      </div>
+      <div class="row mt-3">
+        <div class="col-md-3">
+          <div class="form-group">
+            <label for="costo_traslado"><strong>{% trans "Costo Traslado" %}</strong></label>
+            <input type="number" step="0.01" class="form-control" id="costo_traslado" name="costo_traslado" value="{{ reserva.traslado.costo }}">
+          </div>
+        </div>
+      </div>
+      <!-- Información de los pasajeros del traslado -->
+      <h5 class="mt-4">{% trans "Pasajeros del Traslado" %}</h5>
+      {% for pasajero in reserva.traslado.pasajeros.all %}
+      <div class="row mt-3 pasajero-row">
+        <div class="col-md-2">
+          <label for="pasajero_nombre_{{ pasajero.id }}"><strong>{% trans "Nombre" %}</strong></label>
+          <input type="text" class="form-control" id="pasajero_nombre_{{ pasajero.id }}" name="pasajero_nombre_{{ pasajero.id }}" value="{{ pasajero.nombre }}">
+        </div>
+        <div class="col-md-2">
+          <label for="pasajero_fecha_nacimiento_{{ pasajero.id }}"><strong>{% trans "Fecha de Nacimiento" %}</strong></label>
+          <input type="text" class="form-control datepicker" id="pasajero_fecha_nacimiento_{{ pasajero.id }}" name="pasajero_fecha_nacimiento_{{ pasajero.id }}" value="{{ pasajero.fecha_nacimiento|date:'m/d/Y' }}">
+        </div>
+        <div class="col-md-1">
+          <label for="pasajero_pasaporte_{{ pasajero.id }}"><strong>{% trans "Pasaporte" %}</strong></label>
+          <input type="text" class="form-control" id="pasajero_pasaporte_{{ pasajero.id }}" name="pasajero_pasaporte_{{ pasajero.id }}" value="{{ pasajero.pasaporte }}">
+        </div>
+        <div class="col-md-2">
+          <label for="pasajero_caducidad_pasaporte_{{ pasajero.id }}"><strong>{% trans "Caducidad Pasaporte" %}</strong></label>
+          <input type="text" class="form-control datepicker" id="pasajero_caducidad_pasaporte_{{ pasajero.id }}" name="pasajero_caducidad_pasaporte_{{ pasajero.id }}" value="{{ pasajero.caducidad_pasaporte|date:'m/d/Y' }}">
+        </div>
+        <div class="col-md-2">
+          <label for="pasajero_pais_emision_pasaporte_{{ pasajero.id }}"><strong>{% trans "País de Emisión" %}</strong></label>
+          <input type="text" class="form-control" id="pasajero_pais_emision_pasaporte_{{ pasajero.id }}" name="pasajero_pais_emision_pasaporte_{{ pasajero.id }}" value="{{ pasajero.pais_emision_pasaporte }}">
+        </div>
+        <div class="col-md-1">
+          <label for="pasajero_tipo_{{ pasajero.id }}"><strong>{% trans "Adulto/Niño" %}</strong></label>
+          <select class="form-control" id="pasajero_tipo_{{ pasajero.id }}" name="pasajero_tipo_{{ pasajero.id }}">
+            <option value="adulto" {% if pasajero.tipo == 'adulto' %}selected{% endif %}>{% trans "Adulto" %}</option>
+            <option value="nino" {% if pasajero.tipo == 'nino' %}selected{% endif %}>{% trans "Niño" %}</option>
+          </select>
+        </div>
+        <div class="col-md-1">
+          <label for="edad_{{ pasajero.id }}"><strong>{% trans "Edad" %}</strong></label>
+          <input type="hidden" class="form-control edad-campo" id="edad_{{ pasajero.id }}" name="edad_{{ pasajero.id }}" readonly>
+        </div>
+        <div class="col-md-1 d-flex align-items-end">
+          <button type="button" class="btn btn-outline-danger eliminar-pasajero"><i class="fas fa-trash-alt"></i></button>
         </div>
       </div>
       {% endfor %}
+      <div class="mt-3">
+        <button type="button" class="btn btn-primary agregar-pasajero" data-habitacion-id="traslado">{% trans "Agregar Pasajero" %}</button>
+      </div>
     </div>
-
-    <!-- Botón para agregar nueva habitación -->
-    <button type="button" class="btn btn-success mt-3" id="agregar-habitacion">Agregar Habitación</button>
-
-    <button type="submit" class="btn btn-primary mt-3">Guardar Cambios</button>
-
-  </form>
+  </div>
+  {% else %}
+    <p>{% trans "No se ha definido un formulario para este tipo de reserva." %}</p>
+  {% endif %}
   
-<!-- jQuery -->
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<!-- Moment.js -->
-<script src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
-<!-- Daterangepicker -->
-<script src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+  <button type="submit" class="btn btn-primary mt-3">{% trans "Guardar Cambios" %}</button>
+</form>
 
-<!-- Incluir Select2 CSS -->
+<!-- Incluir librerías y scripts -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
 <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
-<!-- Incluir Select2 JS -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
 
-
 <script>
-  $(document).ready(function() {     
-
-    // Función para calcular la edad
-    function calcularEdad(birthDate) {
-        var today = new Date();
-        var birthDate = new Date(birthDate);
-        var age = today.getFullYear() - birthDate.getFullYear();
-        var m = today.getMonth() - birthDate.getMonth();
-        if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
-            age--;
-        }
-        return age;
+$(document).ready(function() {     
+  // Función para calcular la edad
+  function calcularEdad(birthDate) {
+    var today = new Date();
+    var birthDate = new Date(birthDate);
+    var age = today.getFullYear() - birthDate.getFullYear();
+    var m = today.getMonth() - birthDate.getMonth();
+    if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+        age--;
     }
+    return age;
+  }
 
-    // Inicializar datepicker para cada campo de fecha de nacimiento y caducidad de pasaporte
-    function initDatepicker() {
-        $('.datepicker').daterangepicker({
-            singleDatePicker: true,
-            showDropdowns: true,
-            minYear: 1924,
-            maxYear: 2050,
-            maxYear: parseInt(moment().format('YYYY'),10) + 10, // Permitir fechas futuras para caducidad
-            locale: {
-                format: 'MM/DD/YYYY'
-            }
-          
-        }, function(start, end, label) {
-            if (this.element.attr('id').includes('fecha_nacimiento')) {
-                var years = moment().diff(start, 'years');
-                var idCampoEdad = this.element.attr('id').replace('fecha_nacimiento', 'edad');
-                $('#' + idCampoEdad).val(years);
-                
-                // Actualizar tipo de pasajero (adulto/niño)
-                var idCampoTipo = this.element.attr('id').replace('fecha_nacimiento', 'tipo');
-                if (years < 18) {
-                    $('#' + idCampoTipo).val('nino');
-                } else {
-                    $('#' + idCampoTipo).val('adulto');
-                }
-            }
-        });
-    }
-
-    // Inicializar daterangepicker para fechas de viaje
-    $('.daterange-picker').daterangepicker({
-        locale: {
-            format: 'YYYY/MM/DD', // Asegúrate de que el formato sea el correcto
-            applyLabel: "Apply",
-            cancelLabel: "Cancel",
-            fromLabel: "From",
-            toLabel: "To",
-            customRangeLabel: "Custom",
-            weekLabel: "W",
-            daysOfWeek: ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'],
-            monthNames: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
-            firstDay: 1
+  // Inicializar datepicker para cada campo de fecha
+  function initDatepicker() {
+    $('.datepicker').daterangepicker({
+      singleDatePicker: true,
+      showDropdowns: true,
+      minYear: 1924,
+      maxYear: 2050,
+      locale: { format: 'MM/DD/YYYY' }
+    }, function(start, end, label) {
+      if (this.element.attr('id').includes('fecha_nacimiento')) {
+        var years = moment().diff(start, 'years');
+        var idCampoEdad = this.element.attr('id').replace('fecha_nacimiento', 'edad');
+        $('#' + idCampoEdad).val(years);
+        var idCampoTipo = this.element.attr('id').replace('fecha_nacimiento', 'tipo');
+        if (years < 18) {
+          $('#' + idCampoTipo).val('nino');
+        } else {
+          $('#' + idCampoTipo).val('adulto');
         }
+      }
     });
+  }
+
+  // Inicializar daterangepicker para fechas de viaje
+  $('.daterange-picker').daterangepicker({
+    locale: {
+      format: 'YYYY/MM/DD',
+      applyLabel: "{% trans 'Apply' %}",
+      cancelLabel: "{% trans 'Cancel' %}",
+      fromLabel: "{% trans 'From' %}",
+      toLabel: "{% trans 'To' %}",
+      customRangeLabel: "{% trans 'Custom' %}",
+      weekLabel: "{% trans 'W' %}",
+      daysOfWeek: ['{% trans 'Su' %}', '{% trans 'Mo' %}', '{% trans 'Tu' %}', '{% trans 'We' %}', '{% trans 'Th' %}', '{% trans 'Fr' %}', '{% trans 'Sa' %}'],
+      monthNames: ['{% trans 'January' %}', '{% trans 'February' %}', '{% trans 'March' %}', '{% trans 'April' %}', '{% trans 'May' %}', '{% trans 'June' %}', '{% trans 'July' %}', '{% trans 'August' %}', '{% trans 'September' %}', '{% trans 'October' %}', '{% trans 'November' %}', '{% trans 'December' %}'],
+      firstDay: 1
+    }
+  });
     
-    // Calcular edades iniciales al cargar la página
-    function calcularEdadesIniciales() {
-        $('.datepicker').each(function() {
-            if ($(this).attr('id').includes('fecha_nacimiento')) {
-                var fechaNacimiento = $(this).val();
-                var edad = calcularEdad(fechaNacimiento);
-                var idCampoEdad = $(this).attr('id').replace('fecha_nacimiento', 'edad');
-                $('#' + idCampoEdad).val(edad);
-                
-                // Actualizar tipo de pasajero (adulto/niño)
-                var idCampoTipo = $(this).attr('id').replace('fecha_nacimiento', 'tipo');
-                if (edad < 18) {
-                    $('#' + idCampoTipo).val('nino');
-                } else {
-                    $('#' + idCampoTipo).val('adulto');
-                }
-            }
-        });
-    }
-
-    // Inicializar datepickers y calcular edades iniciales
-    initDatepicker();
-    calcularEdadesIniciales();
-
-    // Manejar la eliminación de pasajeros
-    $(document).on('click', '.eliminar-pasajero', function() {
-        if (confirm('¿Está seguro de que desea eliminar este pasajero?')) {
-            $(this).closest('.pasajero-row').remove();
+  function calcularEdadesIniciales() {
+    $('.datepicker').each(function() {
+      if ($(this).attr('id').includes('fecha_nacimiento')) {
+        var fechaNacimiento = $(this).val();
+        var edad = calcularEdad(fechaNacimiento);
+        var idCampoEdad = $(this).attr('id').replace('fecha_nacimiento', 'edad');
+        $('#' + idCampoEdad).val(edad);
+        var idCampoTipo = $(this).attr('id').replace('fecha_nacimiento', 'tipo');
+        if (edad < 18) {
+          $('#' + idCampoTipo).val('nino');
+        } else {
+          $('#' + idCampoTipo).val('adulto');
         }
+      }
     });
+  }
 
-    var habitacionCounter = {{ habitaciones|length }};  // Contador inicial basado en el número de habitaciones existentes
-    var fechasViajeDefault = '';  // Variable para almacenar la fecha de viaje por defecto
+  initDatepicker();
+  calcularEdadesIniciales();
 
-    // Obtener la fecha de viaje de la primera habitación para usarla como default
-    if (habitacionCounter > 0) {
-        fechasViajeDefault = $('#habitaciones-container .daterange-picker').first().val();
+  // Manejar la eliminación de pasajeros
+  $(document).on('click', '.eliminar-pasajero', function() {
+    if (confirm("{% trans '¿Está seguro de que desea eliminar este pasajero?' %}")) {
+      $(this).closest('.pasajero-row').remove();
     }
+  });
 
-    // Manejar la adición de nuevas habitaciones
-    $('#agregar-habitacion').click(function() {        
-        habitacionCounter++;
-        
-        var nuevaHabitacion = `
-        <div class="card mt-3 mb-3 habitacion-card" id="habitacion_${habitacionCounter}">
-            <div class="card-body">
-                <h4>Habitación ` + habitacionCounter + `</h4>
-                <div class="row">
-                    <div class="col-md-3">
-                        <label for="nueva_habitacion_nombre_${habitacionCounter}"><strong>Nombre de Habitación</strong></label>
-                        <select class="form-control habitacion-select" id="nueva_habitacion_nombre_${habitacionCounter}" name="nueva_habitacion_nombre_${habitacionCounter}">
-                            {% for tipo in tipos_habitacion %}
-                                <option value="{{ tipo.tipo }}">{{ tipo.tipo }}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                    <div class="col-md-1">
-                        <label for="nueva_adultos_${habitacionCounter}"><strong>Adultos</strong></label>
-                        <input type="number" class="form-control" id="nueva_adultos_${habitacionCounter}" name="nueva_adultos_${habitacionCounter}" value="0">
-                    </div>
-                    <div class="col-md-1">
-                        <label for="nueva_ninos_${habitacionCounter}"><strong>Niños</strong></label>
-                        <input type="number" class="form-control" id="nueva_ninos_${habitacionCounter}" name="nueva_ninos_${habitacionCounter}" value="0">
-                    </div>
-                    <div class="col-md-3">
-                        <label for="nueva_fechas_viaje_${habitacionCounter}"><strong>Fechas de Viaje</strong></label>
-                        <input type="text" class="form-control daterange-picker" id="nueva_fechas_viaje_${habitacionCounter}" name="nueva_fechas_viaje_${habitacionCounter}" value="` + fechasViajeDefault + `">
-                    </div>
-                </div>
-                <div class="mt-3">
-                    <button type="button" class="btn btn-primary agregar-pasajero-nueva" data-habitacion-id="${habitacionCounter}">Agregar Pasajero</button>
-                </div>
-                <div id="pasajeros_habitacion_${habitacionCounter}"></div>
+  var habitacionCounter = {{ habitaciones|length }};
+  var fechasViajeDefault = '';
+  if (habitacionCounter > 0) {
+    fechasViajeDefault = $('#habitaciones-container .daterange-picker').first().val();
+  }
+
+  // Agregar nueva habitación (solo para reservas de hoteles)
+  $('#agregar-habitacion').click(function() {        
+    habitacionCounter++;
+    var nuevaHabitacion = `
+      <div class="card mt-3 mb-3 habitacion-card" id="habitacion_${habitacionCounter}">
+        <div class="card-body">
+          <h4>{% trans "Habitación" %} ` + habitacionCounter + `</h4>
+          <div class="row">
+            <div class="col-md-3">
+              <label for="nueva_habitacion_nombre_${habitacionCounter}"><strong>{% trans "Nombre de Habitación" %}</strong></label>
+              <select class="form-control habitacion-select" id="nueva_habitacion_nombre_${habitacionCounter}" name="nueva_habitacion_nombre_${habitacionCounter}">
+                {% for tipo in tipos_habitacion %}
+                  <option value="{{ tipo.tipo }}">{{ tipo.tipo }}</option>
+                {% endfor %}
+              </select>
             </div>
-        </div>`;
-    
-        $('#habitaciones-container').append(nuevaHabitacion);        
-        initDatepicker();  
-    });
-
-    // Manejar la adición de nuevos pasajeros
-    $('.agregar-pasajero').click(function() {
-      var habitacionId = $(this).data('habitacion-id');
-      var nuevoId = Date.now(); // Generar un ID único
-      var nuevoPasajero = `
-          <div class="row mt-3 pasajero-row">
-              <div class="col-md-2">
-                  <label for="pasajero_nombre_${nuevoId}"><strong>Nombre</strong></label>
-                  <input type="text" class="form-control" id="pasajero_nombre_${nuevoId}" name="habitacion_${habitacionId}_pasajero_nombre_${nuevoId}">
-              </div>
-              <div class="col-md-2">
-                  <label for="pasajero_fecha_nacimiento_${nuevoId}"><strong>Fecha de Nacimiento</strong></label>
-                  <input type="text" class="form-control datepicker" id="pasajero_fecha_nacimiento_${nuevoId}" name="habitacion_${habitacionId}_pasajero_fecha_nacimiento_${nuevoId}">
-              </div>
-              <div class="col-md-1">
-                  <label for="pasajero_pasaporte_${nuevoId}"><strong>Pasaporte</strong></label>
-                  <input type="text" class="form-control" id="pasajero_pasaporte_${nuevoId}" name="habitacion_${habitacionId}_pasajero_pasaporte_${nuevoId}">
-              </div>
-              <div class="col-md-2">
-                  <label for="pasajero_caducidad_pasaporte_${nuevoId}"><strong>Caducidad Pasaporte</strong></label>
-                  <input type="text" class="form-control datepicker" id="pasajero_caducidad_pasaporte_${nuevoId}" name="habitacion_${habitacionId}_pasajero_caducidad_pasaporte_${nuevoId}">
-              </div>
-              <div class="col-md-2">
-                  <label for="pasajero_pais_emision_pasaporte_${nuevoId}"><strong>País de Emisión</strong></label>
-                  <input type="text" class="form-control" id="pasajero_pais_emision_pasaporte_${nuevoId}" name="habitacion_${habitacionId}_pasajero_pais_emision_pasaporte_${nuevoId}">
-              </div>
-              <div class="col-md-1">
-                  <label for="pasajero_tipo_${nuevoId}"><strong>Adulto/Niño</strong></label>
-                  <select class="form-control" id="pasajero_tipo_${nuevoId}" name="habitacion_${habitacionId}_pasajero_tipo_${nuevoId}">
-                      <option value="adulto">Adulto</option>
-                      <option value="nino">Niño</option>
-                  </select>
-              </div>
-              <div class="col-md-1 d-flex align-items-end">
-                  <button type="button" class="btn btn-outline-danger eliminar-pasajero"><i class="fas fa-trash-alt"></i></button>
-              </div>
+            <div class="col-md-1">
+              <label for="nueva_adultos_${habitacionCounter}"><strong>{% trans "Adultos" %}</strong></label>
+              <input type="number" class="form-control" id="nueva_adultos_${habitacionCounter}" name="nueva_adultos_${habitacionCounter}" value="0">
+            </div>
+            <div class="col-md-1">
+              <label for="nueva_ninos_${habitacionCounter}"><strong>{% trans "Niños" %}</strong></label>
+              <input type="number" class="form-control" id="nueva_ninos_${habitacionCounter}" name="nueva_ninos_${habitacionCounter}" value="0">
+            </div>
+            <div class="col-md-3">
+              <label for="nueva_fechas_viaje_${habitacionCounter}"><strong>{% trans "Fechas de Viaje" %}</strong></label>
+              <input type="text" class="form-control daterange-picker" id="nueva_fechas_viaje_${habitacionCounter}" name="nueva_fechas_viaje_${habitacionCounter}" value="` + fechasViajeDefault + `">
+            </div>
           </div>
-      `;
-      $(this).closest('.card-body').find('.pasajero-row:last').after(nuevoPasajero);
-      initDatepicker();
-    });
+          <div class="mt-3">
+            <button type="button" class="btn btn-primary agregar-pasajero-nueva" data-habitacion-id="${habitacionCounter}">{% trans "Agregar Pasajero" %}</button>
+          </div>
+          <div id="pasajeros_habitacion_${habitacionCounter}"></div>
+        </div>
+      </div>`;
+    
+    $('#habitaciones-container').append(nuevaHabitacion);        
+    initDatepicker();  
+  });
 
-    // Manejar la adición de nuevos pasajeros en las nuevas habitaciones
-    $(document).on('click', '.agregar-pasajero-nueva', function() {
-        var habitacionId = $(this).data('habitacion-id');
-        var pasajeroCounter = $(`#habitacion_${habitacionId} .pasajero-row`).length + 1; // Contador basado en el número de pasajeros existentes en la nueva habitación
-        var nuevoId = `habitacion_${habitacionId}_pasajero_${pasajeroCounter}`;  // ID único basado en habitación y pasajero
+  // Agregar nuevos pasajeros a habitaciones existentes
+  $('.agregar-pasajero').click(function() {
+    var habitacionId = $(this).data('habitacion-id');
+    var nuevoId = Date.now();
+    var nuevoPasajero = `
+      <div class="row mt-3 pasajero-row">
+        <div class="col-md-2">
+          <label for="pasajero_nombre_${nuevoId}"><strong>{% trans "Nombre" %}</strong></label>
+          <input type="text" class="form-control" id="pasajero_nombre_${nuevoId}" name="pasajero_nombre_${nuevoId}">
+        </div>
+        <div class="col-md-2">
+          <label for="pasajero_fecha_nacimiento_${nuevoId}"><strong>{% trans "Fecha de Nacimiento" %}</strong></label>
+          <input type="text" class="form-control datepicker" id="pasajero_fecha_nacimiento_${nuevoId}" name="pasajero_fecha_nacimiento_${nuevoId}">
+        </div>
+        <div class="col-md-1">
+          <label for="pasajero_pasaporte_${nuevoId}"><strong>{% trans "Pasaporte" %}</strong></label>
+          <input type="text" class="form-control" id="pasajero_pasaporte_${nuevoId}" name="pasajero_pasaporte_${nuevoId}">
+        </div>
+        <div class="col-md-2">
+          <label for="pasajero_caducidad_pasaporte_${nuevoId}"><strong>{% trans "Caducidad Pasaporte" %}</strong></label>
+          <input type="text" class="form-control datepicker" id="pasajero_caducidad_pasaporte_${nuevoId}" name="pasajero_caducidad_pasaporte_${nuevoId}">
+        </div>
+        <div class="col-md-2">
+          <label for="pasajero_pais_emision_pasaporte_${nuevoId}"><strong>{% trans "País de Emisión" %}</strong></label>
+          <input type="text" class="form-control" id="pasajero_pais_emision_pasaporte_${nuevoId}" name="pasajero_pais_emision_pasaporte_${nuevoId}">
+        </div>
+        <div class="col-md-1">
+          <label for="pasajero_tipo_${nuevoId}"><strong>{% trans "Adulto/Niño" %}</strong></label>
+          <select class="form-control" id="pasajero_tipo_${nuevoId}" name="pasajero_tipo_${nuevoId}">
+              <option value="adulto">{% trans "Adulto" %}</option>
+              <option value="nino">{% trans "Niño" %}</option>
+          </select>
+        </div>
+        <div class="col-md-1 d-flex align-items-end">
+          <button type="button" class="btn btn-outline-danger eliminar-pasajero">
+            <i class="fas fa-trash-alt"></i>
+          </button>
+        </div>
+      </div>
+    `;
+    $(this).closest('.card-body').find('.pasajero-row:last').after(nuevoPasajero);
+    initDatepicker();
+  });
 
-        var nuevoPasajero = `
-            <div class="row mt-3 pasajero-row" id="${nuevoId}">
-                <div class="col-md-2">
-                    <label for="pasajero_nombre_${nuevoId}"><strong>Nombre</strong></label>
-                    <input type="text" class="form-control" id="pasajero_nombre_${nuevoId}" name="${nuevoId}_nombre">
-                </div>
-                <div class="col-md-2">
-                    <label for="pasajero_fecha_nacimiento_${nuevoId}"><strong>Fecha de Nacimiento</strong></label>
-                    <input type="text" class="form-control datepicker" id="pasajero_fecha_nacimiento_${nuevoId}" name="${nuevoId}_fecha_nacimiento">
-                </div>
-                <div class="col-md-1">
-                    <label for="pasajero_pasaporte_${nuevoId}"><strong>Pasaporte</strong></label>
-                    <input type="text" class="form-control" id="pasajero_pasaporte_${nuevoId}" name="${nuevoId}_pasaporte">
-                </div>
-                <div class="col-md-2">
-                    <label for="pasajero_caducidad_pasaporte_${nuevoId}"><strong>Caducidad Pasaporte</strong></label>
-                    <input type="text" class="form-control datepicker" id="pasajero_caducidad_pasaporte_${nuevoId}" name="${nuevoId}_caducidad_pasaporte">
-                </div>
-                <div class="col-md-2">
-                    <label for="pasajero_pais_emision_pasaporte_${nuevoId}"><strong>País de Emisión</strong></label>
-                    <input type="text" class="form-control" id="pasajero_pais_emision_pasaporte_${nuevoId}" name="${nuevoId}_pais_emision_pasaporte">
-                </div>
-                <div class="col-md-1">
-                    <label for="pasajero_tipo_${nuevoId}"><strong>Adulto/Niño</strong></label>
-                    <select class="form-control" id="pasajero_tipo_${nuevoId}" name="${nuevoId}_tipo">
-                        <option value="adulto">Adulto</option>
-                        <option value="nino">Niño</option>
-                    </select>
-                </div>
-                <div class="col-md-1 d-flex align-items-end">
-                    <button type="button" class="btn btn-outline-danger eliminar-pasajero"><i class="fas fa-trash-alt"></i></button>
-                </div>
-            </div>
-        `;
-        $(`#pasajeros_habitacion_${habitacionId}`).append(nuevoPasajero);  // Añadir a la lista de pasajeros de la nueva habitación
-        initDatepicker();
-    });
+  // Agregar nuevos pasajeros en nuevas habitaciones (para reservas de hoteles)
+  $(document).on('click', '.agregar-pasajero-nueva', function() {
+    var habitacionId = $(this).data('habitacion-id');
+    var pasajeroCounter = $(`#habitacion_${habitacionId} .pasajero-row`).length + 1;
+    var nuevoId = `habitacion_${habitacionId}_pasajero_${pasajeroCounter}`;
+    var nuevoPasajero = `
+      <div class="row mt-3 pasajero-row" id="${nuevoId}">
+        <div class="col-md-2">
+          <label for="pasajero_nombre_${nuevoId}"><strong>{% trans "Nombre" %}</strong></label>
+          <input type="text" class="form-control" id="pasajero_nombre_${nuevoId}" name="${nuevoId}_nombre">
+        </div>
+        <div class="col-md-2">
+          <label for="pasajero_fecha_nacimiento_${nuevoId}"><strong>{% trans "Fecha de Nacimiento" %}</strong></label>
+          <input type="text" class="form-control datepicker" id="pasajero_fecha_nacimiento_${nuevoId}" name="${nuevoId}_fecha_nacimiento">
+        </div>
+        <div class="col-md-1">
+          <label for="pasajero_pasaporte_${nuevoId}"><strong>{% trans "Pasaporte" %}</strong></label>
+          <input type="text" class="form-control" id="pasajero_pasaporte_${nuevoId}" name="${nuevoId}_pasajero">
+        </div>
+        <div class="col-md-2">
+          <label for="pasajero_caducidad_pasaporte_${nuevoId}"><strong>{% trans "Caducidad Pasaporte" %}</strong></label>
+          <input type="text" class="form-control datepicker" id="pasajero_caducidad_pasaporte_${nuevoId}" name="${nuevoId}_caducidad_pasaporte">
+        </div>
+        <div class="col-md-2">
+          <label for="pasajero_pais_emision_pasaporte_${nuevoId}"><strong>{% trans "País de Emisión" %}</strong></label>
+          <input type="text" class="form-control" id="pasajero_pais_emision_pasaporte_${nuevoId}" name="${nuevoId}_pais_emision_pasaporte">
+        </div>
+        <div class="col-md-1">
+          <label for="pasajero_tipo_${nuevoId}"><strong>{% trans "Adulto/Niño" %}</strong></label>
+          <select class="form-control" id="pasajero_tipo_${nuevoId}" name="${nuevoId}_tipo">
+              <option value="adulto">{% trans "Adulto" %}</option>
+              <option value="nino">{% trans "Niño" %}</option>
+          </select>
+        </div>
+        <div class="col-md-1 d-flex align-items-end">
+          <button type="button" class="btn btn-outline-danger eliminar-pasajero">
+            <i class="fas fa-trash-alt"></i>
+          </button>
+        </div>
+      </div>
+    `;
+    $(`#pasajeros_habitacion_${habitacionId}`).append(nuevoPasajero);
+    initDatepicker();
+  });
 
-    // Validar el formulario antes de enviarlo
-    $('form').submit(function(event) {
-        var isValid = true;
-        $('.datepicker').each(function() {
-            if (!$(this).val()) {
-                alert('Por favor, complete todas las fechas.');
-                isValid = false;
-                return false;
-            }
-            if ($(this).attr('id').includes('caducidad_pasaporte')) {
-                var caducidad = moment($(this).val(), 'MM/DD/YYYY');
-                if (caducidad.isBefore(moment())) {
-                    alert('La fecha de caducidad del pasaporte debe ser posterior a la fecha actual.');
-                    isValid = false;
-                    return false;
-                }
-            }
-        });
-        if (!isValid) {
-            event.preventDefault();
+  // Validación del formulario
+  $('form').submit(function(event) {
+    var isValid = true;
+    $('.datepicker').each(function() {
+      if (!$(this).val()) {
+        alert("{% trans 'Por favor, complete todas las fechas.' %}");
+        isValid = false;
+        return false;
+      }
+      if ($(this).attr('id').includes('caducidad_pasaporte')) {
+        var caducidad = moment($(this).val(), 'MM/DD/YYYY');
+        if (caducidad.isBefore(moment())) {
+          alert("{% trans 'La fecha de caducidad del pasaporte debe ser posterior a la fecha actual.' %}");
+          isValid = false;
+          return false;
         }
+      }
     });
+    if (!isValid) {
+      event.preventDefault();
+    }
+  });
 
-    // Actualizar el tipo de pasajero (adulto/niño) basado en la edad
-    $(document).on('change', '.datepicker', function() {
-        if ($(this).attr('id').includes('fecha_nacimiento')) {
-            var fechaNacimiento = $(this).val();
-            var edad = calcularEdad(fechaNacimiento);
-            var idCampoEdad = $(this).attr('id').replace('fecha_nacimiento', 'edad');
-            var idCampoTipo = $(this).attr('id').replace('fecha_nacimiento', 'tipo');
-            $('#' + idCampoEdad).val(edad);
-            if (edad < 18) {
-                $('#' + idCampoTipo).val('nino');
-            } else {
-                $('#' + idCampoTipo).val('adulto');
-            }
-        }
-    });
+  // Actualizar tipo de pasajero en base a la edad cuando cambian fechas de nacimiento
+  $(document).on('change', '.datepicker', function() {
+    if ($(this).attr('id').includes('fecha_nacimiento')) {
+      var fechaNacimiento = $(this).val();
+      var edad = calcularEdad(fechaNacimiento);
+      var idCampoEdad = $(this).attr('id').replace('fecha_nacimiento', 'edad');
+      var idCampoTipo = $(this).attr('id').replace('fecha_nacimiento', 'tipo');
+      $('#' + idCampoEdad).val(edad);
+      if (edad < 18) {
+        $('#' + idCampoTipo).val('nino');
+      } else {
+        $('#' + idCampoTipo).val('adulto');
+      }
+    }
+  });
 });
 </script>
 {% endblock %}

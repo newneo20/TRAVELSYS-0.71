@@ -9,30 +9,52 @@
 
 <div class="form-container">
     <h1 class="form-title text-center">Editar Vehículo</h1>
-    <form class="needs-validation" method="post" novalidate>
+    <form class="needs-validation" method="post" enctype="multipart/form-data" novalidate>
         {% csrf_token %}
         <div class="row">
-            <div class="col-md-6 form-group">
+            <div class="col-md-3 form-group">
                 <label for="tipo" class="form-label">Tipo de Vehículo</label>
-                <input type="text" class="form-control" id="tipo" name="tipo" value="{{ vehiculo.tipo }}" required>
+                <select class="form-select" id="tipo" name="tipo" required>
+                    <option value="" disabled>Seleccione un tipo de vehículo</option>
+                    {% for key, value in vehiculo.TIPO_VEHICULO_CHOICES %}
+                        <option value="{{ key }}" {% if vehiculo.tipo == key %}selected{% endif %}>
+                            {{ value }}
+                        </option>
+                    {% endfor %}
+                </select>
                 <div class="invalid-feedback">
-                    Por favor, proporciona el tipo de vehículo.
+                    Por favor, selecciona un tipo de vehículo.
                 </div>
             </div>
-            
-            <div class="col-md-6 form-group">
+
+            <div class="col-md-2 form-group">
                 <label for="capacidad_min" class="form-label">Capacidad Mínima</label>
                 <input type="number" class="form-control" id="capacidad_min" name="capacidad_min" value="{{ vehiculo.capacidad_min }}" required>
                 <div class="invalid-feedback">
                     Por favor, proporciona la capacidad mínima.
                 </div>
             </div>
-            
-            <div class="col-md-6 form-group">
+
+            <div class="col-md-2 form-group">
                 <label for="capacidad_max" class="form-label">Capacidad Máxima</label>
                 <input type="number" class="form-control" id="capacidad_max" name="capacidad_max" value="{{ vehiculo.capacidad_max }}" required>
                 <div class="invalid-feedback">
                     Por favor, proporciona la capacidad máxima.
+                </div>
+            </div>
+
+            <div class="col-md-5 form-group">
+                <label for="foto" class="form-label">Foto del Vehículo</label>
+                <input type="file" class="form-control" id="foto" name="foto" accept="image/*">
+                
+                {% if vehiculo.foto %}
+                    <div class="mt-3">
+                        <img src="{{ vehiculo.foto.url }}" alt="Foto del Vehículo" class="img-thumbnail" width="200">
+                    </div>
+                {% endif %}
+                
+                <div class="invalid-feedback">
+                    Por favor, sube una imagen válida del vehículo.
                 </div>
             </div>
         </div>
@@ -59,4 +81,5 @@
         });
     })();
 </script>
+
 {% endblock %}

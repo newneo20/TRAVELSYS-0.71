@@ -1,0 +1,142 @@
+{% extends 'booking/traslados/base_traslados.html' %}
+
+{% load static %}
+
+{% block title %}Reserva Traslados{% endblock %}
+
+{% block hotel_content %}
+<div class="custom-container mt-5">
+    <div class="row">
+        <!-- Contenedor Principal: Formulario de Pago y Reserva -->
+        <div class="col-md-9">
+            <div class="card shadow-sm mb-4">
+                <div class="card-body">
+                    <h4 class="card-title">1. Datos de los Pasajeros</h4>
+                    <p class="card-text">Introduzca datos de pasajeros por producto.</p>
+
+                    <form method="post" action="{% url 'booking:complete_solicitud_traslado' traslado.id %}" class="row g-3 needs-validation" novalidate>
+                        {% csrf_token %}
+                        
+                        <input type="hidden" name="traslado_id" value="{{ traslado.id }}">                
+                        <input type="hidden" name="precio" value="{{ traslado.costo }}">
+                        <input type="hidden" name="tipologia" value="{{ tipologia }}">
+                        <input type="hidden" name="origen" value="{{ traslado.origen.id }}">
+                        <input type="hidden" name="destino" value="{{ destino }}">
+                        <input type="hidden" name="fecha_traslado" value="{{ fecha_traslado }}">
+                        <input type="hidden" name="adultos" value="{{ adultos }}">
+                        <input type="hidden" name="ninos" value="{{ ninos }}">
+                        <input type="hidden" name="infantes" value="{{ infantes }}">
+
+                        <div class="card bg-light">
+                            <div class="card-body">
+                                <div class="row mt-3">                                    
+                                    <div class="col-md-6 mb-3">                                        
+                                        <h6 class="col-12"><i class="fas fa-user text-primary"></i> Nombre(s) y Apellido(s):</h6>
+                                        <input type="text" class="form-control" id="nombre_adulto" name="nombre_adulto" placeholder="Como aparece en el pasaporte" required>                                            
+                                    </div>
+                                    <div class="col-md-2 mb-3">
+                                        <label for="fecha_nacimiento" class="form-label">Fecha de nacimiento:</label>  
+                                        <input type="text" class="form-control" id="fecha_nacimiento" name="fecha_nacimiento" required>
+                                        <div class="invalid-feedback">
+                                            Por favor, elige una fecha.
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3 mb-3">
+                                        <label for="pasaporte" class="form-label">Número de pasaporte:</label>
+                                        <input type="text" class="form-control" id="pasaporte" name="pasaporte" required>                                            
+                                    </div>                                
+                                    <div class="col-md-2 mb-3">
+                                        <label for="caducidad" class="form-label">Caducidad del pasaporte:</label>     
+                                        <input type="text" class="form-control" id="caducidad" name="caducidad" required>
+                                        <div class="invalid-feedback">
+                                            Por favor, elige una fecha.
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3 mb-3">
+                                        <label for="pais_emision" class="form-label">País de emisión del pasaporte:</label>
+                                        <select class="form-select" id="pais_emision" name="pais_emision" required>
+                                            <option value="" selected disabled>Seleccione un país</option>
+                                            <option value="CUBA">CUBA</option>
+                                            <option value="ESPANA">ESPANA</option>
+                                            <option value="ESTADOS UNIDOS">ESTADOS UNIDOS</option>
+                                            <option value="MEXICO">MEXICO</option>
+                                            <option value="OTRO">OTRO</option>
+                                        </select>                                            
+                                    </div>
+                                    <div class="col-md-4 mb-3">
+                                        <label for="email_adulto" class="form-label">E-mail:</label>
+                                        <input type="email" class="form-control" id="email_adulto" name="email_adulto" required>                                            
+                                    </div>
+                                    <div class="col-md-2 mb-3">
+                                        <label for="telefono_adulto" class="form-label">Teléfono:</label>
+                                        <input type="tel" class="form-control" id="telefono_adulto" name="telefono_adulto" required>                                            
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card bg-light">
+                            <div class="card-body">
+                                <h4 class="card-title">2. Datos del agente que solicita.</h4>
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="notas" class="form-label">Nombre del usuario:</label>
+                                        <input type="text" class="form-control" id="notas" name="notas" placeholder="Empleado que solicita" required>                                            
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="email_empleado" class="form-label">E-mail:</label>
+                                        <input type="email" class="form-control" id="email_empleado" name="email_empleado" placeholder="Email del empleado que solicita" required>                                            
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card bg-light">
+                            <div class="card-body">
+                                <h4 class="card-title">3. Completar la reserva.</h4>
+                                <p class="card-text">Información importante de reserva: Al completar su solicitud la reserva se procesará de forma inmediata.</p>
+                                <button type="submit" class="btn btn-success w-100" name="action" value="reserva">COMPLETE LA SOLICITUD</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+       <!-- Contenedor Lateral: Resumen de la Reserva -->
+       <div class="col-md-3">
+            <div class="card shadow-sm resumen-reserva bg-custom">
+                <div class="card-body">
+                    <h3 class="card-title"><strong>Resumen de la reserva:</strong></h3>
+                    <p class="card-text"><strong>Origen:</strong> {{ traslado.origen.nombre }}</p>
+                    <p class="card-text"><strong>Destino:</strong> {{ traslado.destino.nombre }}</p>
+                    <p class="card-text"><strong>Fecha de Traslado:</strong> {{ fecha_traslado }}</p>
+                    <div class="col-md-12">
+                        <div class="d-flex flex-wrap gap-3">
+                            <span class="badge bg-primary text-white px-1 py-2"><i class="fas fa-user me-1"></i> Adultos: {{ adultos }}</span>
+                            <span class="badge bg-info text-white px-1 py-2"><i class="fas fa-child me-1"></i> Niños: {{ ninos }}</span>
+                            <span class="badge bg-success text-white px-1 py-2"><i class="fas fa-baby me-1"></i> Infantes: {{ infantes }}</span>
+                        </div>
+                    </div>
+                    <p class="card-text mt-3"><strong>Vehículo:</strong> {{ traslado.vehiculo.tipo }}</p>
+                    <p class="card-text"><strong>Capacidad:</strong> {{ traslado.vehiculo.capacidad_min }} - {{ traslado.vehiculo.capacidad_max }} pasajeros</p>                    
+                    <h4 class="card-title text-primary mt-3">Total de la Reserva: ${{ traslado.costo }}</h4>                    
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<!-- Script para inicializar Select2, DateRangePicker y Validación --> 
+<script>
+    $(document).ready(function() {
+        $('#caducidad, #fecha_nacimiento').daterangepicker({
+            singleDatePicker: true,
+            autoUpdateInput: true,
+            locale: { format: 'YYYY-MM-DD' }
+        });
+    });
+</script>
+
+{% endblock %}

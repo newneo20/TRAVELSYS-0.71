@@ -49,6 +49,11 @@ urlpatterns = [
     path('obtener-destinos/', views.obtener_destinos, name='obtener_destinos'),
     path('traslados/result_traslados/', views.result_traslados, name='result_traslados'),    
     path('traslados/detalle_traslados/<int:traslado_id>/', views.detalle_traslados, name='detalle_traslados'),
+    path('traslados/reserva_traslados/<int:traslado_id>/', views.reserva_traslados, name='reserva_traslados'),
+    path('completar-reserva-traslado/<int:traslado_id>/', views.complete_solicitud_traslado, name='complete_solicitud_traslado'),
+    
+    
+    
 
 
 

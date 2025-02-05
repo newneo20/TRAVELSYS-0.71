@@ -1,33 +1,29 @@
-<!-- user_dashboard.html -->
 {% extends 'booking/base_tabs.html' %}
 {% load static %}
+{% load i18n %}
 
-{% block title %}Dashboard de - {{ user.agencia|default:"Usuario" }} {% endblock %}
+{% block title %}{% trans "Dashboard de" %} - {{ user.agencia|default:"Usuario" }}{% endblock %}
 
 {% block content %}
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" type="text/css" href="{% static 'css/user_dashboard.css' %}">
 
 <div class="dashboard-container">
-
     <!-- Resumen de Reservas -->
     <div class="reservation-summary fade-in">
-        <div class="text-center mb-4">            
-            <!-- Cambia el <p> por un <a> para que sea clickeable -->
+        <div class="text-center mb-4">
             <a href="{% url 'booking:listar_reservas' %}" class="text-decoration-none">
-                <p class="display-4">Total de Reservas [ {{ total_reservations }} ]</p>
+                <p class="display-4">{% trans "Total de Reservas" %} [ {{ total_reservations }} ]</p>
             </a>
         </div>
-        
         <div class="d-flex flex-wrap justify-content-between align-items-center">
-            <!-- Tarjeta para mostrar reservas "por pagar" teniendon en cuenta que al usuario se le muestra como "Por Pagar" -->
+            <!-- Tarjeta para reservas por pagar -->
             <a href="{% url 'booking:listar_reservas' %}?estado=por_cobrar" class="text-decoration-none reservation-item flex-fill text-center m-2" style="min-width: 150px;">
-                <i class="fas fa-exclamation-circle" style="color: #dc3545;"></i> <!-- Icono rojo para destacar -->
-                <h3 class="mt-2">Por Pagar</h3>
-                <p>{{ reservas_por_cobrar }} Reservas</p>
+                <i class="fas fa-exclamation-circle" style="color: #dc3545;"></i>
+                <h3 class="mt-2">{% trans "Por Pagar" %}</h3>
+                <p>{{ reservas_por_cobrar }} {% trans "Reservas" %}</p>
             </a>
-        
-            <!-- Tarjetas existentes -->
+            <!-- Tarjetas para otros estados -->
             {% for estado, cantidad in estados_reservas.items %}
                 <a href="{% url 'booking:listar_reservas' %}?estado={{ estado }}" class="text-decoration-none reservation-item flex-fill text-center m-2" style="min-width: 150px;">
                     {% if estado == 'solicitada' %}
@@ -48,7 +44,7 @@
                         <i class="fas fa-undo-alt"></i>
                     {% endif %}
                     <h3 class="mt-2">{{ estado|capfirst }}</h3>
-                    <p>{{ cantidad }} Reservas</p>
+                    <p>{{ cantidad }} {% trans "Reservas" %}</p>
                 </a>
             {% endfor %}
         </div>
@@ -57,7 +53,7 @@
     <!-- Ofertas Especiales -->
     <div class="container-fluid mt-4">
         <h2 class="text-center mb-3">
-            <i class="fas fa-gift mr-2"></i>Ofertas Especiales
+            <i class="fas fa-gift mr-2"></i>{% trans "Ofertas Especiales" %}
         </h2>
         <div class="row justify-content-center">
             {% for offer in ofertas_especiales %}
@@ -78,23 +74,22 @@
                             {% else %}
                                 <i class="fas fa-tag text-secondary"></i>
                             {% endif %}
-
                         </div>
                         <h5 class="card-title text-center">{{ offer.nombre }}</h5>
                         <p class="card-text text-center">{{ offer.descripcion|truncatechars:50 }}</p>
                         <div class="offer-code">
-                            <span class="badge bg-primary">Código: {{ offer.codigo }}</span>
+                            <span class="badge bg-primary">{% trans "Código:" %} {{ offer.codigo }}</span>
                         </div>
                         <div class="text-center mt-2">
                             <button class="ver-mas-btn" onclick="toggleOfferDetails({{ offer.id }})">
                                 <i class="fas fa-chevron-down"></i>
-                                <span>Ver Más</span>
+                                <span>{% trans "Ver Más" %}</span>
                             </button>
                         </div>
                         <div class="offer-details" id="offer-details-{{ offer.id }}">
                             <p>{{ offer.descripcion }}</p>
-                            <p><strong>Tipo:</strong> {{ offer.get_tipo_display }}</p>
-                            <p><strong>Válido hasta:</strong> {{ offer.fecha_validez|date:"d/m/Y" }}</p>
+                            <p><strong>{% trans "Tipo:" %}</strong> {{ offer.get_tipo_display }}</p>
+                            <p><strong>{% trans "Válido hasta:" %}</strong> {{ offer.fecha_validez|date:"d/m/Y" }}</p>
                         </div>
                     </div>
                 </div>
@@ -103,7 +98,7 @@
             <div class="col-12">
                 <div class="alert alert-info text-center" role="alert">
                     <i class="fas fa-info-circle mr-2"></i>
-                    No hay ofertas especiales disponibles en este momento.
+                    {% trans "No hay ofertas especiales disponibles en este momento." %}
                 </div>
             </div>
             {% endfor %}
@@ -114,7 +109,7 @@
     <div class="card mb-4 fade-in">
         <div class="card-header">
             <h2 class="mb-0">
-                <i class="fas fa-history mr-2"></i>Historial de Reservas
+                <i class="fas fa-history mr-2"></i>{% trans "Historial de Reservas" %}
             </h2>
         </div>
         <div class="card-body">
@@ -122,30 +117,30 @@
                 <table class="table table-hover">
                     <thead>
                         <tr>
-                            <th class="text-center">ID</th>
-                            <th class="text-center">Detalles</th>
-                            <th class="text-center">Cliente / Pasajero</th>
-                            <th class="text-center">Fechas</th>                            
-                            <th class="text-center">Acción</th>
+                            <th class="text-center">{% trans "ID" %}</th>
+                            <th class="text-center">{% trans "Detalles" %}</th>
+                            <th class="text-center">{% trans "Cliente / Pasajero" %}</th>
+                            <th class="text-center">{% trans "Fechas" %}</th>                            
+                            <th class="text-center">{% trans "Acción" %}</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for reserva in reservas_recientes %}
                         <tr>
-                            <td class="text-center">
-                                {{ reserva.id }}
-                            </td>
+                            <td class="text-center">{{ reserva.id }}</td>
                             <td class="text-center">
                                 <i class="fas fa-{% if reserva.tipo == 'vuelos' %}plane
                                                  {% elif reserva.tipo == 'hoteles' %}hotel
                                                  {% elif reserva.tipo == 'carros' %}car
                                                  {% elif reserva.tipo == 'remesas' %}money-bill
+                                                 {% elif reserva.tipo == 'traslados' %}shuttle-van
                                                  {% endif %} me-2"></i>
-                    
                                 {% if reserva.tipo == 'hoteles' and reserva.hotel %}
                                     {{ reserva.hotel.hotel_nombre }}
                                 {% elif reserva.tipo == 'remesas' and reserva.remesa %}
                                     REMESAS
+                                {% elif reserva.tipo == 'traslados' and reserva.traslado %}
+                                    {{ reserva.traslado.origen.nombre }} {% trans "a" %} {{ reserva.traslado.destino.nombre }}
                                 {% else %}
                                     {{ reserva.tipo }}
                                 {% endif %}
@@ -156,11 +151,19 @@
                                         {% if habitacion and habitacion.pasajeros.exists %}
                                             {{ habitacion.pasajeros.first.nombre }}
                                         {% else %}
-                                            {{ reserva.remesa.nombre_remitente }}  <!-- Mostrar nombre_remitente si no hay pasajeros -->
+                                            {{ reserva.remesa.nombre_remitente }}
                                         {% endif %}
                                     {% endwith %}
                                 {% elif reserva.tipo == 'remesas' and reserva.remesa %}
-                                    {{ reserva.remesa.nombre_remitente }}  <!-- Mostrar el nombre del remitente de la remesa -->
+                                    {{ reserva.remesa.nombre_remitente }}
+                                {% elif reserva.tipo == 'traslados' %}
+                                    {% with pasajero=reserva.traslado.pasajeros.first %}
+                                        {% if pasajero %}
+                                            {{ pasajero.nombre }}
+                                        {% else %}
+                                            <span class="text-muted">{% trans "Pasajero No Registrado" %}</span>
+                                        {% endif %}
+                                    {% endwith %}
                                 {% else %}
                                     {{ reserva.tipo }}
                                 {% endif %}
@@ -169,25 +172,24 @@
                             <td class="text-center">
                                 <div class="dropdown">
                                     <button class="btn btn-primary btn-sm dropdown-toggle" type="button" id="dropdownMenuButton{{ reserva.id }}" data-bs-toggle="dropdown" aria-expanded="false">
-                                        Acciones
+                                        {% trans "Acciones" %}
                                     </button>
                                     <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton{{ reserva.id }}">
-                                        <li><a class="dropdown-item" href="#"><i class="fas fa-eye"></i> Ver</a></li>
-                                        <li><a class="dropdown-item" href="#"><i class="fas fa-pencil-alt"></i> Modificar</a></li>
-                                        <li><a class="dropdown-item" href="#" onclick="return confirm('¿Estás seguro de que deseas cancelar esta reserva?');"><i class="fas fa-times"></i> Cancelar</a></li>
-                                        <li><a class="dropdown-item" href="#"><i class="fas fa-ticket-alt"></i> Vaucher</a></li>
-                                        <li><a class="dropdown-item" href="#"><i class="fas fa-download"></i> Factura</a></li>
+                                        <li><a class="dropdown-item" href="#"><i class="fas fa-eye"></i> {% trans "Ver" %}</a></li>
+                                        <li><a class="dropdown-item" href="#"><i class="fas fa-pencil-alt"></i> {% trans "Modificar" %}</a></li>
+                                        <li><a class="dropdown-item" href="#" onclick="return confirm('{% trans "¿Estás seguro de que deseas cancelar esta reserva?" %}');"><i class="fas fa-times"></i> {% trans "Cancelar" %}</a></li>
+                                        <li><a class="dropdown-item" href="#"><i class="fas fa-ticket-alt"></i> {% trans "Voucher" %}</a></li>
+                                        <li><a class="dropdown-item" href="#"><i class="fas fa-download"></i> {% trans "Factura" %}</a></li>
                                     </ul>
                                 </div>
                             </td>
                         </tr>
                         {% empty %}
                         <tr>
-                            <td colspan="5" class="text-center">No hay reservas recientes.</td>
+                            <td colspan="5" class="text-center">{% trans "No hay reservas recientes." %}</td>
                         </tr>
                         {% endfor %}
                     </tbody>
-                    
                 </table>
             </div>
         </div>
@@ -199,19 +201,19 @@
             <div class="card fade-in">
                 <div class="card-header">
                     <h2 class="mb-0">
-                        <i class="fas fa-headset mr-2"></i>Soporte y Contacto
+                        <i class="fas fa-headset mr-2"></i>{% trans "Soporte y Contacto" %}
                     </h2>
                 </div>
                 <div class="card-body">
                     <button class="btn btn-primary btn-block mb-3" onclick="llamarServicioCliente()">
-                        <i class="fas fa-phone mr-2"></i>Llamar a Servicio al Cliente
-                    </button>                    
-                    <h3 class="mt-4 mb-3">Preguntas Frecuentes</h3>
+                        <i class="fas fa-phone mr-2"></i>{% trans "Llamar a Servicio al Cliente" %}
+                    </button>
+                    <h3 class="mt-4 mb-3">{% trans "Preguntas Frecuentes" %}</h3>
                     <ul class="list-unstyled">
-                        <li class="mb-2"><i class="fas fa-question-circle mr-2"></i>¿Cómo puedo cancelar una reserva?</li>
-                        <li class="mb-2"><i class="fas fa-question-circle mr-2"></i>¿Cuál es la política de reembolso?</li>
-                        <li class="mb-2"><i class="fas fa-question-circle mr-2"></i>¿Cómo puedo modificar mi reserva?</li>
-                        <li><i class="fas fa-question-circle mr-2"></i>¿Cómo funciona el sistema de puntos?</li>
+                        <li class="mb-2"><i class="fas fa-question-circle mr-2"></i>{% trans "¿Cómo puedo cancelar una reserva?" %}</li>
+                        <li class="mb-2"><i class="fas fa-question-circle mr-2"></i>{% trans "¿Cuál es la política de reembolso?" %}</li>
+                        <li class="mb-2"><i class="fas fa-question-circle mr-2"></i>{% trans "¿Cómo puedo modificar mi reserva?" %}</li>
+                        <li><i class="fas fa-question-circle mr-2"></i>{% trans "¿Cómo funciona el sistema de puntos?" %}</li>
                     </ul>
                 </div>
             </div>
@@ -222,7 +224,7 @@
             <div class="card fade-in">
                 <div class="card-header">
                     <h2 class="mb-0">
-                        <i class="fas fa-chart-bar mr-2"></i>Estadísticas de Reservas
+                        <i class="fas fa-chart-bar mr-2"></i>{% trans "Estadísticas de Reservas" %}
                     </h2>
                 </div>
                 <div class="card-body">
@@ -240,7 +242,7 @@
 function toggleOfferDetails(offerId) {
     const card = document.getElementById(`offer-card-${offerId}`);
     const details = document.getElementById(`offer-details-${offerId}`);
-    const verMasBtn =  card.querySelector('.ver-mas-btn');
+    const verMasBtn = card.querySelector('.ver-mas-btn');
     const icon = verMasBtn.querySelector('i');
     const text = verMasBtn.querySelector('span');
 
@@ -248,12 +250,12 @@ function toggleOfferDetails(offerId) {
         card.classList.remove('expanded');
         details.style.display = 'none';
         icon.classList.replace('fa-chevron-up', 'fa-chevron-down');
-        text.textContent = 'Ver Más';
+        text.textContent = '{% trans "Ver Más" %}';
     } else {
         card.classList.add('expanded');
         details.style.display = 'block';
         icon.classList.replace('fa-chevron-down', 'fa-chevron-up');
-        text.textContent = 'Ver Menos';
+        text.textContent = '{% trans "Ver Menos" %}';
     }
 }
 
@@ -305,14 +307,14 @@ document.addEventListener('DOMContentLoaded', function() {
                     feeInfo.style.display = 'block';
                     editProfileBtn.style.display = 'inline-block';
 
-                    showNotification('Perfil actualizado con éxito', 'success');
+                    showNotification('{% trans "Perfil actualizado con éxito" %}', 'success');
                 } else {
-                    showNotification('Error al actualizar el perfil', 'error');
+                    showNotification('{% trans "Error al actualizar el perfil" %}', 'error');
                 }
             })
             .catch(error => {
-                console.error('Error:', error);
-                showNotification('Error al actualizar el perfil', 'error');
+                console.error('{% trans "Error:" %}', error);
+                showNotification('{% trans "Error al actualizar el perfil" %}', 'error');
             });
         });
     }
@@ -329,22 +331,22 @@ document.addEventListener('DOMContentLoaded', function() {
         data: {
             labels: labels,
             datasets: [{
-                label: 'Número de Reservas',
+                label: '{% trans "Número de Reservas" %}',
                 data: dataReservas,
                 backgroundColor: 'rgba(75, 192, 192, 0.6)',
                 borderColor: 'rgba(75, 192, 192, 1)',
                 borderWidth: 1,
                 yAxisID: 'y-axis-1'
             }, {
-                label: 'Ingresos ($)',
-                data: dataIngresos.map(Number), // Convierte valores a números
+                label: '{% trans "Ingresos ($)" %}',
+                data: dataIngresos.map(Number),
                 backgroundColor: 'rgba(255, 159, 64, 0.6)',
                 borderColor: 'rgba(255, 159, 64, 1)',
                 borderWidth: 1,
                 yAxisID: 'y-axis-2'
             }, {
-                label: 'Deudas ($)',
-                data: dataDeudas.map(Number), // Convierte valores a números
+                label: '{% trans "Deudas ($)" %}',
+                data: dataDeudas.map(Number),
                 backgroundColor: 'rgba(255, 0, 0, 0.6)',
                 borderColor: 'rgba(255, 0, 0, 1)',
                 borderWidth: 1,
@@ -359,49 +361,54 @@ document.addEventListener('DOMContentLoaded', function() {
                     display: true,
                     position: 'left',
                     id: 'y-axis-1',
-                    ticks: {
-                        beginAtZero: true,
-                    },
-                    scaleLabel: {
-                        display: true,
-                        labelString: 'Número de Reservas'
-                    }
+                    ticks: { beginAtZero: true },
+                    scaleLabel: { display: true, labelString: '{% trans "Número de Reservas" %}' }
                 }, {
                     type: 'linear',
                     display: true,
                     position: 'right',
                     id: 'y-axis-2',
-                    ticks: {
-                        beginAtZero: true,
-                    },
-                    gridLines: {
-                        drawOnChartArea: false,
-                    },
-                    scaleLabel: {
-                        display: true,
-                        labelString: 'Monto ($)'
-                    }
+                    ticks: { beginAtZero: true },
+                    gridLines: { drawOnChartArea: false },
+                    scaleLabel: { display: true, labelString: '{% trans "Monto ($)" %}' }
                 }],
                 xAxes: [{
-                    gridLines: {
-                        display: false
-                    }
+                    gridLines: { display: false }
                 }]
             }
         }
     });
-
 });
 
 function showNotification(message, type) {
-    // Implementar la lógica para mostrar notificaciones
-    alert(message);
+    // Ejemplo con Bootstrap Toast (puedes personalizarlo)
+    const toastContainer = document.getElementById('toast-container') || createToastContainer();
+    const toastEl = document.createElement('div');
+    toastEl.className = 'toast align-items-center text-bg-' + (type === 'success' ? 'success' : (type === 'error' ? 'danger' : 'info')) + ' border-0';
+    toastEl.setAttribute('role', 'alert');
+    toastEl.setAttribute('aria-live', 'assertive');
+    toastEl.setAttribute('aria-atomic', 'true');
+    toastEl.innerHTML = `
+      <div class="d-flex">
+        <div class="toast-body">${message}</div>
+        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="{% trans 'Cerrar' %}"></button>
+      </div>
+    `;
+    toastContainer.appendChild(toastEl);
+    var toast = new bootstrap.Toast(toastEl, { delay: 3000 });
+    toast.show();
+}
+
+function createToastContainer() {
+    const container = document.createElement('div');
+    container.id = 'toast-container';
+    container.className = 'toast-container position-fixed bottom-0 end-0 p-3';
+    document.body.appendChild(container);
+    return container;
 }
 
 function llamarServicioCliente() {
-    // Implementar la lógica para llamar al servicio al cliente
-    alert('De momento todas sus dudas seran alcradas en el +1 (786) 624 8010 RUTAMULTISERVICE...');
+    alert('{% trans "De momento todas sus dudas serán atendidas al +1 (786) 624 8010 RUTAMULTISERVICE..." %}');
 }
-
 </script>
 {% endblock %}

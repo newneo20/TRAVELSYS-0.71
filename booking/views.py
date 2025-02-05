@@ -31,9 +31,9 @@ from backoffice.models import (
     TasaCambio,Ubicacion, Traslado, Transportista, Vehiculo
 )
 from usuarios.models import CustomUser
-from backoffice.funciones_externas import (enviar_correo, calcular_precio_total_por_mes, contar_reservas_por_mes, ChequearIntervalos, obtener_ofertas_mas_baratas)
+from backoffice.funciones_externas import (calcular_precio_total_por_mes, contar_reservas_por_mes, ChequearIntervalos, obtener_ofertas_mas_baratas)
 from .forms import PoloTuristicoForm, ProveedorForm, CadenaHoteleraForm, ReservaForm, PasajeroForm, HabitacionForm, OfertasEspecialesForm
-
+from . import funciones_externas_booking
 
 @login_required
 def check_session_status(request):
@@ -959,58 +959,6 @@ def hotel_pago_reserva(request, hotel_id):
     
     return render(request, 'booking/hotel/hotel_pago_reserva.html', context)
 
-# Función para enviar un correo de confirmación de la reserva
-def correo_confirmacion(reserva): 
-    hotel = reserva.hotel
-    proveedor = hotel.proveedor
-
-    # Filtrar los pasajeros relacionados con la reserva
-    pasajeros = Pasajero.objects.filter(habitacion__reserva=reserva)
-    
-    habitaciones = HabitacionReserva.objects.filter(reserva=reserva)
-    
-    agencia = {
-        "nombre": "Viajes Felices S.A.",
-        "direccion": "Calle Principal 123, Ciudad Turística",
-        "usuario": "agente001",
-        "email": "agente001@viajesfelices.com"
-    }
-    
-    encabezado = "Muchas gracias por reservar con RUTA MULTISERVICE, estamos procesando su solicitud:"
-
-    # Preparar el contenido del correo
-    contenido = f"""
-    Reserva para el hotel: {hotel.hotel_nombre}
-    Fechas de viaje: {habitaciones[0].fechas_viaje if habitaciones else 'No especificadas'}
-    Número de habitaciones: {habitaciones.count()}
-    Número total de pasajeros: {pasajeros.count()}
-    Precio total: ${reserva.precio_total}
-    
-    Detalles de las habitaciones:
-    """
-    
-    # Agregar detalles de las habitaciones al correo
-    for habitacion in habitaciones:
-        contenido += f"""
-        Habitación: {habitacion.habitacion_nombre}
-        Adultos: {habitacion.adultos}
-        Niños: {habitacion.ninos}
-        Precio: ${habitacion.precio}
-        """
-    
-    # Agregar detalles de los pasajeros al correo
-    contenido += "\nDetalles de los pasajeros:\n"
-    for pasajero in pasajeros:
-        contenido += f"""
-        Nombre: {pasajero.nombre}
-        Tipo: {'Adulto' if pasajero.tipo == 'adulto' else 'Niño'}
-        Pasaporte: {pasajero.pasaporte}
-        """
-
-    # Enviar el correo de confirmación
-    # Elimina 'contenido' y 'proveedor.correo1' de la llamada
-    enviar_correo(reserva, pasajeros, habitaciones, reserva.email_empleado, encabezado)
-
 # Vista para completar la solicitud de reserva
 @transaction.atomic
 def complete_solicitud(request, hotel_id):
@@ -1225,7 +1173,7 @@ def complete_solicitud(request, hotel_id):
         reserva.save()
 
         # Enviar correo de confirmación
-        correo_confirmacion(reserva)
+        funciones_externas_booking.correo_confirmacion_reserva(reserva)
 
         messages.success(request, 'Reserva completada con éxito.')
         return redirect('booking:user_dashboard')
@@ -1459,7 +1407,7 @@ def guardar_remesa(request):
 
 
 # ================================================================================================== #
-# -------------------------------- Sección: Reservas Hoteles --------------------------------------- #
+# -------------------------------- Sección: Reservas Traslados ------------------------------------- #
 # ================================================================================================== #
 
 @login_required
@@ -1544,48 +1492,30 @@ def result_traslados(request):
         return render(request, 'booking/traslados/result_traslados.html', context)  # Cambiado a result_traslados.html
     
     else:
-        print('NO FUE UN POST')
+        print('NO FUE UN POST (result_traslados)')
         # Opcional: Redirigir al formulario de búsqueda si se accede a esta vista por GET
         return redirect('booking:result_traslados') # Redirigir al formulario de búsqueda  # Asegúrate de tener esta URL configurada
-    
 
+@login_required    
 def detalle_traslados(request, traslado_id):
     transportistas = Transportista.objects.all()
     ubicaciones = Ubicacion.objects.all()
     vehiculos = Vehiculo.objects.all()
     traslado = get_object_or_404(Traslado, id=traslado_id)
+    hoteles = Hotel.objects.all()
+
     
     if request.method == 'POST':
         print('ES UN POST')
 
         # Obtener los datos del formulario
-        tipologia = request.POST.get('tipologia')
-        origen = request.POST.get('origen')
-        destino = request.POST.get('destino')
-        fecha_traslado = request.POST.get('fecha_traslado')
-        adultos = request.POST.get('adultos')
-        ninos = request.POST.get('ninos')
-        infantes = request.POST.get('infantes')
-        
-        # CALCULO DEL PAX
-        try:
-            pax = int(adultos) + int(ninos) + int(infantes)
-        except (ValueError, TypeError):
-            pax = 0
-            messages.error(request, "Cantidad de pasajeros inválida.")
-            return redirect('booking:result_traslados')
-
-        # VALIDACIONES ADICIONALES
-        if pax < 1:
-            messages.error(request, "El número total de pasajeros debe ser al menos 1.")
-            return redirect('booking:result_traslados')
-
-        # LISTA DE TRASLADOS
-        try:
-            lista_traslados = buscar_traslados(pax, origen, destino)
-        except Exception as e:
-            messages.error(request, f"Error al buscar traslados: {e}")
-            lista_traslados = Traslado.objects.none()
+        tipologia = request.POST.get('tipologia', '')
+        origen = request.POST.get('origen', '')
+        destino = request.POST.get('destino', '')
+        fecha_traslado = request.POST.get('fecha_traslado', '')
+        adultos = request.POST.get('adultos', '0')
+        ninos = request.POST.get('ninos', '0')
+        infantes = request.POST.get('infantes', '0')
 
         # PRINTS para la depuración
         print(f"Tipología: {tipologia}")
@@ -1595,11 +1525,34 @@ def detalle_traslados(request, traslado_id):
         print(f"Adultos: {adultos}")
         print(f"Niños: {ninos}")
         print(f"Infantes: {infantes}")
+
+        # CALCULO DEL PAX
+        try:
+            pax = int(adultos) + int(ninos) + int(infantes)
+        except (ValueError, TypeError):
+            print('Error en cálculo PAX')
+            pax = 0
+            messages.error(request, "Cantidad de pasajeros inválida.")
+            return redirect('booking:result_traslados')
+
+        # VALIDACIONES ADICIONALES
+        if pax < 1:
+            print('PAX menor que 1')
+            messages.error(request, "El número total de pasajeros debe ser al menos 1.")
+            return redirect('booking:result_traslados')
+
+        # PRINTS para la depuración
         print(f"PAX: {pax}")
-        print(f"LISTA DE TRASLADOS: {lista_traslados}")
-        print("--------- DETALLES ----------------")
         print(f"Traslado: {traslado}")
+
+        origen = Ubicacion.objects.get(id=origen)
+        hoteles_origen = obtener_hoteles_por_polo(origen.nombre)
+        hoteles_destino = obtener_hoteles_por_polo(destino)
         
+        calificacion_origen = clasificar_destinos(origen.nombre)          
+        calificacion_destino = clasificar_destinos(destino)               
+
+
         context = {
             'tipologia': tipologia,
             'origen': origen,
@@ -1611,9 +1564,13 @@ def detalle_traslados(request, traslado_id):
             'pax': pax,
             'transportistas': transportistas,
             'ubicaciones': ubicaciones,
-            'vehiculos': vehiculos,
-            'traslados': lista_traslados,
+            'vehiculos': vehiculos,            
             'traslado': traslado,
+            'hoteles': hoteles, 
+            'hoteles_origen': hoteles_origen, 
+            'hoteles_destino': hoteles_destino,
+            'calificacion_origen': calificacion_origen,
+            'calificacion_destino': calificacion_destino
         }
 
         return render(request, 'booking/traslados/detalle_traslados.html', context)
@@ -1621,9 +1578,189 @@ def detalle_traslados(request, traslado_id):
     else:    
         print('NO FUE UN POST')
         messages.error(request, "Acceso inválido a detalles de traslado.")
-        return render(request, 'booking/traslados/error_page.html')  # Crea esta página
+        return render(request, 'booking/traslados/error_page.html')  # Muestra un mensaje en vez de redirigir
+
+@login_required    
+def reserva_traslados(request, traslado_id):
+    transportistas = Transportista.objects.all()
+    ubicaciones = Ubicacion.objects.all()
+    vehiculos = Vehiculo.objects.all()
+    traslado = get_object_or_404(Traslado, id=traslado_id)
+    hoteles = Hotel.objects.all()
+
+    
+    if request.method == 'POST':
+        print('ES UN POST ( reserva_traslados )')
+
+        # Obtener los datos del formulario
+        tipologia = request.POST.get('tipologia', '')
+        origen = request.POST.get('origen', '')
+        destino = request.POST.get('destino', '')
+        fecha_traslado = request.POST.get('fecha_traslado', '')
+        adultos = request.POST.get('adultos', '0')
+        ninos = request.POST.get('ninos', '0')
+        infantes = request.POST.get('infantes', '0')
+
+        # PRINTS para la depuración
+        print(f"Tipología: {tipologia}")
+        print(f"Origen ID: {origen}")
+        print(f"Destino Nombre: {destino}")
+        print(f"Fecha de traslado: {fecha_traslado}")
+        print(f"Adultos: {adultos}")
+        print(f"Niños: {ninos}")
+        print(f"Infantes: {infantes}")
+
+        # CALCULO DEL PAX
+        try:
+            pax = int(adultos) + int(ninos) + int(infantes)
+        except (ValueError, TypeError):
+            print('Error en cálculo PAX')
+            pax = 0
+            messages.error(request, "Cantidad de pasajeros inválida.")
+            return redirect('booking:result_traslados')
+
+        # VALIDACIONES ADICIONALES
+        if pax < 1:
+            print('PAX menor que 1')
+            messages.error(request, "El número total de pasajeros debe ser al menos 1.")
+            return redirect('booking:result_traslados')
+
+        # PRINTS para la depuración
+        print(f"PAX: {pax}")
+        print(f"Traslado: {traslado}")
+
+        origen = Ubicacion.objects.get(id=origen)
+        hoteles_origen = obtener_hoteles_por_polo(origen.nombre)
+        hoteles_destino = obtener_hoteles_por_polo(destino)
+        
+        calificacion_origen = clasificar_destinos(origen.nombre)          
+        calificacion_destino = clasificar_destinos(destino)               
 
 
+        context = {
+            'tipologia': tipologia,
+            'origen': origen,
+            'destino': destino,
+            'fecha_traslado': fecha_traslado,
+            'adultos': adultos,
+            'ninos': ninos,
+            'infantes': infantes,
+            'pax': pax,
+            'transportistas': transportistas,
+            'ubicaciones': ubicaciones,
+            'vehiculos': vehiculos,            
+            'traslado': traslado,
+            'hoteles': hoteles, 
+            'hoteles_origen': hoteles_origen, 
+            'hoteles_destino': hoteles_destino,
+            'calificacion_origen': calificacion_origen,
+            'calificacion_destino': calificacion_destino
+        }
+
+        return render(request, 'booking/traslados/reserva_traslados.html', context)
+
+    else:    
+        print('NO FUE UN POST ( reserva_traslados )')
+        messages.error(request, "Acceso inválido a detalles de traslado.")
+        return render(request, 'booking/traslados/error_page.html')  # Muestra un mensaje en vez de redirigir
+    
+def clasificar_destinos(destino):
+    destino_upper = destino.upper().strip()  # Convertir a mayúsculas y eliminar espacios extra
+
+    if "HOTEL" in destino_upper or "HOTELES" in destino_upper:
+        return "HOTEL"
+    elif "AEROPUERTO" in destino_upper:
+        return "AEROPUERTO"
+    else:
+        return "OTRO"
+
+def obtener_hoteles_por_polo(destino):
+    # Extraer el polo eliminando "HOTELES"
+    if "HOTELES" in destino:
+        print("-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+")
+        print("Destino SIII contiene 'HOTELES', mostrando todos los hoteles.")
+        polo = destino.replace("HOTELES", "").strip()
+        print(f"POLO: {polo}")
+        # Buscar si el polo existe en la base de datos
+        polo_obj = PoloTuristico.objects.filter(nombre__icontains=polo).first()
+
+        if polo_obj:
+            print("SIII se encontró el polo turístico, mostrando todos los hoteles.")
+            # Si se encuentra el polo, obtener los hoteles de ese polo
+            hoteles = Hotel.objects.filter(polo_turistico=polo_obj)
+            print(f"Hoteles encontrados en {polo_obj.nombre}: {[hotel.hotel_nombre for hotel in hoteles]}")
+            return hoteles
+        else:
+            # Si no se encuentra el polo, obtener todos los hoteles
+            print("No se encontró el polo turístico, mostrando todos los hoteles.")
+            return Hotel.objects.all()
+    else:
+        print("-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+")
+        print("Destino no contiene 'HOTELES', mostrando todos los hoteles.")
+        return Hotel.objects.all()
+
+
+@transaction.atomic
+def complete_solicitud_traslado(request, traslado_id):
+    traslado = get_object_or_404(Traslado, id=traslado_id)
+
+    if request.method == 'POST':
+        post_data = request.POST
+
+        nombre_usuario = f"{request.user.agencia}"
+        email_empleado = post_data.get('email_empleado', '')
+        notas = post_data.get('notas', '')
+        fecha_traslado = post_data.get('fecha_traslado', '')
+        precio_total = post_data.get('precio', '')
+
+        # Convertir precio total a Decimal
+        try:
+            precio_total = Decimal(precio_total.replace(',', '.'))
+        except ValueError:
+            messages.error(request, "El precio total no es válido.")
+            return redirect('reserva_traslados', traslado_id=traslado.id)
+
+        # ============================ #
+        # Crear la reserva de traslado #
+        # ============================ #
+        reserva = Reserva.objects.create(
+            traslado=traslado,
+            fecha_reserva=timezone.now(),
+            nombre_usuario=nombre_usuario,
+            email_empleado=email_empleado,
+            notas=notas,
+            costo_sin_fee=precio_total,   
+            costo_total=precio_total,     
+            precio_total=precio_total,    
+            tipo='traslados',
+            estatus='solicitada'
+        )
+
+        # ======================================== #
+        # Guardar el pasajero asociado al traslado #
+        # ======================================== #
+        Pasajero.objects.create(
+            traslado=traslado,  # Asociar con traslado
+            nombre=post_data.get("nombre_adulto", ""),
+            fecha_nacimiento=post_data.get("fecha_nacimiento", None),
+            pasaporte=post_data.get("pasaporte", ""),
+            caducidad_pasaporte=post_data.get("caducidad", None),
+            pais_emision_pasaporte=post_data.get("pais_emision", ""),
+            email=post_data.get("email_adulto", ""),
+            telefono=post_data.get("telefono_adulto", ""),
+            tipo='adulto'  # Se asume que el pasajero es adulto
+        )
+        
+        # Enviar correo de confirmación
+        funciones_externas_booking.correo_confirmacion_reserva(reserva)
+
+        messages.success(request, 'Reserva de traslado completada con éxito.')
+        return redirect('booking:user_dashboard')
+
+    return redirect('reserva_traslados', traslado_id=traslado.id)
+
+
+    
 def error_page(request):
     return render(request, 'booking/traslados/error_page.html')
 
@@ -1662,7 +1799,6 @@ def buscar_traslados(pax, origen_id, destino_nombre):
 
     return traslados
         
-
 def obtener_destinos(request):
     """ Devuelve los destinos disponibles según el origen seleccionado sin duplicados """
     origen_id = request.GET.get('origen_id')
